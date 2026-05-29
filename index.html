@@ -10,12 +10,12 @@
 <title>Training Log</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600&display=swap');
-:root{--bg:#F5F4F0;--bg2:#FFFFFF;--bg3:#EEEDE9;--bg4:#E2E1DC;--border:#DDDCD7;--border2:#CCCBC5;--text:#1A1A18;--text2:#6B6B66;--text3:#AAAAAA;--teal:#0F6E56;--teal-dim:#0a4f3e;--teal-bright:#1D9E75;--purple:#4A44B0;--amber:#C47C00;--blue:#1A5FA0;--red:#C0392B;--safe-top:env(safe-area-inset-top,0px);--safe-bottom:env(safe-area-inset-bottom,0px);--font:'DM Sans',sans-serif;--mono:'DM Mono',monospace}
+:root{--bg:#F7F8FA;--bg2:#FFFFFF;--bg3:#F0F2F5;--bg4:#E4E7EC;--border:#E4E7EC;--border2:#D1D5DB;--text:#111827;--text2:#6B7280;--text3:#9CA3AF;--teal:#059669;--teal-dim:#047857;--teal-bright:#10B981;--purple:#6366F1;--amber:#D97706;--blue:#2563EB;--red:#DC2626;--safe-top:env(safe-area-inset-top,0px);--safe-bottom:env(safe-area-inset-bottom,0px);--font:'DM Sans',sans-serif;--mono:'DM Mono',monospace}
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;min-height:-webkit-fill-available;overflow-x:hidden}
 .nav{position:fixed;bottom:0;left:0;right:0;background:var(--bg2);border-top:1px solid var(--border);display:flex;padding-bottom:var(--safe-bottom);z-index:100}
 .nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;padding:10px 0 8px;gap:4px;background:none;border:none;color:var(--text3);font-family:var(--font);font-size:10px;font-weight:500;cursor:pointer;transition:color .2s}
-.nav-btn.active{color:var(--teal-bright)}
+.nav-btn.active{color:var(--teal)}
 .nav-btn svg{width:22px;height:22px}
 .page{display:none;padding-top:calc(var(--safe-top) + 88px);padding-bottom:calc(var(--safe-bottom) + 70px);min-height:100vh}
 .page.active{display:block}
@@ -25,10 +25,10 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 .card{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:16px;margin:0 16px 12px}
 .btn{border:none;border-radius:10px;padding:12px 18px;font-family:var(--font);font-weight:500;font-size:14px;cursor:pointer;transition:opacity .15s,transform .1s}
 .btn:active{transform:scale(.97);opacity:.85}
-.btn-primary{background:var(--teal);color:#fff}
+.btn-primary{background:var(--teal);color:#fff;box-shadow:0 1px 4px rgba(5,150,105,.25)}
 .btn-ghost{background:var(--bg3);color:var(--text);border:1px solid var(--border2)}
 .btn-danger{background:#FDECEA;color:var(--red);border:1px solid #F5C0BB}
-.btn-amber{background:#FEF3E2;color:var(--amber);border:1px solid #4a3000}
+.btn-amber{background:#FFFBEB;color:var(--amber);border:1px solid #4a3000}
 .btn-full{width:100%}
 input,select,textarea{background:var(--bg3);border:1px solid var(--border2);border-radius:10px;color:var(--text);font-family:var(--font);font-size:15px;padding:12px 14px;width:100%;-webkit-appearance:none;outline:none;transition:border-color .2s}
 input:focus,select:focus{border-color:var(--teal)}
@@ -39,13 +39,13 @@ label{font-size:12px;color:var(--text2);font-weight:500;margin-bottom:6px;displa
 .g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
 .sec-label{font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;padding:0 20px;margin:16px 0 8px}
 .phase-pill{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:20px;font-size:12px;font-weight:500}
-.ph1{background:#E8F7F2;color:var(--teal-bright)}
-.ph2{background:#EEEDF8;color:var(--purple)}
-.ph3{background:#FEF3E2;color:var(--amber)}
-.ph4{background:#E8F2FC;color:var(--blue)}
+.ph1{background:#ECFDF5;color:var(--teal-bright)}
+.ph2{background:#EEF2FF;color:var(--purple)}
+.ph3{background:#FFFBEB;color:var(--amber)}
+.ph4{background:#EFF6FF;color:var(--blue)}
 .stats-row{display:flex;gap:8px;padding:0 16px;margin-bottom:12px;overflow-x:auto;scrollbar-width:none}
 .stats-row::-webkit-scrollbar{display:none}
-.stat-card{flex-shrink:0;background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:12px 14px;min-width:100px}
+.stat-card{flex-shrink:0;background:var(--bg2);border:1px solid var(--border);box-shadow:0 1px 3px rgba(0,0,0,.05);border-radius:12px;padding:12px 14px;min-width:100px}
 .stat-val{font-size:22px;font-weight:600;font-family:var(--mono)}
 .stat-lbl{font-size:11px;color:var(--text2);margin-top:2px}
 .ex-row{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--border)}
@@ -84,7 +84,7 @@ label{font-size:12px;color:var(--text2);font-weight:500;margin-bottom:6px;displa
 @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 
 /* ── ACTIVE SESSION ── */
-.session-overlay{display:none;position:fixed;inset:0;background:var(--bg);z-index:500;flex-direction:column;overflow:hidden;box-shadow:inset 0 0 0 1px var(--border)}
+.session-overlay{display:none;position:fixed;inset:0;background:var(--bg2);z-index:500;flex-direction:column;overflow:hidden;box-shadow:inset 0 0 0 1px var(--border)}
 .session-overlay.open{display:flex}
 .sess-topbar{display:flex;align-items:center;justify-content:space-between;padding:calc(var(--safe-top) + 14px) 20px 14px;border-bottom:1px solid var(--border);flex-shrink:0}
 .sess-topbar-title{font-size:15px;font-weight:600}
@@ -99,7 +99,7 @@ label{font-size:12px;color:var(--text2);font-weight:500;margin-bottom:6px;displa
 .ex-dot.skipped{background:var(--text3)}
 
 /* Current exercise card */
-.curr-ex-card{margin:0 16px 12px;background:var(--bg2);border:1px solid var(--border);border-radius:16px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+.curr-ex-card{margin:0 16px 12px;background:var(--bg2);border:1px solid var(--border);border-radius:16px;overflow:hidden;box-shadow:0 1px 6px rgba(0,0,0,.08)}
 .curr-ex-header{padding:14px 16px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:flex-start}
 .curr-ex-name{font-size:18px;font-weight:600}
 .curr-ex-target{font-size:12px;color:var(--teal-bright);font-family:var(--mono);margin-top:3px}
@@ -132,7 +132,7 @@ label{font-size:12px;color:var(--text2);font-weight:500;margin-bottom:6px;displa
 .timer-add-btn{padding:10px 14px;border-radius:10px;background:var(--bg3);color:var(--text2);border:1px solid var(--border2);font-family:var(--font);font-size:13px;cursor:pointer}
 
 /* Cluster buttons */
-.cluster-area{margin:0 16px 12px;background:#FEF9F0;border:1px solid #E8D4A0;border-radius:16px;padding:14px}
+.cluster-area{margin:0 16px 12px;background:#FFFBEB;border:1px solid #FDE68A;border-radius:16px;padding:14px}
 .cluster-title{font-size:13px;font-weight:500;color:var(--text2);margin-bottom:10px}
 .cluster-progress{display:flex;gap:6px;margin-bottom:12px}
 .cluster-dot{width:28px;height:28px;border-radius:50%;background:var(--bg4);display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--text3);font-family:var(--mono);transition:all .3s}
@@ -144,7 +144,7 @@ label{font-size:12px;color:var(--text2);font-weight:500;margin-bottom:6px;displa
 .cluster-reps-label{font-size:13px;color:var(--text2)}
 
 /* Between exercise banner */
-.between-ex-banner{margin:0 16px 12px;background:linear-gradient(135deg,#EEEDF8,#F0EFF9);border:1px solid #C5C2E8;border-radius:16px;padding:16px;text-align:center}
+.between-ex-banner{margin:0 16px 12px;background:linear-gradient(135deg,#EEF2FF,#F5F3FF);border:1px solid #C7D2FE;border-radius:16px;padding:16px;text-align:center}
 .between-ex-next{font-size:12px;color:var(--purple);text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px}
 .between-ex-name{font-size:18px;font-weight:600;color:#fff;margin-bottom:2px}
 .between-ex-target{font-size:12px;color:var(--purple);font-family:var(--mono)}
@@ -165,7 +165,6 @@ label{font-size:12px;color:var(--text2);font-weight:500;margin-bottom:6px;displa
     </div>
     <div style="display:flex;gap:8px;align-items:center;">
       <div style="font-size:12px;color:var(--text2);" id="sess-ex-counter">Übung 1/6</div>
-      <button id="deload-toggle-btn" style="padding:6px 10px;font-size:11px;font-weight:600;border-radius:8px;border:1px solid var(--border2);background:var(--bg3);color:var(--text3);cursor:pointer;" onclick="toggleDeload()">DELOAD</button>
       <button class="btn btn-danger" style="padding:8px 12px;font-size:12px;" onclick="confirmEndSession()">Beenden</button>
     </div>
   </div>
@@ -179,7 +178,7 @@ label{font-size:12px;color:var(--text2);font-weight:500;margin-bottom:6px;displa
     <div class="page-sub" id="today-date"></div>
   </div>
   <div style="padding:16px 16px 0;">
-    <div class="card" id="phase-card" style="border-color:#1D9E75;background:#E8F7F2;cursor:pointer;" onclick="openPhaseSheet()">
+    <div class="card" id="phase-card" style="border-color:#059669;background:#ECFDF5;cursor:pointer;" onclick="openPhaseSheet()">
       <div style="display:flex;align-items:center;justify-content:space-between;">
         <span class="phase-pill ph1" id="current-phase-pill">Phase 1 · Basis & Recomp</span>
         <span style="font-size:12px;color:var(--text3);font-family:var(--mono);" id="phase-week-count"></span>
@@ -868,6 +867,27 @@ function getVariation(phaseNum, sessionKey, exName){
   return sess[exName]||null;
 }
 
+
+// Übungen die Aufwärmsätze bekommen
+const NEEDS_WARMUP_SETS = ['Flat Bankdrücken','Back Squat','RDL'];
+
+function needsWarmupSets(exName){
+  return NEEDS_WARMUP_SETS.some(n=>exName.toLowerCase().includes(n.toLowerCase().split(' ')[0]));
+}
+
+function getWarmupSetConfig(ex){
+  // 2 Aufwärmsätze: 40% & 75% des Arbeitsgewichts
+  if(!ex.weight) return null;
+  return [
+    {weight:Math.round(ex.weight*0.4/2.5)*2.5, reps:10, label:'Aufwärmsatz 1'},
+    {weight:Math.round(ex.weight*0.75/2.5)*2.5, reps:6,  label:'Aufwärmsatz 2'},
+  ];
+}
+
+function getWarmupPhase(exIdx){
+  return AS.warmupSetsPhase[exIdx]||0;
+}
+
 const PLAN = {
   'Upper A':{day:'Montag',type:'upper',duration:'40 min',note:'Bürotag · Volumen-Fokus',exercises:[
     {name:'Chin-ups',target:'3 Sets Cluster',sets:3,reps:'Cluster',unit:'reps',isCluster:true},
@@ -1013,6 +1033,7 @@ let AS = {
   deloadMode:false,
   warmupDone:false,
   cooldownShown:false,
+  warmupSetsPhase:{}, // {exIdx: 0|1|2} — 0=beide noch offen, 1=erster done, 2=beide done
 };
 
 const CIRCUMFERENCE = 2 * Math.PI * 65;
@@ -1037,11 +1058,6 @@ function quickStart(type, deload){
   AS.elapsedSeconds=0;AS.sessionNotes='';
   const _dn={'Zone 2':'Cardio','LeoMoves':'Functional'};
   document.getElementById('sess-title').textContent=(_dn[type]||type)+(deload?' · Deload':'');
-  // Update deload toggle button state
-  const dtb=document.getElementById('deload-toggle-btn');
-  dtb.style.background=deload?'#2e1e00':'var(--bg3)';
-  dtb.style.color=deload?'var(--amber)':'var(--text3)';
-  dtb.style.borderColor=deload?'#5a3a00':'var(--border2)';
   clearInterval(AS.elapsedInterval);
   AS.elapsedInterval=setInterval(()=>{AS.elapsedSeconds++;updateElapsed();},1000);
   document.getElementById('session-overlay').classList.add('open');
@@ -1062,7 +1078,7 @@ function askDeload(type){
         <div style="font-size:15px;font-weight:600;">Normal</div>
         <div style="font-size:12px;opacity:.75;margin-top:1px;">Plangewichte wie vorgesehen</div>
       </button>
-      <button class="btn btn-full" id="ask-deload" style="background:#FEF3E2;color:var(--amber);border:1px solid #E8B96A;text-align:left;padding:14px 16px;">
+      <button class="btn btn-full" id="ask-deload" style="background:#FFFBEB;color:var(--amber);border:1px solid #E8B96A;text-align:left;padding:14px 16px;">
         <div style="font-size:15px;font-weight:600;">Deload</div>
         <div style="font-size:12px;opacity:.75;margin-top:1px;">Alle Gewichte auf 60% reduziert</div>
       </button>
@@ -1089,11 +1105,8 @@ function toggleDeload(){
     if(exSets.length>=ex.sets) return ex; // already done, keep
     return adjusted[i]||ex;
   });
-  const dtb=document.getElementById('deload-toggle-btn');
-  dtb.style.background=AS.deloadMode?'#2e1e00':'var(--bg3)';
-  dtb.style.color=AS.deloadMode?'var(--amber)':'var(--text3)';
-  dtb.style.borderColor=AS.deloadMode?'#5a3a00':'var(--border2)';
-  document.getElementById('sess-title').textContent=AS.type+(AS.deloadMode?' · Deload':'');
+  const _dn2={'Zone 2':'Cardio','LeoMoves':'Functional'};
+  document.getElementById('sess-title').textContent=(_dn2[AS.type]||AS.type)+(AS.deloadMode?' · Deload':'');
   showToast(AS.deloadMode?'Deload-Modus an (60%)':'Deload-Modus aus');
   renderSessionBody();
 }
@@ -1123,22 +1136,41 @@ function renderSessionBody(){
   const dotsHTML=AS.exercises.map((e,i)=>`<div class="ex-dot ${i<AS.exIdx?'done':i===AS.exIdx?'active':''}"></div>`).join('');
 
   // Done sets for this exercise
-  const exSets=AS.doneSets.filter(s=>s.exIdx===AS.exIdx);
+  const exSets=AS.doneSets.filter(s=>s.exIdx===AS.exIdx); // all incl warmup (for display)
+  const exWorkSets=exSets.filter(s=>!s.isWarmup); // only working sets (for counting)
   const exSetIndices=AS.doneSets.reduce((arr,s,globalIdx)=>{if(s.exIdx===AS.exIdx)arr.push(globalIdx);return arr;},[]);
   const doneSetsHTML=exSets.map((s,i)=>`
-    <div class="set-done-row" style="position:relative;">
-      <span class="set-done-num">${i+1}</span>
-      <span class="set-done-vals">${s.weight?s.weight+'kg · ':''}${s.reps} ${ex.unit==='sek'?'sek':'Wdh'}</span>
-      <span class="set-done-rir" style="margin-left:auto;">${s.rir!==''&&s.rir!==null?s.rir+' RIR':''}</span>
-      <button onclick="deleteSet(${exSetIndices[i]})" style="background:none;border:none;padding:4px 6px;cursor:pointer;color:var(--text3);font-size:16px;line-height:1;margin-left:6px;" title="Satz löschen">✕</button>
+    <div class="set-done-row" style="position:relative;${s.isWarmup?'opacity:.65;':''}" >
+      <span class="set-done-num" style="${s.isWarmup?'color:var(--teal);':''}">
+        ${s.isWarmup?'WU'+(i+1):i+1-exSets.filter((x,j)=>j<i&&x.isWarmup).length}
+      </span>
+      <span class="set-done-vals">${s.weight?s.weight+'kg · ':''}${s.reps} ${ex.unit==='sek'?'sek':'Wdh'}${s.isWarmup?' <span style=\"font-size:10px;color:var(--teal);\">Aufwärm</span>':''}</span>
+      <span class="set-done-rir" style="margin-left:auto;">${s.rir&&s.rir!=='WU'?s.rir+' RIR':''}</span>
+      <button onclick="deleteSet(${exSetIndices[i]})" style="background:none;border:none;padding:4px 6px;cursor:pointer;color:var(--text3);font-size:16px;line-height:1;margin-left:6px;">✕</button>
     </div>`).join('');
 
-  const setsLeft=ex.sets-exSets.length;
+  const setsLeft=ex.sets-exWorkSets.length;
   const isCluster=ex.isCluster;
-  const isLastSet=exSets.length===ex.sets-1;
+  const isLastSet=exWorkSets.length===ex.sets-1;
+
+  // Check if warmup sets needed
+  const wuPhase=needsWarmupSets(ex.name)&&!AS.deloadMode?getWarmupPhase(AS.exIdx):2;
+  const wuConfig=wuPhase<2?getWarmupSetConfig(ex):null;
 
   let inputArea='';
-  if(isCluster){
+  if(wuConfig&&wuPhase<2){
+    // Show warmup set input
+    const wuSet=wuConfig[wuPhase];
+    inputArea=`<div class="set-input-area" style="background:#ECFDF522;border:1px solid #05966944;">
+      <div style="font-size:12px;font-weight:600;color:var(--teal);margin-bottom:10px;">${wuSet.label} · leicht · kein RIR-Tracking</div>
+      <div class="g3">
+        <div><label>kg</label><input type="number" id="inp-weight" placeholder="${wuSet.weight}" value="${wuSet.weight}" step="0.5" inputmode="decimal" style="text-align:center;font-size:16px;"></div>
+        <div><label>Wdh</label><input type="number" id="inp-reps" placeholder="${wuSet.reps}" value="${wuSet.reps}" inputmode="numeric" style="text-align:center;font-size:16px;"></div>
+        <div><label>—</label><input type="number" id="inp-rir" placeholder="—" disabled style="text-align:center;font-size:16px;background:var(--bg4);color:var(--text3);"></div>
+      </div>
+      <button class="btn btn-full" style="margin-top:10px;background:#ECFDF5;color:var(--teal);border:1px solid var(--teal);" onclick="warmupSetDone()">✓ Aufwärmsatz ${wuPhase+1} erledigt → kurze Pause</button>
+    </div>`;
+  } else if(isCluster){
     // Show done clusters + current active
     const totalDots=Math.max(3, AS.clusterCount+1);
     const clusterDots=Array.from({length:totalDots},(_,i)=>`<div class="cluster-dot ${i<AS.clusterCount?'done':i===AS.clusterCount?'active':''}"><span>${i+1}</span></div>`).join('');
@@ -1159,7 +1191,7 @@ function renderSessionBody(){
   } else {
     inputArea=`
       <div class="set-input-area" id="set-input-area">
-        <div style="font-size:13px;color:var(--text2);margin-bottom:10px;font-weight:500;">Satz ${exSets.length+1} von ${ex.sets}</div>
+        <div style="font-size:13px;color:var(--text2);margin-bottom:10px;font-weight:500;">Satz ${exSets.length+1} von ${ex.sets}${needsWarmupSets(ex.name)&&!AS.deloadMode?' <span style=\"font-size:10px;color:var(--teal);\">nach 2 Aufwärmsätzen</span>':''}</div>
         <div class="g3">
           <div><label>${ex.unit}</label><input type="number" id="inp-weight" placeholder="${ex.weight||'—'}" value="${ex.weight||''}" step="0.5" inputmode="decimal" style="text-align:center;font-size:16px;"></div>
           <div><label>Wdh</label><input type="number" id="inp-reps" placeholder="Wdh" inputmode="numeric" style="text-align:center;font-size:16px;"></div>
@@ -1180,16 +1212,16 @@ function renderSessionBody(){
           <div class="curr-ex-name">${ex.name}</div>
           <div class="curr-ex-target">${ex.target}</div>
           ${getExBadgeHTML(ex.name)}
-          ${(()=>{const ps=getPhaseSettings();const v=getVariation(ps.activePhase,AS.type,ex.name);return v?`<div style="margin-top:5px;font-size:11px;color:var(--blue);background:#E8F2FC;padding:3px 8px;border-radius:6px;display:inline-block;">↻ ${v}</div>`:''})()}
+          ${(()=>{const ps=getPhaseSettings();const v=getVariation(ps.activePhase,AS.type,ex.name);return v?`<div style="margin-top:5px;font-size:11px;color:var(--blue);background:#EFF6FF;padding:3px 8px;border-radius:6px;display:inline-block;">↻ ${v}</div>`:''})()}
         </div>
         <div style="font-size:12px;color:var(--text3);text-align:right;flex-shrink:0;margin-left:12px;">${setsLeft} Sätze<br>übrig</div>
       </div>
       <div class="curr-ex-body">
         ${doneSetsHTML}
-        ${exSets.length<ex.sets?inputArea:'<div style="color:var(--teal-bright);font-size:13px;font-weight:500;padding:8px 0;">✓ Alle Sätze abgeschlossen</div>'}
+        ${exWorkSets.length<ex.sets?inputArea:'<div style="color:var(--teal-bright);font-size:13px;font-weight:500;padding:8px 0;">✓ Alle Sätze abgeschlossen</div>'}
       </div>
     </div>
-    ${exSets.length>=ex.sets?`
+    ${exWorkSets.length>=ex.sets?`
       <div class="finish-btn-wrap">
         ${AS.exIdx<AS.exercises.length-1?`<button class="btn btn-primary btn-full" onclick="nextExercise()">Weiter → ${AS.exercises[AS.exIdx+1].name}</button>`:`<button class="btn btn-primary btn-full" onclick="finishSession()">Session abschließen ✓</button>`}
         ${AS.exIdx>0?`<button class="btn btn-ghost btn-full" onclick="goBackExercise()" style="margin-top:8px;color:var(--text2);">← Zurück zu ${AS.exercises[AS.exIdx-1].name}</button>`:''}
@@ -1209,14 +1241,14 @@ function renderWarmupScreen(){
   body.innerHTML=`
     <div class="ex-dots">${dotsHTML}</div>
     <div style="margin:0 16px 12px;background:var(--bg2);border:1px solid var(--border);border-radius:16px;overflow:hidden;">
-      <div style="padding:14px 16px;border-bottom:1px solid var(--border);background:#E8F7F2;">
+      <div style="padding:14px 16px;border-bottom:1px solid var(--border);background:#ECFDF5;">
         <div style="font-size:11px;font-weight:600;color:var(--teal);text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px;">Warm-up · ~7–10 min</div>
         <div style="font-size:17px;font-weight:600;">${AS.type}</div>
       </div>
       <div style="padding:14px 16px;">
         ${wu.warmup.map((step,i)=>`
           <div style="display:flex;gap:10px;align-items:flex-start;padding:8px 0;border-bottom:0.5px solid var(--border);">
-            <div style="width:22px;height:22px;border-radius:50%;background:#E8F7F2;color:var(--teal);font-size:11px;font-weight:600;display:flex;align-items:center;justify-content:center;flex-shrink:0;">${i+1}</div>
+            <div style="width:22px;height:22px;border-radius:50%;background:#ECFDF5;color:var(--teal);font-size:11px;font-weight:600;display:flex;align-items:center;justify-content:center;flex-shrink:0;">${i+1}</div>
             <div style="font-size:13px;color:var(--text);line-height:1.5;padding-top:2px;">${step}</div>
           </div>`).join('')}
         <button class="btn btn-primary btn-full" style="margin-top:14px;" onclick="skipWarmup()">
@@ -1243,14 +1275,14 @@ function renderCooldownScreen(){
 
   body.innerHTML=`
     <div style="margin:16px 16px 12px;background:var(--bg2);border:1px solid var(--border);border-radius:16px;overflow:hidden;">
-      <div style="padding:14px 16px;border-bottom:1px solid var(--border);background:#E8F2FC;">
+      <div style="padding:14px 16px;border-bottom:1px solid var(--border);background:#EFF6FF;">
         <div style="font-size:11px;font-weight:600;color:var(--blue);text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px;">Cool-down · ~5–7 min</div>
         <div style="font-size:17px;font-weight:600;">Training abgeschlossen 💪</div>
       </div>
       <div style="padding:14px 16px;">
         ${wu.cooldown.map((step,i)=>`
           <div style="display:flex;gap:10px;align-items:flex-start;padding:8px 0;border-bottom:0.5px solid var(--border);">
-            <div style="width:22px;height:22px;border-radius:50%;background:#E8F2FC;color:var(--blue);font-size:11px;font-weight:600;display:flex;align-items:center;justify-content:center;flex-shrink:0;">${i+1}</div>
+            <div style="width:22px;height:22px;border-radius:50%;background:#EFF6FF;color:var(--blue);font-size:11px;font-weight:600;display:flex;align-items:center;justify-content:center;flex-shrink:0;">${i+1}</div>
             <div style="font-size:13px;color:var(--text);line-height:1.5;padding-top:2px;">${step}</div>
           </div>`).join('')}
         <button class="btn btn-primary btn-full" style="margin-top:14px;" onclick="renderSessionFinish()">
@@ -1264,6 +1296,19 @@ function renderCooldownScreen(){
         </button>
       </div>
     </div>`;
+}
+
+
+function warmupSetDone(){
+  const w=document.getElementById('inp-weight').value;
+  const r=document.getElementById('inp-reps').value;
+  // Log as warmup set (flagged)
+  AS.doneSets.push({exIdx:AS.exIdx,weight:parseFloat(w)||null,reps:parseInt(r)||0,rir:'WU',isWarmup:true});
+  // Advance warmup phase
+  const phase=getWarmupPhase(AS.exIdx);
+  AS.warmupSetsPhase[AS.exIdx]=phase+1;
+  // Short 45 sec rest
+  startTimer(45,'Aufwärm-Pause','warmup');
 }
 
 // ── CLUSTER LOGIC ──
@@ -1358,16 +1403,64 @@ function setDone(){
   const ex=AS.exercises[AS.exIdx];
   const exSets=AS.doneSets.filter(s=>s.exIdx===AS.exIdx);
   const settings=getSettings();
-  if(exSets.length>=ex.sets){
-    // All sets done for this exercise
-    if(AS.exIdx<AS.exercises.length-1){
-      startTimer(settings.restBetweenEx,'Pause zwischen Übungen','between-ex');
-    } else {
-      renderSessionBody();
-    }
+  const workSets=exSets.filter(s=>!s.isWarmup);
+  if(workSets.length>=ex.sets){
+    // Last working set done → show decision screen
+    renderLastSetDecision();
   } else {
     startTimer(settings.restBetweenSets,'Pause zwischen Sätzen','set');
   }
+}
+
+function renderLastSetDecision(){
+  clearInterval(AS.timerInterval);
+  const ex=AS.exercises[AS.exIdx];
+  const exSets=AS.doneSets.filter(s=>s.exIdx===AS.exIdx&&!s.isWarmup);
+  const body=document.getElementById('sess-body');
+  const dotsHTML=AS.exercises.map((e,i)=>`<div class="ex-dot ${i<AS.exIdx?'done':i===AS.exIdx?'active':''}"></div>`).join('');
+  const isLast=AS.exIdx>=AS.exercises.length-1;
+
+  body.innerHTML=`
+    <div class="ex-dots">${dotsHTML}</div>
+    <div style="margin:0 16px 12px;background:var(--bg2);border:1px solid var(--border);border-radius:16px;overflow:hidden;">
+      <div style="padding:14px 16px;border-bottom:1px solid var(--border);background:var(--bg3);">
+        <div style="font-size:12px;color:var(--text2);margin-bottom:2px;">${ex.name}</div>
+        <div style="font-size:16px;font-weight:600;">✓ ${exSets.length} Sätze abgeschlossen</div>
+      </div>
+      <div style="padding:14px 16px;">
+        <div style="font-size:13px;color:var(--text2);margin-bottom:14px;">Wie weiter?</div>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <button class="btn btn-ghost btn-full" style="text-align:left;padding:14px 16px;" onclick="addExtraSet()">
+            <div style="font-size:14px;font-weight:600;">+ Weiterer Satz</div>
+            <div style="font-size:11px;color:var(--text2);margin-top:2px;">Pause starten → dann Satz ${exSets.length+1} eingeben</div>
+          </button>
+          ${isLast?
+            `<button class="btn btn-primary btn-full" style="text-align:left;padding:14px 16px;" onclick="renderSessionBody()">
+              <div style="font-size:14px;font-weight:600;">Session abschließen ✓</div>
+              <div style="font-size:11px;opacity:.8;margin-top:2px;">Zur Cool-down & Zusammenfassung</div>
+            </button>` :
+            `<button class="btn btn-primary btn-full" style="text-align:left;padding:14px 16px;" onclick="proceedToNextExercise()">
+              <div style="font-size:14px;font-weight:600;">Weiter → ${AS.exercises[AS.exIdx+1]?.name||''}</div>
+              <div style="font-size:11px;opacity:.8;margin-top:2px;">Pause zwischen Übungen starten</div>
+            </button>`
+          }
+          ${AS.exIdx>0?`<button class="btn btn-ghost btn-full" style="color:var(--text2);" onclick="goBackExercise()">← Zurück zu ${AS.exercises[AS.exIdx-1].name}</button>`:''}
+        </div>
+      </div>
+    </div>`;
+}
+
+function addExtraSet(){
+  // Add one more set to this exercise virtually
+  const ex=AS.exercises[AS.exIdx];
+  ex.sets++;
+  const settings=getSettings();
+  startTimer(settings.restBetweenSets,'Pause vor Extra-Satz','set');
+}
+
+function proceedToNextExercise(){
+  const settings=getSettings();
+  startTimer(settings.restBetweenEx,'Pause zwischen Übungen','between-ex');
 }
 
 // ── TIMER ──
@@ -1376,6 +1469,10 @@ function startTimer(seconds, label, type){
   AS.timerRemaining=seconds;AS.timerTotal=seconds;AS.timerType=type;
   renderTimer(label,type);
   AS.timerInterval=setInterval(()=>{
+    if(!document.getElementById('timer-sec')){
+      clearInterval(AS.timerInterval);
+      return;
+    }
     AS.timerRemaining--;
     updateTimerDisplay();
     if(AS.timerRemaining<=0){
@@ -1421,24 +1518,27 @@ function renderTimer(label,type){
       <div class="timer-label" style="color:${color};">${label}</div>
       <div class="timer-actions">
         <button class="timer-add-btn" onclick="addTimerTime(15)">+15 sek</button>
-        <button class="timer-skip-btn" onclick="skipTimer()">Pause überspringen →</button>
+        <button class="timer-skip-btn" onclick="skipTimer()">Überspringen →</button>
         <button class="timer-add-btn" onclick="addTimerTime(-15)">–15 sek</button>
       </div>
+      <button onclick="backFromTimer()" style="width:100%;margin-top:8px;padding:10px;border-radius:10px;border:1px solid var(--border2);background:none;color:var(--text2);font-size:13px;cursor:pointer;">← Letzten Satz wiederholen</button>
     </div>
     ${nextInfo}`;
   updateTimerDisplay();
 }
 
 function updateTimerDisplay(){
-  const el=document.getElementById('timer-sec');
-  const ring=document.getElementById('timer-ring-fill');
-  if(!el||!ring)return;
-  el.textContent=Math.max(0,AS.timerRemaining);
-  const pct=Math.max(0,AS.timerRemaining)/Math.max(1,AS.timerTotal);
-  const circ=2*Math.PI*72;
-  ring.style.strokeDasharray=circ.toFixed(1);
-  ring.style.strokeDashoffset=(circ*(1-pct)).toFixed(1);
-  if(AS.timerRemaining<=5){el.style.color='var(--red)';ring.style.stroke='var(--red)';}
+  try{
+    const el=document.getElementById('timer-sec');
+    const ring=document.getElementById('timer-ring-fill');
+    if(!el||!ring)return;
+    el.textContent=Math.max(0,AS.timerRemaining);
+    const pct=Math.max(0,AS.timerRemaining)/Math.max(1,AS.timerTotal);
+    const circ=2*Math.PI*72;
+    ring.style.strokeDasharray=circ.toFixed(1);
+    ring.style.strokeDashoffset=(circ*(1-pct)).toFixed(1);
+    if(AS.timerRemaining<=5){el.style.color='var(--red)';ring.style.stroke='var(--red)';}
+  }catch(e){}
 }
 
 function timerDone(type){
@@ -1448,6 +1548,24 @@ function timerDone(type){
 }
 
 function skipTimer(){clearInterval(AS.timerInterval);timerDone(AS.timerType);}
+
+function backFromTimer(){
+  clearInterval(AS.timerInterval);
+  // Find and remove the last set for current exercise
+  for(let i=AS.doneSets.length-1;i>=0;i--){
+    if(AS.doneSets[i].exIdx===AS.exIdx){
+      const wasWarmup=AS.doneSets[i].isWarmup;
+      AS.doneSets.splice(i,1);
+      // If it was a warmup set, also roll back warmup phase
+      if(wasWarmup&&AS.warmupSetsPhase[AS.exIdx]>0){
+        AS.warmupSetsPhase[AS.exIdx]--;
+      }
+      break;
+    }
+  }
+  AS.clusterCount=0;AS.clusterRepsLog=[];
+  renderSessionBody();
+}
 function addTimerTime(delta){
   AS.timerRemaining=Math.max(1,AS.timerRemaining+delta);
   AS.timerTotal=Math.max(1,AS.timerTotal+delta);
@@ -1732,14 +1850,14 @@ function renderPlanSessions(phaseNum){
           ${isCustomized(key)?`<button onclick="resetSession(${phaseNum},'${key}')" style="font-size:10px;padding:4px 8px;border-radius:6px;border:1px solid var(--border2);background:none;color:var(--text3);cursor:pointer;">Reset</button>`:''}
         </div>
       </div>
-      ${p.type!=='leo'?`<div style="padding:8px 14px;background:#E8F7F222;border-bottom:0.5px solid var(--border);font-size:11px;color:var(--teal);line-height:1.6;">
+      ${p.type!=='leo'?`<div style="padding:8px 14px;background:#ECFDF522;border-bottom:0.5px solid var(--border);font-size:11px;color:var(--teal);line-height:1.6;">
         <span style="font-weight:600;">WU:</span> ${wuLine}…
       </div>`:''}
       <div style="padding:0 14px;">
         ${exRows}
         <button onclick="addExercise(${phaseNum},'${key}')" style="width:100%;padding:10px;border:none;background:none;color:var(--teal);font-size:13px;font-weight:500;cursor:pointer;text-align:left;">+ Übung hinzufügen</button>
       </div>
-      ${p.type!=='leo'?`<div style="padding:8px 14px;background:#E8F2FC22;border-top:0.5px solid var(--border);font-size:11px;color:var(--blue);line-height:1.6;">
+      ${p.type!=='leo'?`<div style="padding:8px 14px;background:#EFF6FF22;border-top:0.5px solid var(--border);font-size:11px;color:var(--blue);line-height:1.6;">
         <span style="font-weight:600;">CD:</span> ${cdLine}…
       </div>`:''}
     </div>`;
