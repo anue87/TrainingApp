@@ -888,6 +888,129 @@ function getWarmupPhase(exIdx){
   return AS.warmupSetsPhase[exIdx]||0;
 }
 
+
+// ═══ IOS FIXES ═══
+
+// ── Fix 1: Shared AudioContext (iOS braucht User-Touch zum Entsperren) ──
+const SharedAudio = {
+  ctx: null,
+  unlocked: false,
+
+  getCtx(){
+    if(!this.ctx){
+      this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    return this.ctx;
+  },
+
+  unlock(){
+    if(this.unlocked) return;
+    try {
+      const ctx = this.getCtx();
+      // iOS entsperren: kurzen stummen Buffer abspielen
+      const buf = ctx.createBuffer(1,1,22050);
+      const src = ctx.createBufferSource();
+      src.buffer = buf;
+      src.connect(ctx.destination);
+      src.start(0);
+      if(ctx.state === 'suspended') ctx.resume();
+      this.unlocked = true;
+    } catch(e) {}
+  },
+
+  beep(){
+    try {
+      const ctx = this.getCtx();
+      if(ctx.state === 'suspended') ctx.resume();
+      [0, 150, 300].forEach(delay => {
+        const o = ctx.createOscillator();
+        const g = ctx.createGain();
+        o.connect(g); g.connect(ctx.destination);
+        o.frequency.value = 880; o.type = 'sine';
+        g.gain.setValueAtTime(0.4, ctx.currentTime + delay/1000);
+        g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + delay/1000 + 0.18);
+        o.start(ctx.currentTime + delay/1000);
+        o.stop(ctx.currentTime + delay/1000 + 0.2);
+      });
+    } catch(e) {}
+  }
+};
+
+// AudioContext bei erstem Touch entsperren
+document.addEventListener('touchstart', () => SharedAudio.unlock(), {once: true, passive: true});
+document.addEventListener('click', () => SharedAudio.unlock(), {once: true, passive: true});
+
+// ── Fix 2: Absoluter Timer (läuft nach Background-Pause korrekt weiter) ──
+let TIMER_TARGET_MS = null; // Date.now() + seconds*1000
+
+function startTimer(seconds, label, type){
+  clearInterval(AS.timerInterval);
+  TIMER_TARGET_MS = Date.now() + seconds * 1000;
+  AS.timerRemaining = seconds;
+  AS.timerTotal = seconds;
+  AS.timerType = type;
+  renderTimer(label, type);
+  AS.timerInterval = setInterval(() => {
+    if(!document.getElementById('timer-sec')){
+      clearInterval(AS.timerInterval);
+      return;
+    }
+    const remaining = Math.max(0, Math.round((TIMER_TARGET_MS - Date.now()) / 1000));
+    AS.timerRemaining = remaining;
+    updateTimerDisplay();
+    if(remaining <= 0){
+      clearInterval(AS.timerInterval);
+      timerDone(type);
+    }
+  }, 500); // 500ms für schnellere Reaktion nach Background
+}
+
+function addTimerTime(delta){
+  TIMER_TARGET_MS = (TIMER_TARGET_MS || Date.now()) + delta * 1000;
+  AS.timerTotal = Math.max(1, AS.timerTotal + delta);
+  AS.timerRemaining = Math.max(0, Math.round((TIMER_TARGET_MS - Date.now()) / 1000));
+  updateTimerDisplay();
+}
+
+// Wenn App aus Hintergrund zurückkommt: Timer-Stand prüfen
+document.addEventListener('visibilitychange', () => {
+  if(document.visibilityState === 'visible' && TIMER_TARGET_MS && AS.timerType){
+    const remaining = Math.round((TIMER_TARGET_MS - Date.now()) / 1000);
+    AS.timerRemaining = Math.max(0, remaining);
+    if(remaining <= 0){
+      // Zeit ist abgelaufen während App im Hintergrund war
+      clearInterval(AS.timerInterval);
+      SharedAudio.beep();
+      timerDone(AS.timerType);
+    } else {
+      updateTimerDisplay();
+    }
+    // WakeLock neu anfordern (iOS gibt ihn beim Backgrounding frei)
+    WakeLock.request();
+  }
+});
+
+// ── Fix 3: WakeLock — Bildschirm wach halten ──
+const WakeLock = {
+  lock: null,
+
+  async request(){
+    if(!('wakeLock' in navigator)) return;
+    try {
+      if(this.lock) { try{ this.lock.release(); }catch(e){} }
+      this.lock = await navigator.wakeLock.request('screen');
+    } catch(e) {}
+  },
+
+  release(){
+    if(this.lock){
+      try { this.lock.release(); } catch(e) {}
+      this.lock = null;
+    }
+  }
+};
+
+
 const PLAN = {
   'Upper A':{day:'Montag',type:'upper',duration:'40 min',note:'Bürotag · Volumen-Fokus',exercises:[
     {name:'Chin-ups',target:'3 Sets Cluster',sets:3,reps:'Cluster',unit:'reps',isCluster:true},
@@ -1060,6 +1183,8 @@ function quickStart(type, deload){
   document.getElementById('sess-title').textContent=(_dn[type]||type)+(deload?' · Deload':'');
   clearInterval(AS.elapsedInterval);
   AS.elapsedInterval=setInterval(()=>{AS.elapsedSeconds++;updateElapsed();},1000);
+  SharedAudio.unlock();
+  WakeLock.request();
   document.getElementById('session-overlay').classList.add('open');
   renderSessionBody();
 }
@@ -1464,23 +1589,7 @@ function proceedToNextExercise(){
 }
 
 // ── TIMER ──
-function startTimer(seconds, label, type){
-  clearInterval(AS.timerInterval);
-  AS.timerRemaining=seconds;AS.timerTotal=seconds;AS.timerType=type;
-  renderTimer(label,type);
-  AS.timerInterval=setInterval(()=>{
-    if(!document.getElementById('timer-sec')){
-      clearInterval(AS.timerInterval);
-      return;
-    }
-    AS.timerRemaining--;
-    updateTimerDisplay();
-    if(AS.timerRemaining<=0){
-      clearInterval(AS.timerInterval);
-      timerDone(type);
-    }
-  },1000);
-}
+// startTimer → see iOS Fixes above
 
 function renderTimer(label,type){
   const body=document.getElementById('sess-body');
@@ -1566,11 +1675,7 @@ function backFromTimer(){
   AS.clusterCount=0;AS.clusterRepsLog=[];
   renderSessionBody();
 }
-function addTimerTime(delta){
-  AS.timerRemaining=Math.max(1,AS.timerRemaining+delta);
-  AS.timerTotal=Math.max(1,AS.timerTotal+delta);
-  updateTimerDisplay();
-}
+// addTimerTime → see iOS Fixes above
 
 function nextExercise(){
   clearInterval(AS.timerInterval);
@@ -1587,19 +1692,7 @@ function skipExercise(){
 }
 
 // ── BEEP ──
-function playBeep(){
-  try{
-    const ctx=new(window.AudioContext||window.webkitAudioContext)();
-    [0,150,300].forEach(delay=>{
-      const o=ctx.createOscillator();const g=ctx.createGain();
-      o.connect(g);g.connect(ctx.destination);
-      o.frequency.value=880;o.type='sine';
-      g.gain.setValueAtTime(0.3,ctx.currentTime+delay/1000);
-      g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+delay/1000+0.15);
-      o.start(ctx.currentTime+delay/1000);o.stop(ctx.currentTime+delay/1000+0.2);
-    });
-  }catch(e){}
-}
+function playBeep(){ SharedAudio.beep(); }
 
 // ── FINISH ──
 function renderSessionFinish(){
@@ -1632,6 +1725,8 @@ function finishSession(){
     const sets=AS.doneSets.filter(s=>s.exIdx===idx&&!s.skipped);
     if(sets.length>0)exercises.push({name:ex.name,sets:sets.map(s=>({weight:s.weight,reps:s.reps,rir:s.rir}))});
   });
+  WakeLock.release();
+  TIMER_TARGET_MS=null;
   data.sessions.push({id:Date.now(),type:AS.type,date:new Date().toISOString().split('T')[0],notes,exercises,durationMin:Math.floor(AS.elapsedSeconds/60),isDeload:AS.deloadMode});
   saveData(data);
   document.getElementById('session-overlay').classList.remove('open');
