@@ -737,6 +737,137 @@ function confirmPhaseSwitch(newPhase){
   overlay.addEventListener('click',e=>{if(e.target===overlay)overlay.remove();});
 }
 
+
+// ═══ WARM-UP / COOL-DOWN / VARIATION DATA ═══
+const SESSION_WU = {
+  upper: {
+    warmup: [
+      '2 min Springseil locker',
+      '30 Armkreisen (vor & rück)',
+      '20 Schulterrotationen mit Stab',
+      '10 Scap Push-ups an Ringen',
+      '10 Lunge Reach pro Seite',
+      '1 Aufwärmsatz Bankdrücken 40%',
+    ],
+    cooldown: [
+      '60 sek Brustdehnung am Türrahmen',
+      '60 sek Lat-Dehnung an Klimmzugstange',
+      '45 sek Schulterdehnung quer (pro Seite)',
+      '60 sek Bizeps-Dehnung an der Wand',
+    ]
+  },
+  lower: {
+    warmup: [
+      '2 min Springseil',
+      '10 Hüftkreisen pro Seite',
+      '10 Leg Swings vor/rück',
+      '10 Leg Swings seitlich',
+      '10 Bodyweight Squat (tief, langsam)',
+      '10 RDL ohne Gewicht',
+      '1 Aufwärmsatz Squat 40%',
+    ],
+    cooldown: [
+      '90 sek Hüftbeuger-Dehnung im Ausfallschritt (pro Seite)',
+      '60 sek Hamstring-Dehnung liegend (pro Seite)',
+      '60 sek Pigeon Pose (pro Seite)',
+      '45 sek Wade dehnen an der Wand (pro Seite)',
+    ]
+  },
+  zone2: {
+    warmup: [
+      '3 min locker einrollen / gehen',
+      '2 min leicht erhöhen auf Zielpuls',
+      'HF-Ziel: 120–140 bpm',
+    ],
+    cooldown: [
+      '3–5 min auslaufen unter 100 bpm',
+      '60 sek Hüftbeuger dehnen',
+      '45 sek Waden dehnen',
+    ]
+  },
+  leo: {
+    warmup: ['LeoMoves — kein separates Warm-up nötig'],
+    cooldown: ['Freie Dehnung nach Gefühl, mind. 5 min']
+  }
+};
+
+const SESSION_VARIATIONS = {
+  1: { // Phase 1
+    'Upper A': {
+      'Chin-ups': 'Wo 6–9: weiter Griff (Schulterbreite +)',
+      'Flat Bankdrücken': 'Wo 6–9: Tempo 3 sek exzentrisch',
+      'Chest Supp. Row': 'Wo 6–9: TRX-Row (Füße erhöht)',
+      'DB OHP': 'Wo 6–9: DB OHP stehend statt sitzend',
+      'LH-Curls': 'Wo 6–9: DB-Curls mit Supination',
+    },
+    'Upper B': {
+      'Chin-ups': 'Wo 6–9: Gewichtsgurt +5 kg',
+      'DB OHP': 'Wo 6–9: DB OHP stehend',
+      'Einarm. Rudern': 'Wo 6–9: Ringe-Row (Füße erhöht)',
+      'Incline Flys': 'Wo 6–9: Flat Flys',
+      'French Press': 'Wo 6–9: TRX Trizeps-Extension',
+    },
+    'Lower A': {
+      'Back Squat': 'Wo 6–9: Tempo 3 sek exzentrisch',
+      'Bulgarian SS': 'Wo 6–9: Barbell Bulgarian SS',
+      'Hollow Hold': 'Wo 6–9: LH-Rollout (3×8)',
+    },
+    'Lower B': {
+      'Back Squat': 'Wo 6–9: Tempo 3 sek exzentrisch',
+      'RDL': 'Wo 6–9: + Einbeiniges RDL 3×8 als Zusatz',
+      'Bulgarian SS': 'Wo 6–9: Barbell Bulgarian SS',
+      'Hollow Hold': 'Wo 6–9: LH-Rollout statt Hollow Hold',
+    },
+  },
+  2: { // Phase 2
+    'Upper A': {
+      'Chin-ups': 'Wo 6–8: Gewichtsgurt +10 kg',
+      'Flat Bankdrücken': 'Wo 6–8: normale Reps, Gewicht +2,5 kg',
+      'Chest Supp. Row': 'Wo 6–8: Langhantel Bent-over Row',
+      'DB OHP': 'Wo 6–8: Landmine Press 3×8',
+      'LH-Curls': 'Wo 6–8: LH-Curls engen Griff',
+    },
+    'Upper B': {
+      'Chin-ups': 'Wo 6–8: Gewichtsgurt +10 kg',
+      'DB OHP': 'Wo 6–8: Landmine Press',
+      'Einarm. Rudern': 'Wo 6–8: Ringe-Row (Füße erhöht)',
+      'Incline Flys': 'Wo 6–8: Flat Flys 22,5 kg',
+      'French Press': 'Wo 6–8: TRX Trizeps-Extension',
+    },
+    'Lower A': {
+      'Back Squat': 'Wo 6–8: Front Squat 3×6',
+      'RDL': 'Wo 6–8: Einbeiniges RDL 3×6/Seite',
+      'Bulgarian SS': 'Wo 6–8: Pause 2 sek unten',
+    },
+    'Lower B': {
+      'Back Squat': 'Konstant — Hauptübung Phase 2',
+      'RDL': 'Wo 6–8: Einbeiniges RDL 3×5/S als Ersatz',
+      'Bulgarian SS': 'Wo 6–8: Pause 2 sek unten',
+    },
+  },
+  3: { // Phase 3
+    'Upper A': {
+      'DB OHP': 'Wo 6–8: Landmine Press',
+    },
+    'Upper B': {
+      'Incline Flys': 'Wo 6–8: Flat Flys',
+    },
+    'Lower B': {
+      'RDL': 'Ersetzt durch Einbeiniges RDL',
+    },
+  },
+  4: {},
+};
+
+function getWarmup(sessionType){ return SESSION_WU[sessionType]||SESSION_WU.upper; }
+function getVariation(phaseNum, sessionKey, exName){
+  const ph=SESSION_VARIATIONS[phaseNum];
+  if(!ph)return null;
+  const sess=ph[sessionKey];
+  if(!sess)return null;
+  return sess[exName]||null;
+}
+
 const PLAN = {
   'Upper A':{day:'Montag',type:'upper',duration:'40 min',note:'Bürotag · Volumen-Fokus',exercises:[
     {name:'Chin-ups',target:'3 Sets Cluster',sets:3,reps:'Cluster',unit:'reps',isCluster:true},
@@ -880,6 +1011,8 @@ let AS = {
   clusterRepsLog:[],
   sessionNotes:'',
   deloadMode:false,
+  warmupDone:false,
+  cooldownShown:false,
 };
 
 const CIRCUMFERENCE = 2 * Math.PI * 65;
@@ -972,7 +1105,16 @@ function updateElapsed(){
 }
 
 function renderSessionBody(){
-  if(AS.exIdx>=AS.exercises.length){renderSessionFinish();return;}
+  // Show warm-up screen before first exercise
+  if(!AS.warmupDone && AS.exIdx===0){
+    renderWarmupScreen();
+    return;
+  }
+  if(AS.exIdx>=AS.exercises.length){
+    // Show cool-down before finish
+    if(!AS.cooldownShown){renderCooldownScreen();return;}
+    renderSessionFinish();return;
+  }
   const ex=AS.exercises[AS.exIdx];
   document.getElementById('sess-ex-counter').textContent=`Übung ${AS.exIdx+1}/${AS.exercises.length}`;
   const body=document.getElementById('sess-body');
@@ -1038,6 +1180,7 @@ function renderSessionBody(){
           <div class="curr-ex-name">${ex.name}</div>
           <div class="curr-ex-target">${ex.target}</div>
           ${getExBadgeHTML(ex.name)}
+          ${(()=>{const ps=getPhaseSettings();const v=getVariation(ps.activePhase,AS.type,ex.name);return v?`<div style="margin-top:5px;font-size:11px;color:var(--blue);background:#E8F2FC;padding:3px 8px;border-radius:6px;display:inline-block;">↻ ${v}</div>`:''})()}
         </div>
         <div style="font-size:12px;color:var(--text3);text-align:right;flex-shrink:0;margin-left:12px;">${setsLeft} Sätze<br>übrig</div>
       </div>
@@ -1049,7 +1192,78 @@ function renderSessionBody(){
     ${exSets.length>=ex.sets?`
       <div class="finish-btn-wrap">
         ${AS.exIdx<AS.exercises.length-1?`<button class="btn btn-primary btn-full" onclick="nextExercise()">Weiter → ${AS.exercises[AS.exIdx+1].name}</button>`:`<button class="btn btn-primary btn-full" onclick="finishSession()">Session abschließen ✓</button>`}
-      </div>`:skipBtn+backBtn}`;
+        ${AS.exIdx>0?`<button class="btn btn-ghost btn-full" onclick="goBackExercise()" style="margin-top:8px;color:var(--text2);">← Zurück zu ${AS.exercises[AS.exIdx-1].name}</button>`:''}
+      </div>`:`${skipBtn}${backBtn}`}`;
+}
+
+
+// ═══ WARM-UP / COOL-DOWN SCREENS ═══
+
+function renderWarmupScreen(){
+  const plan=getActivePlan();
+  const session=plan[AS.type]||{type:'upper'};
+  const wu=getWarmup(session.type);
+  const body=document.getElementById('sess-body');
+  const dotsHTML=AS.exercises.map((_,i)=>`<div class="ex-dot"></div>`).join('');
+
+  body.innerHTML=`
+    <div class="ex-dots">${dotsHTML}</div>
+    <div style="margin:0 16px 12px;background:var(--bg2);border:1px solid var(--border);border-radius:16px;overflow:hidden;">
+      <div style="padding:14px 16px;border-bottom:1px solid var(--border);background:#E8F7F2;">
+        <div style="font-size:11px;font-weight:600;color:var(--teal);text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px;">Warm-up · ~7–10 min</div>
+        <div style="font-size:17px;font-weight:600;">${AS.type}</div>
+      </div>
+      <div style="padding:14px 16px;">
+        ${wu.warmup.map((step,i)=>`
+          <div style="display:flex;gap:10px;align-items:flex-start;padding:8px 0;border-bottom:0.5px solid var(--border);">
+            <div style="width:22px;height:22px;border-radius:50%;background:#E8F7F2;color:var(--teal);font-size:11px;font-weight:600;display:flex;align-items:center;justify-content:center;flex-shrink:0;">${i+1}</div>
+            <div style="font-size:13px;color:var(--text);line-height:1.5;padding-top:2px;">${step}</div>
+          </div>`).join('')}
+        <button class="btn btn-primary btn-full" style="margin-top:14px;" onclick="skipWarmup()">
+          Warm-up abgeschlossen → Training starten
+        </button>
+        <button class="btn btn-ghost btn-full" style="margin-top:8px;" onclick="skipWarmup()">
+          Überspringen
+        </button>
+      </div>
+    </div>`;
+}
+
+function skipWarmup(){
+  AS.warmupDone=true;
+  renderSessionBody();
+}
+
+function renderCooldownScreen(){
+  AS.cooldownShown=true;
+  const plan=getActivePlan();
+  const session=plan[AS.type]||{type:'upper'};
+  const wu=getWarmup(session.type);
+  const body=document.getElementById('sess-body');
+
+  body.innerHTML=`
+    <div style="margin:16px 16px 12px;background:var(--bg2);border:1px solid var(--border);border-radius:16px;overflow:hidden;">
+      <div style="padding:14px 16px;border-bottom:1px solid var(--border);background:#E8F2FC;">
+        <div style="font-size:11px;font-weight:600;color:var(--blue);text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px;">Cool-down · ~5–7 min</div>
+        <div style="font-size:17px;font-weight:600;">Training abgeschlossen 💪</div>
+      </div>
+      <div style="padding:14px 16px;">
+        ${wu.cooldown.map((step,i)=>`
+          <div style="display:flex;gap:10px;align-items:flex-start;padding:8px 0;border-bottom:0.5px solid var(--border);">
+            <div style="width:22px;height:22px;border-radius:50%;background:#E8F2FC;color:var(--blue);font-size:11px;font-weight:600;display:flex;align-items:center;justify-content:center;flex-shrink:0;">${i+1}</div>
+            <div style="font-size:13px;color:var(--text);line-height:1.5;padding-top:2px;">${step}</div>
+          </div>`).join('')}
+        <button class="btn btn-primary btn-full" style="margin-top:14px;" onclick="renderSessionFinish()">
+          Cool-down abgeschlossen → Session speichern
+        </button>
+        <button class="btn btn-ghost btn-full" style="margin-top:8px;" onclick="goBackFromCooldown()">
+          ← Zurück zur letzten Übung
+        </button>
+        <button class="btn btn-ghost btn-full" style="margin-top:8px;color:var(--text3);" onclick="renderSessionFinish()">
+          Überspringen
+        </button>
+      </div>
+    </div>`;
 }
 
 // ── CLUSTER LOGIC ──
@@ -1111,6 +1325,16 @@ function deleteSet(globalIdx){
 }
 
 // ── GO BACK TO PREVIOUS EXERCISE ──
+
+function goBackFromCooldown(){
+  AS.cooldownShown=false;
+  AS.exIdx=AS.exercises.length-1;
+  // Remove all doneSets for last exercise so user can redo it
+  AS.doneSets=AS.doneSets.filter(s=>s.exIdx!==AS.exIdx);
+  AS.clusterCount=0;AS.clusterRepsLog=[];
+  renderSessionBody();
+}
+
 function goBackExercise(){
   if(AS.exIdx<=0) return;
   // Remove all doneSets for current exercise
@@ -1482,16 +1706,22 @@ function renderPlanSessions(phaseNum){
   el.innerHTML = sessions.map(key => {
     const p = plan[key]; if(!p) return '';
     const color = typeColors[p.type]||'var(--text3)';
-    const exRows = p.exercises.length > 0 ? p.exercises.map((ex,i) => `
-      <div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:0.5px solid var(--border);">
+    const exRows = p.exercises.length > 0 ? p.exercises.map((ex,i) => {
+      const variation=getVariation(phaseNum,key,ex.name);
+      return `<div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:0.5px solid var(--border);">
         <div style="flex:1;cursor:pointer;" onclick="openExerciseEditor(${phaseNum},'${key}',${i})">
           <div style="font-size:13px;font-weight:500;">${ex.name}</div>
           <div style="font-size:11px;color:var(--text2);font-family:var(--mono);margin-top:1px;">${ex.target}${ex.weight?` · ${ex.weight} ${ex.unit}`:''}${ex.isCluster?' · Cluster':''}</div>
+          ${variation?`<div style="font-size:10px;color:var(--blue);margin-top:2px;">↻ ${variation}</div>`:''}
         </div>
         <button onclick="deleteExercise(${phaseNum},'${key}',${i})" style="background:none;border:none;color:var(--text3);font-size:18px;cursor:pointer;padding:4px;line-height:1;flex-shrink:0;">✕</button>
-      </div>`).join('')
+      </div>`;
+    }).join('')
     : `<div style="padding:10px 0;font-size:13px;color:var(--text3);">${key.startsWith('Zone')?'HF 120–140 bpm · Nasenatemtest':'Aktive Erholung'}</div>`;
 
+    const wu=getWarmup(p.type);
+    const wuLine=wu.warmup.slice(0,3).join(' · ');
+    const cdLine=wu.cooldown.slice(0,2).join(' · ');
     return `<div style="margin:0 16px 12px;background:var(--bg2);border:1px solid var(--border);border-radius:14px;overflow:hidden;">
       <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border-bottom:1px solid var(--border);background:var(--bg3);">
         <div>
@@ -1502,10 +1732,16 @@ function renderPlanSessions(phaseNum){
           ${isCustomized(key)?`<button onclick="resetSession(${phaseNum},'${key}')" style="font-size:10px;padding:4px 8px;border-radius:6px;border:1px solid var(--border2);background:none;color:var(--text3);cursor:pointer;">Reset</button>`:''}
         </div>
       </div>
+      ${p.type!=='leo'?`<div style="padding:8px 14px;background:#E8F7F222;border-bottom:0.5px solid var(--border);font-size:11px;color:var(--teal);line-height:1.6;">
+        <span style="font-weight:600;">WU:</span> ${wuLine}…
+      </div>`:''}
       <div style="padding:0 14px;">
         ${exRows}
         <button onclick="addExercise(${phaseNum},'${key}')" style="width:100%;padding:10px;border:none;background:none;color:var(--teal);font-size:13px;font-weight:500;cursor:pointer;text-align:left;">+ Übung hinzufügen</button>
       </div>
+      ${p.type!=='leo'?`<div style="padding:8px 14px;background:#E8F2FC22;border-top:0.5px solid var(--border);font-size:11px;color:var(--blue);line-height:1.6;">
+        <span style="font-weight:600;">CD:</span> ${cdLine}…
+      </div>`:''}
     </div>`;
   }).join('');
 }
