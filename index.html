@@ -314,7 +314,7 @@ label { font-size: 11px; color: var(--text2); font-weight: 600; margin-bottom: 6
       <div class="sess-topbar-sub" id="sess-timer-elapsed">00:00</div>
     </div>
     <div style="display:flex;gap:8px;align-items:center;">
-      <div style="font-size:12px;color:var(--text2);" id="sess-ex-counter">Übung 1/6</div>
+      <div style="font-size:12px;color:var(--text2);" id="sess-ex-counter"></div>
       <button class="btn btn-danger" style="padding:8px 12px;font-size:12px;" onclick="confirmEndSession()">Beenden</button>
     </div>
   </div>
@@ -328,7 +328,7 @@ label { font-size: 11px; color: var(--text2); font-weight: 600; margin-bottom: 6
     <div class="page-sub" id="today-date"></div>
   </div>
   <div style="padding:16px 16px 0;">
-    <div class="card" id="phase-card" style="border-color:#059669;background:#ECFDF5;cursor:pointer;" onclick="openPhaseSheet()">
+    <div class="card" id="phase-card" style="margin:0 16px 16px;background:linear-gradient(135deg,#00C07F,#00A36A);border-radius:20px;padding:20px;cursor:pointer;box-shadow:0 4px 20px rgba(0,192,127,.3);" onclick="openPhaseSheet()">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
         <div id="current-phase-pill" style="font-size:13px;font-weight:700;color:rgba(255,255,255,.85);text-transform:uppercase;letter-spacing:.06em;">Phase 1 · Basis & Recomp</div>
         <span style="font-size:11px;color:rgba(255,255,255,.6);font-family:var(--mono);" id="phase-week-count">Wo 1/10</span>
@@ -374,7 +374,7 @@ label { font-size: 11px; color: var(--text2); font-weight: 600; margin-bottom: 6
     <button class="toggle-btn" onclick="filterLog('Upper B',this)">Upper B</button>
     <button class="toggle-btn" onclick="filterLog('Lower A',this)">Lower A</button>
     <button class="toggle-btn" onclick="filterLog('Lower B',this)">Lower B</button>
-    <button class="toggle-btn" onclick="filterLog('Zone 2',this)">Cardio</button>
+    <button class="toggle-btn" onclick="filterLog('Cardio',this)">Cardio</button>
   </div>
   <div id="full-log"></div>
   <div style="height:16px;"></div>
@@ -432,7 +432,7 @@ label { font-size: 11px; color: var(--text2); font-weight: 600; margin-bottom: 6
     <div class="card">
       <div class="ex-row" style="padding:10px 0;"><div><div class="ex-name">Double Progression</div><div style="font-size:12px;color:var(--text2);margin-top:2px;line-height:1.5;">Alle Sätze oben in der Range unbroken → +2,5 kg.<br>Restpausen = kein Gewichtssprung.</div></div></div>
       <div class="ex-row" style="padding:10px 0;"><div><div class="ex-name">Bankdrücken-Regel</div><div style="font-size:12px;color:var(--text2);margin-top:2px;line-height:1.5;">Nur Flat, nie wechseln. Mo leicht (–15%), Do Haupttag.</div></div></div>
-      <div class="ex-row" style="padding:10px 0;border-bottom:none;"><div><div class="ex-name">Deload alle 4–5 Wochen</div><div style="font-size:12px;color:var(--text2);margin-top:2px;">60% Gewicht · gleiche Übungen · Zone 2 bleibt.</div></div></div>
+      <div class="ex-row" style="padding:10px 0;border-bottom:none;"><div><div class="ex-name">Deload alle 4–5 Wochen</div><div style="font-size:12px;color:var(--text2);margin-top:2px;">60% Gewicht · gleiche Übungen · Cardio bleibt.</div></div></div>
     </div>
   </div>
   <div style="height:16px;"></div>
@@ -531,7 +531,7 @@ function getExBadgeHTML(name){
 // ═══ PHASE-SPECIFIC PLANS ═══
 const PHASE_PLANS = {
   1: { // Basis & Recomp
-    sessions: ['Upper A','Lower A','Upper B','Lower B','Zone 2','LeoMoves'],
+    sessions: ['Upper A','Lower A','Upper B','Lower B','Cardio','LeoMoves'],
     plan: {
       'Upper A':{day:'Montag',type:'upper',duration:'40 min',note:'Bürotag · Volumen · 3×10–12',exercises:[
         {name:'Chin-ups',target:'3 Sets Cluster',sets:3,reps:'Cluster',unit:'reps',isCluster:true},
@@ -561,12 +561,12 @@ const PHASE_PLANS = {
         {name:'KB Swings',target:'4 × 20',weight:24,sets:4,reps:'20',unit:'kg'},
         {name:'Hollow Hold',target:'3 × 30 sek',weight:null,sets:3,reps:'30',unit:'sek'},
       ]},
-      'Zone 2':{day:'Freitag',type:'zone2',duration:'30 min',note:'HF 120–140 bpm',exercises:[]},
+      'Cardio':{day:'Freitag',type:'zone2',duration:'30 min',note:'HF 120–140 bpm',exercises:[]},
       'LeoMoves':{day:'Mi/Sa',type:'leo',duration:'—',note:'Aktive Erholung',exercises:[]},
     }
   },
   2: { // Kraft-Peak
-    sessions: ['Upper A','Lower A','Upper B','Lower B','Zone 2','LeoMoves'],
+    sessions: ['Upper A','Lower A','Upper B','Lower B','Cardio','LeoMoves'],
     plan: {
       'Upper A':{day:'Montag',type:'upper',duration:'45 min',note:'Volumen · Tempo 3 sek exz.',exercises:[
         {name:'Chin-ups',target:'3 Sets Cluster',sets:3,reps:'Cluster',unit:'reps',isCluster:true},
@@ -596,12 +596,12 @@ const PHASE_PLANS = {
         {name:'KB Swings',target:'4 × 20',weight:28,sets:4,reps:'20',unit:'kg'},
         {name:'Hollow Hold',target:'3 × 35 sek',weight:null,sets:3,reps:'35',unit:'sek'},
       ]},
-      'Zone 2':{day:'Freitag',type:'zone2',duration:'35 min',note:'HF 120–140 bpm · 35 min',exercises:[]},
+      'Cardio':{day:'Freitag',type:'zone2',duration:'35 min',note:'HF 120–140 bpm · 35 min',exercises:[]},
       'LeoMoves':{day:'Mi/Sa',type:'leo',duration:'—',note:'Aktive Erholung',exercises:[]},
     }
   },
   3: { // KFA-Cut — 3 Krafttage
-    sessions: ['Upper A','Upper B','Lower B','Zone 2','Zone 2b','LeoMoves'],
+    sessions: ['Upper A','Upper B','Lower B','Cardio','Cardio 2','LeoMoves'],
     plan: {
       'Upper A':{day:'Montag',type:'upper',duration:'50 min',note:'Kraft halten · –30% Volumen',exercises:[
         {name:'Flat Bankdrücken',target:'3 × 5–8',weight:85,sets:3,reps:'5–8',unit:'kg'},
@@ -621,16 +621,16 @@ const PHASE_PLANS = {
         {name:'Bulgarian SS',target:'3 × 8',weight:17.5,sets:3,reps:'8',unit:'kg/S'},
         {name:'KB Swings',target:'4 × 20',weight:28,sets:4,reps:'20',unit:'kg'},
       ]},
-      'Zone 2':{day:'Di/Fr',type:'zone2',duration:'38 min',note:'2× / Woche · HF 120–140 bpm',exercises:[]},
-      'Zone 2b':{day:'Freitag',type:'zone2',duration:'38 min',note:'2. Zone 2 der Woche',exercises:[]},
+      'Cardio':{day:'Di/Fr',type:'zone2',duration:'38 min',note:'2× / Woche · HF 120–140 bpm',exercises:[]},
+      'Cardio 2':{day:'Freitag',type:'zone2',duration:'38 min',note:'2. Zone 2 der Woche',exercises:[]},
       'LeoMoves':{day:'Mittwoch',type:'leo',duration:'—',note:'Aktive Erholung',exercises:[]},
     }
   },
   4: { // Recovery
-    sessions: ['Zone 2','Zone 2b','LeoMoves'],
+    sessions: ['Cardio','Cardio 2','LeoMoves'],
     plan: {
-      'Zone 2':{day:'Di/Fr',type:'zone2',duration:'30 min',note:'Aktive Erholung · leicht',exercises:[]},
-      'Zone 2b':{day:'Freitag',type:'zone2',duration:'30 min',note:'2. Zone 2 der Woche',exercises:[]},
+      'Cardio':{day:'Di/Fr',type:'zone2',duration:'30 min',note:'Aktive Erholung · leicht',exercises:[]},
+      'Cardio 2':{day:'Freitag',type:'zone2',duration:'30 min',note:'2. Zone 2 der Woche',exercises:[]},
       'LeoMoves':{day:'täglich',type:'leo',duration:'—',note:'Beweglichkeit & Erholung',exercises:[]},
     }
   },
@@ -640,25 +640,25 @@ const PHASE_META = {
   1:{num:1,label:'Basis & Recomp',cls:'ph1',color:'#1D9E75',bg:'#E8F7F2',border:'#1D9E75',
      period:'10 Wochen',weeks:10,
      ziel:'Bankdrücken 87,5 kg sauber · Squat 90 kg · KFA –1–2%',
-     training:'Upper/Lower 4×/Wo · Zone 2 1×',
+     training:'Upper/Lower 4×/Wo · Cardio 1×',
      ernaehrung:'–150 kcal/Tag · 180 g Protein',
      progression:'Double Progression · ab Wo 5 Pausen reduzieren'},
   2:{num:2,label:'Kraft-Peak',cls:'ph2',color:'#4A44B0',bg:'#EEEDF8',border:'#4A44B0',
      period:'8 Wochen',weeks:8,
      ziel:'Bankdrücken 92–95 kg · Squat 95–100 kg',
-     training:'Upper/Lower 4×/Wo · Zone 2 1× (35 min)',
+     training:'Upper/Lower 4×/Wo · Cardio 1× (35 min)',
      ernaehrung:'Erhaltungskalorisch · 190 g Protein',
      progression:'4–6 Reps · Tempo 3 sek exz. · Pausen 75 sek'},
   3:{num:3,label:'KFA-Cut',cls:'ph3',color:'#64748B',bg:'#FEF3E2',border:'#64748B',
      period:'8 Wochen',weeks:8,
      ziel:'KFA 18% → 15–16% · Kraft halten',
-     training:'3 Krafttage · Zone 2 2×/Wo (38 min)',
+     training:'3 Krafttage · Cardio 2×/Wo (38 min)',
      ernaehrung:'–300 kcal/Tag · 2 g Protein/kg',
      progression:'Intensität hoch · Volumen –30% · Gewicht halten'},
   4:{num:4,label:'Recovery',cls:'ph4',color:'#1A5FA0',bg:'#E8F2FC',border:'#1A5FA0',
      period:'4 Wochen',weeks:4,
      ziel:'Mentaler Reset · Nervensystem erholen',
-     training:'LeoMoves täglich · Zone 2 2×/Wo',
+     training:'LeoMoves täglich · Cardio 2×/Wo',
      ernaehrung:'Erhaltungskalorisch',
      progression:'Keine — aktive Erholung'},
 };
@@ -1276,7 +1276,7 @@ const PLAN = {
     {name:'KB Swings',target:'4 × 20',weight:24,sets:4,reps:'20',unit:'kg'},
     {name:'Hollow Hold',target:'3 × 30 sek',weight:null,sets:3,reps:'30',unit:'sek'},
   ]},
-  'Zone 2':{day:'Freitag',type:'zone2',duration:'30 min',note:'HF 120–140 bpm',exercises:[]},
+  'Cardio':{day:'Freitag',type:'zone2',duration:'30 min',note:'HF 120–140 bpm',exercises:[]},
   'LeoMoves':{day:'Mi/Sa',type:'leo',duration:'—',note:'Aktive Erholung',exercises:[]},
 };
 
@@ -1328,15 +1328,17 @@ function renderHeutePage(){
 
   // Geplante Kraft-Sessions dieser Woche
   const ps=getPhaseSettings();
-  const plannedSessions=PHASE_PLANS[ps.activePhase].sessions.filter(s=>!s.startsWith('Zone')&&s!=='LeoMoves');
+  const plannedSessions=PHASE_PLANS[ps.activePhase].sessions.filter(s=>!s.startsWith('Zone')&&!s.startsWith('Cardio')&&s!=='LeoMoves'&&s!=='Functional');
   const weekTarget=plannedSessions.length;
 
-  // Absolvierte Sessions diese Woche (nur Kraft)
-  const weekSessions=data.sessions.filter(s=>{
-    const d=new Date(s.date);
-    return d>=startOfWeek && d<endOfWeek && !s.type.startsWith('Zone') && s.type!=='LeoMoves' && s.type!=='Functional';
-  });
-  const weekDone=weekSessions.length;
+  // Pro Tag max. +1 zählen (egal wie viele Sessions an einem Tag)
+  const weekTrainingDays=new Set(
+    data.sessions.filter(s=>{
+      const d=new Date(s.date);
+      return d>=startOfWeek && d<endOfWeek && s.type!=='zone2' && s.type!=='leo' && !s.type.startsWith('Zone') && !s.type.startsWith('Cardio') && s.type!=='LeoMoves' && s.type!=='Functional';
+    }).map(s=>s.date)
+  );
+  const weekDone=weekTrainingDays.size;
   const weekPct=weekTarget>0?Math.min(100,(weekDone/weekTarget)*100):0;
 
   // Total Sessions in dieser Phase
@@ -1368,11 +1370,12 @@ function renderHeutePage(){
 function renderSessionButtons(){
   const ps=getPhaseSettings();
   const sessions=PHASE_PLANS[ps.activePhase].sessions;
-  const dn={'Zone 2':'Cardio','LeoMoves':'Functional','Zone 2b':'Cardio 2'};
+  const dn={'Cardio':'Cardio','LeoMoves':'Functional','Cardio 2':'Cardio 2','Zone 2':'Cardio','Zone 2b':'Cardio 2'};
   const dots={1:'#00C07F',2:'#6366F1',3:'#64748B',4:'#3B82F6'};
   const dotColor=dots[ps.activePhase]||'#00C07F';
-  const kraftSessions=sessions.filter(s=>!s.startsWith('Zone')&&s!=='LeoMoves');
-  const cardioSessions=sessions.filter(s=>s.startsWith('Zone')||s==='LeoMoves');
+  const isCardioSess=s=>s.startsWith('Zone')||s.startsWith('Cardio')||s==='LeoMoves'||s==='Functional';
+  const kraftSessions=sessions.filter(s=>!isCardioSess(s));
+  const cardioSessions=sessions.filter(s=>isCardioSess(s));
   let h='<div class="session-btn-grid">';
   kraftSessions.forEach(s=>{
     const plan=getPlanForPhase(ps.activePhase)[s]||{};
@@ -1386,10 +1389,11 @@ function renderSessionButtons(){
   if(cardioSessions.length>0){
     h+='<div class="g2" style="gap:10px;padding:0 16px;margin-bottom:12px;">';
     cardioSessions.forEach(s=>{
+      const isLeo=s==='LeoMoves'||s==='Functional';
       h+=`<button class="sess-quick-btn" onclick="quickStart('${s}')">
-        <div class="sess-quick-btn-dot" style="background:#3B82F6;"></div>
+        <div class="sess-quick-btn-dot" style="background:${isLeo?'#64748B':'#3B82F6'};"></div>
         <div class="sess-quick-btn-label">${dn[s]||s}</div>
-        <div class="sess-quick-btn-sub">Aktive Erholung</div>
+        <div class="sess-quick-btn-sub">${isLeo?'Aktive Erholung':'Cardio · HF 120–140'}</div>
       </button>`;
     });
     h+='</div>';
@@ -1457,7 +1461,7 @@ function quickStart(type, deload){
   AS.exIdx=0;AS.setIdx=0;AS.doneSets=[];
   AS.clusterCount=0;AS.clusterRepsLog=[];
   AS.elapsedSeconds=0;AS.sessionNotes='';
-  const _dn={'Zone 2':'Cardio','LeoMoves':'Functional'};
+  const _dn={'Zone 2':'Cardio','Cardio':'Cardio','LeoMoves':'Functional','Functional':'Functional'};
   document.getElementById('sess-title').textContent=(_dn[type]||type)+(deload?' · Deload':'');
   clearInterval(AS.elapsedInterval);
   AS.elapsedInterval=setInterval(()=>{AS.elapsedSeconds++;updateElapsed();},1000);
@@ -1498,7 +1502,7 @@ function askDeload(type){
 function toggleDeload(){
   AS.deloadMode=!AS.deloadMode;
   // Re-apply or remove deload weights on remaining exercises
-  const plan=PLAN[AS.type];
+  const plan=getActivePlan()[AS.type]||PLAN[AS.type];
   if(!plan)return;
   const fresh=JSON.parse(JSON.stringify(plan.exercises));
   const adjusted=AS.deloadMode?applyDeload(fresh):fresh;
@@ -1521,6 +1525,15 @@ function updateElapsed(){
 }
 
 function renderSessionBody(){
+  // Cardio/Leo: eigener Flow mit Warmup → Eingabe → Cooldown
+  const plan=getActivePlan();
+  const sess=plan[AS.type]||{type:'upper'};
+  if(sess.type==='zone2'||sess.type==='leo'){
+    if(!AS.warmupDone){renderWarmupScreen();return;}
+    if(AS.exIdx===0){renderCardioScreen();return;}
+    if(!AS.cooldownShown){renderCooldownScreen();return;}
+    renderSessionFinish();return;
+  }
   // Show warm-up screen before first exercise
   if(!AS.warmupDone && AS.exIdx===0){
     renderWarmupScreen();
@@ -1532,7 +1545,9 @@ function renderSessionBody(){
     renderSessionFinish();return;
   }
   const ex=AS.exercises[AS.exIdx];
-  document.getElementById('sess-ex-counter').textContent=`Übung ${AS.exIdx+1}/${AS.exercises.length}`;
+  const _sess=getActivePlan()[AS.type]||{type:'upper'};
+  const _cEl=document.getElementById('sess-ex-counter');
+  if(_cEl) _cEl.textContent=(_sess.type==='zone2'||_sess.type==='leo')?'Cardio':`Übung ${AS.exIdx+1}/${AS.exercises.length}`;
   const body=document.getElementById('sess-body');
 
   // Dots
@@ -1713,6 +1728,132 @@ function warmupSetDone(){
   const total=getWarmupTotal(AS.exercises[AS.exIdx].name);
   const pauseSek=total===1?30:45;
   startTimer(pauseSek,'Aufwärm-Pause','warmup');
+}
+
+
+
+function cardioToCooldown(){
+  // Daten temporär im AS-Objekt speichern
+  AS._cardioData = {
+    distance: document.getElementById('cardio-distance')?.value||null,
+    duration: document.getElementById('cardio-duration')?.value||null,
+    hr: document.getElementById('cardio-hr')?.value||null,
+    cardioType: document.getElementById('cardio-type')?.value||null,
+    notes: document.getElementById('cardio-notes')?.value||'',
+    date: document.getElementById('cardio-date')?.value||new Date().toISOString().split('T')[0],
+    time: document.getElementById('cardio-time')?.value||'',
+  };
+  AS.exIdx=1; // Flag: Eingabe gemacht
+  renderSessionBody(); // → geht zu Cooldown
+}
+
+// ═══ CARDIO / FUNCTIONAL SCREEN ═══
+function renderCardioScreen(){
+  const body=document.getElementById('sess-body');
+  const plan=getActivePlan();
+  const sess=plan[AS.type]||{};
+  const isLeo=sess.type==='leo';
+  const _cc=document.getElementById('sess-ex-counter');if(_cc)_cc.textContent=isLeo?'Functional':'Cardio';
+  const dn={'Cardio':'Cardio','LeoMoves':'Functional','Cardio 2':'Cardio 2','Zone 2':'Cardio','Zone 2b':'Cardio 2'};
+  const displayName=dn[AS.type]||AS.type;
+  const color=isLeo?'#64748B':'#3B82F6';
+  const pale=isLeo?'#F1F5F9':'#EFF6FF';
+
+  body.innerHTML=`
+    <div style="margin:16px 16px 12px;background:var(--surface);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow);">
+      <div style="padding:16px;border-bottom:1px solid var(--border);background:${pale};">
+        <div style="font-size:11px;font-weight:700;color:${color};text-transform:uppercase;letter-spacing:.07em;margin-bottom:4px;">${displayName}</div>
+        <div style="font-size:20px;font-weight:700;">${isLeo?'Functional Training':'Cardio Session'}</div>
+      </div>
+      <div style="padding:16px;">
+        ${!isLeo?`
+        <div class="g2" style="gap:10px;margin-bottom:12px;">
+          <div class="field">
+            <label>Distanz (km)</label>
+            <input type="number" id="cardio-distance" placeholder="5.0" step="0.1" inputmode="decimal" style="text-align:center;font-size:20px;font-weight:700;">
+          </div>
+          <div class="field">
+            <label>Zeit (min)</label>
+            <input type="number" id="cardio-duration" placeholder="30" inputmode="numeric" style="text-align:center;font-size:20px;font-weight:700;">
+          </div>
+        </div>
+        <div class="g2" style="gap:10px;margin-bottom:12px;">
+          <div class="field">
+            <label>Ø Puls (bpm)</label>
+            <input type="number" id="cardio-hr" placeholder="130" inputmode="numeric" style="text-align:center;font-size:20px;font-weight:700;">
+          </div>
+          <div class="field">
+            <label>Art</label>
+            <select id="cardio-type">
+              <option value="Rennrad">Rennrad</option>
+              <option value="Laufen">Laufen</option>
+              <option value="Springseil">Springseil</option>
+              <option value="Gehen">Gehen</option>
+              <option value="Rudern">Rudergerät</option>
+              <option value="Sonstiges">Sonstiges</option>
+            </select>
+          </div>
+        </div>`:
+        `<div class="field">
+          <label>Dauer (min)</label>
+          <input type="number" id="cardio-duration" placeholder="40" inputmode="numeric" style="text-align:center;font-size:24px;font-weight:700;">
+        </div>`}
+        <div class="g2" style="gap:10px;margin-bottom:12px;">
+          <div class="field">
+            <label>Datum</label>
+            <input type="date" id="cardio-date">
+          </div>
+          <div class="field">
+            <label>Uhrzeit</label>
+            <input type="time" id="cardio-time">
+          </div>
+        </div>
+        <div class="field">
+          <label>Notizen</label>
+          <textarea id="cardio-notes" rows="2" placeholder="${isLeo?'Wie war die Einheit?':'Wie war die Session? Tempo, Gefühl...'}" style="resize:none;"></textarea>
+        </div>
+        <button class="btn btn-primary btn-full" onclick="cardioToCooldown()">Weiter → Cool-down</button>
+      </div>
+    </div>`;
+  // Datum + Zeit vorausfüllen
+  const _today=new Date();
+  const _dateEl=document.getElementById('cardio-date');
+  const _timeEl=document.getElementById('cardio-time');
+  if(_dateEl) _dateEl.value=_today.toISOString().split('T')[0];
+  if(_timeEl) _timeEl.value=_today.toTimeString().slice(0,5);
+}
+
+function _legacySaveCardioSession_unused(){
+  const plan=getActivePlan();
+  const sess=plan[AS.type]||{};
+  const isLeo=sess.type==='leo';
+  const distance=document.getElementById('cardio-distance')?.value||null;
+  const duration=document.getElementById('cardio-duration')?.value||null;
+  const hr=document.getElementById('cardio-hr')?.value||null;
+  const cardioType=document.getElementById('cardio-type')?.value||null;
+  const notes=document.getElementById('cardio-notes')?.value||'';
+  const cardioDate=document.getElementById('cardio-date')?.value||new Date().toISOString().split('T')[0];
+  const cardioTime=document.getElementById('cardio-time')?.value||'';
+
+  clearInterval(AS.timerInterval);clearInterval(AS.elapsedInterval);
+  WakeLock.release();TIMER_TARGET_MS=null;
+
+  const data=getData();
+  data.sessions.push({
+    id:Date.now(),
+    type:AS.type,
+    date:cardioDate,
+    time:cardioTime,
+    notes,
+    exercises:[],
+    durationMin:parseInt(duration)||Math.floor(AS.elapsedSeconds/60),
+    isDeload:AS.deloadMode,
+    cardio:{distance:parseFloat(distance)||null, hr:parseInt(hr)||null, type:cardioType},
+  });
+  saveData(data);
+  document.getElementById('session-overlay').classList.remove('open');
+  showToast('Session gespeichert ✓');
+  renderHeutePage();renderFullLog();
 }
 
 // ── CLUSTER LOGIC ──
@@ -1999,6 +2140,28 @@ function finishSession(){
   clearInterval(AS.timerInterval);clearInterval(AS.elapsedInterval);
   const notes=document.getElementById('finish-notes')?document.getElementById('finish-notes').value:'';
   const data=getData();
+  // Cardio session: Daten aus temporärem Speicher
+  const plan2=getActivePlan();
+  const sess2=plan2[AS.type]||{type:'upper'};
+  if(sess2.type==='zone2'||sess2.type==='leo'){
+    const cd=AS._cardioData||{};
+    clearInterval(AS.timerInterval);clearInterval(AS.elapsedInterval);
+    WakeLock.release();TIMER_TARGET_MS=null;
+    const data=getData();
+    data.sessions.push({
+      id:Date.now(),type:AS.type,
+      date:cd.date||new Date().toISOString().split('T')[0],
+      time:cd.time||'',notes:cd.notes||'',exercises:[],
+      durationMin:parseInt(cd.duration)||Math.floor(AS.elapsedSeconds/60),
+      isDeload:AS.deloadMode,
+      cardio:{distance:parseFloat(cd.distance)||null,hr:parseInt(cd.hr)||null,type:cd.cardioType},
+    });
+    saveData(data);
+    document.getElementById('session-overlay').classList.remove('open');
+    showToast('Session gespeichert ✓');
+    renderHeutePage();renderFullLog();
+    return;
+  }
   const exercises=[];
   AS.exercises.forEach((ex,idx)=>{
     const sets=AS.doneSets.filter(s=>s.exIdx===idx&&!s.skipped);
@@ -2039,11 +2202,23 @@ function confirmEndSession(){
 // ═══ LOG ═══
 function renderLogEntryHTML(s){
   const d=new Date(s.date);
-  const dateStr=d.toLocaleDateString('de-DE',{weekday:'short',day:'numeric',month:'short'});
-  const colors={'Upper A':'#6366F1','Upper B':'#6366F1','Lower A':'#64748B','Lower B':'#64748B','Zone 2':'#3B82F6','LeoMoves':'#6B7280','Cardio':'#3B82F6','Functional':'#6B7280'};
+  const dateStr=d.toLocaleDateString('de-DE',{weekday:'short',day:'numeric',month:'short'})+(s.time?' · '+s.time:'');
+  const _logNames={'LeoMoves':'Functional','Zone 2':'Cardio','Zone 2b':'Cardio 2'};
+  const displayType=_logNames[s.type]||s.type;
+  const colors={'Upper A':'#6366F1','Upper B':'#6366F1','Lower A':'#64748B','Lower B':'#64748B','Zone 2':'#3B82F6','Cardio':'#3B82F6','Cardio 2':'#3B82F6','LeoMoves':'#6B7280','Functional':'#6B7280'};
   const color=colors[s.type]||'#5F5E5A';
   let exHTML='';
-  if(s.type==='Zone 2'){exHTML=`<div style="font-size:13px;color:var(--text2);padding:8px 14px;font-family:var(--mono);">${s.duration||'—'} min · ${s.heartRate||'—'} bpm Ø</div>`;}
+  const _dn2={'Zone 2':'Cardio','LeoMoves':'Functional','Zone 2b':'Cardio 2'};
+  const isCardioType=s.type==='zone2'||s.type==='leo'||s.type==='Cardio'||s.type==='Cardio 2'||s.type==='LeoMoves'||s.type==='Functional';
+  if(isCardioType){
+    const c=s.cardio||{};
+    const parts=[];
+    if(c.type) parts.push(c.type);
+    if(s.durationMin) parts.push(s.durationMin+' min');
+    if(c.distance) parts.push(c.distance+' km');
+    if(c.hr) parts.push(c.hr+' bpm Ø');
+    exHTML=`<div style="font-size:13px;color:var(--text2);padding:8px 16px;font-family:var(--mono);">${parts.join(' · ')||'—'}</div>`;
+  }
   else if(s.exercises&&s.exercises.length>0){
     exHTML='<div class="log-entry-body">'+s.exercises.slice(0,4).map(ex=>{
       const best=ex.sets.reduce((m,st)=>typeof st.weight==='number'&&st.weight>(m||0)?st.weight:m,0);
@@ -2052,8 +2227,8 @@ function renderLogEntryHTML(s){
   }
   return`<div class="log-entry fade-in" onclick="showSessionDetail(${s.id})">
     <div class="log-entry-head">
-      <div><div style="font-size:15px;font-weight:600;">${s.type}</div><div style="font-size:12px;color:var(--text2);margin-top:2px;">${dateStr}${s.durationMin?' · '+s.durationMin+' min':''}</div></div>
-      <div style="background:${color}18;color:${color};font-size:11px;padding:4px 10px;border-radius:6px;font-family:var(--mono);">${s.isDeload?'DELOAD · ':''}${s.exercises?s.exercises.length+' Übungen':s.type}</div>
+      <div><div style="font-size:15px;font-weight:600;">${displayType}</div><div style="font-size:12px;color:var(--text2);margin-top:2px;">${dateStr}${s.durationMin?' · '+s.durationMin+' min':''}</div></div>
+      <div style="background:${color}18;color:${color};font-size:11px;padding:4px 10px;border-radius:6px;font-family:var(--mono);">${s.isDeload?'DELOAD · ':''}${s.exercises&&s.exercises.length>0?s.exercises.length+' Übungen':displayType}</div>
     </div>${exHTML}${s.notes?`<div style="padding:8px 14px;font-size:12px;color:var(--text3);border-top:1px solid var(--border);">${s.notes}</div>`:''}</div>`;
 }
 
@@ -2072,33 +2247,92 @@ function filterLog(filter,btn){
 
 function showSessionDetail(id){
   const data=getData();const s=data.sessions.find(x=>x.id==id);if(!s)return;
-  const d=new Date(s.date).toLocaleDateString('de-DE',{weekday:'long',day:'numeric',month:'long'});
-  let html=`<div style="font-size:16px;font-weight:600;margin-bottom:16px;">${s.type} · ${d}</div>`;
+  const _logNames={'LeoMoves':'Functional','Zone 2':'Cardio','Zone 2b':'Cardio 2'};
+  const displayType=_logNames[s.type]||s.type;
+  const d=new Date(s.date).toLocaleDateString('de-DE',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+  const colors={'Upper A':'#6366F1','Upper B':'#6366F1','Lower A':'#64748B','Lower B':'#64748B','Zone 2':'#3B82F6','Cardio':'#3B82F6','LeoMoves':'#6B7280','Functional':'#6B7280'};
+  const color=colors[s.type]||'#6B7280';
+
+  let html=`
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;">
+      <div style="width:44px;height:44px;border-radius:12px;background:${color}18;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+        <div style="width:10px;height:10px;border-radius:50%;background:${color};"></div>
+      </div>
+      <div>
+        <div style="font-size:18px;font-weight:700;letter-spacing:-.02em;">${displayType}${s.isDeload?' · Deload':''}</div>
+        <div style="font-size:12px;color:var(--text2);margin-top:2px;">${d}${s.time?' · '+s.time:''}${s.durationMin?' · '+s.durationMin+' min':''}</div>
+      </div>
+    </div>`;
+
+  const isCardio=s.type==='zone2'||s.type==='leo'||s.type==='Cardio'||s.type==='Cardio 2'||s.type==='LeoMoves'||s.type==='Functional';
+  if(isCardio){
+    const c=s.cardio||{};
+    const stats=[];
+    if(s.durationMin) stats.push({val:s.durationMin,lbl:'Minuten'});
+    if(c.distance) stats.push({val:c.distance,lbl:'km'});
+    if(c.hr) stats.push({val:c.hr,lbl:'bpm Ø'});
+    if(c.type) stats.push({val:c.type,lbl:'Art'});
+    if(stats.length>0){
+      html+=`<div style="display:grid;grid-template-columns:repeat(${Math.min(stats.length,2)},1fr);gap:8px;margin-bottom:16px;">`;
+      stats.forEach(st=>{html+=`<div style="background:var(--surface2);border-radius:10px;padding:12px;"><div style="font-size:20px;font-weight:700;font-family:var(--mono);">${st.val}</div><div style="font-size:11px;color:var(--text2);margin-top:2px;">${st.lbl}</div></div>`;});
+      html+=`</div>`;
+    } else {
+      html+=`<div style="padding:16px;background:var(--surface2);border-radius:10px;font-size:13px;color:var(--text2);margin-bottom:16px;text-align:center;">Keine Daten erfasst</div>`;
+    }
+  }
+
   if(s.exercises&&s.exercises.length>0){
     s.exercises.forEach(ex=>{
-      html+=`<div style="margin-bottom:12px;"><div style="font-size:14px;font-weight:500;margin-bottom:6px;">${ex.name}</div>`;
-      ex.sets.forEach((set,i)=>{html+=`<div class="log-set-row"><span class="log-set-num">${i+1}</span><span class="log-set-val">${set.weight?set.weight+'kg · ':''}${set.reps} Wdh</span><span style="margin-left:auto;color:var(--text3);">${set.rir!==''&&set.rir!=null?set.rir+' RIR':''}</span></div>`;});
-      html+='</div>';
+      const workSets=ex.sets.filter(st=>!st.isWarmup);
+      const wuSets=ex.sets.filter(st=>st.isWarmup);
+      html+=`<div style="margin-bottom:14px;"><div style="font-size:14px;font-weight:600;margin-bottom:6px;">${ex.name}</div>`;
+      wuSets.forEach(set=>{html+=`<div class="log-set-row" style="opacity:.5;"><span class="log-set-num">WU</span><span class="log-set-val">${set.weight?set.weight+'kg · ':''}${set.reps} Wdh</span></div>`;});
+      workSets.forEach((set,i)=>{html+=`<div class="log-set-row"><span class="log-set-num">${i+1}</span><span class="log-set-val">${set.weight?set.weight+'kg · ':''}${set.reps} ${ex.unit==='sek'?'sek':'Wdh'}</span><span style="margin-left:auto;color:var(--text3);font-size:11px;">${set.rir&&set.rir!=='WU'?set.rir+' RIR':''}</span></div>`;});
+      html+=`</div>`;
     });
   }
-  if(s.notes)html+=`<div style="padding:10px;background:var(--bg3);border-radius:8px;font-size:13px;color:var(--text2);margin-top:8px;">${s.notes}</div>`;
-  html+=`<button class="btn btn-danger btn-full" style="margin-top:16px;" onclick="deleteSession(${s.id})">Session löschen</button>`;
-  // show in simple modal-like overlay via alert replacement
+
+  if(s.notes) html+=`<div style="padding:12px;background:var(--surface2);border-radius:10px;font-size:13px;color:var(--text2);margin-bottom:16px;">${s.notes}</div>`;
+  html+=`<button class="btn btn-danger btn-full" style="margin-top:8px;" onclick="deleteSession(${s.id})">Session löschen</button>`;
+
   const overlay=document.createElement('div');
-  overlay.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:600;display:flex;align-items:flex-end;';
-  overlay.innerHTML=`<div style="background:var(--bg2);border-radius:20px 20px 0 0;border:1px solid var(--border);width:100%;max-height:85vh;overflow-y:auto;padding:20px 20px calc(env(safe-area-inset-bottom,0px) + 20px);">
-    <div style="width:36px;height:4px;background:var(--border2);border-radius:2px;margin:0 auto 16px;"></div>
+  overlay.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:600;display:flex;align-items:flex-end;backdrop-filter:blur(4px);';
+  overlay.innerHTML=`<div style="background:var(--surface);border-radius:24px 24px 0 0;width:100%;max-height:88vh;overflow-y:auto;padding:20px 20px calc(env(safe-area-inset-bottom,0px)+20px);">
+    <div style="width:40px;height:4px;background:var(--surface3);border-radius:2px;margin:0 auto 20px;"></div>
     ${html}
-    <button class="btn btn-ghost btn-full" style="margin-top:10px;" onclick="this.closest('[style]').remove()">Schließen</button>
+    <button class="btn btn-ghost btn-full" style="margin-top:10px;" onclick="this.closest('[style*=\'z-index\']').remove()">Schließen</button>
   </div>`;
   document.body.appendChild(overlay);
   overlay.addEventListener('click',e=>{if(e.target===overlay)overlay.remove();});
 }
 
+
 function deleteSession(id){
-  const data=getData();data.sessions=data.sessions.filter(s=>s.id!=id);saveData(data);
-  document.querySelectorAll('[style*="position:fixed"][style*="z-index:600"]').forEach(e=>e.remove());
-  showToast('Session gelöscht');renderHeutePage();renderFullLog();
+  const overlay=document.createElement('div');
+  overlay.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:950;display:flex;align-items:center;justify-content:center;padding:24px;';
+  overlay.innerHTML=`<div style="background:var(--surface);border-radius:20px;padding:24px;width:100%;max-width:300px;text-align:center;">
+    <div style="font-size:28px;margin-bottom:12px;">🗑</div>
+    <div style="font-size:17px;font-weight:700;margin-bottom:8px;">Session löschen?</div>
+    <div style="font-size:13px;color:var(--text2);margin-bottom:20px;">Diese Aktion kann nicht rückgängig gemacht werden.</div>
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      <button class="btn btn-danger btn-full" id="del-confirm-yes">Ja, löschen</button>
+      <button class="btn btn-ghost btn-full" id="del-confirm-no">Abbrechen</button>
+    </div>
+  </div>`;
+  document.body.appendChild(overlay);
+  document.getElementById('del-confirm-yes').addEventListener('click',()=>{
+    const data=getData();
+    data.sessions=data.sessions.filter(s=>s.id!=id);
+    saveData(data);
+    // Alle Overlays schließen (Detail + Bestätigung)
+    document.querySelectorAll('[style*="z-index:600"],[style*="z-index:950"],[style*="z-index: 600"],[style*="z-index: 950"]').forEach(e=>e.remove());
+    overlay.remove();
+    showToast('Session gelöscht');
+    showPage('page-heute');
+    renderFullLog();
+  });
+  document.getElementById('del-confirm-no').addEventListener('click',()=>overlay.remove());
+  overlay.addEventListener('click',e=>{if(e.target===overlay)overlay.remove();});
 }
 
 // ═══ PROGRESS ═══
