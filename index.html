@@ -638,25 +638,25 @@ const PHASE_PLANS = {
 
 const PHASE_META = {
   1:{num:1,label:'Basis & Recomp',cls:'ph1',color:'#1D9E75',bg:'#E8F7F2',border:'#1D9E75',
-     period:'Jun – Aug',weeks:10,
+     period:'10 Wochen',weeks:10,
      ziel:'Bankdrücken 87,5 kg sauber · Squat 90 kg · KFA –1–2%',
      training:'Upper/Lower 4×/Wo · Zone 2 1×',
      ernaehrung:'–150 kcal/Tag · 180 g Protein',
      progression:'Double Progression · ab Wo 5 Pausen reduzieren'},
   2:{num:2,label:'Kraft-Peak',cls:'ph2',color:'#4A44B0',bg:'#EEEDF8',border:'#4A44B0',
-     period:'Sep – Okt',weeks:8,
+     period:'8 Wochen',weeks:8,
      ziel:'Bankdrücken 92–95 kg · Squat 95–100 kg',
      training:'Upper/Lower 4×/Wo · Zone 2 1× (35 min)',
      ernaehrung:'Erhaltungskalorisch · 190 g Protein',
      progression:'4–6 Reps · Tempo 3 sek exz. · Pausen 75 sek'},
   3:{num:3,label:'KFA-Cut',cls:'ph3',color:'#64748B',bg:'#FEF3E2',border:'#64748B',
-     period:'Nov – Dez',weeks:8,
+     period:'8 Wochen',weeks:8,
      ziel:'KFA 18% → 15–16% · Kraft halten',
      training:'3 Krafttage · Zone 2 2×/Wo (38 min)',
      ernaehrung:'–300 kcal/Tag · 2 g Protein/kg',
      progression:'Intensität hoch · Volumen –30% · Gewicht halten'},
   4:{num:4,label:'Recovery',cls:'ph4',color:'#1A5FA0',bg:'#E8F2FC',border:'#1A5FA0',
-     period:'Januar',weeks:4,
+     period:'4 Wochen',weeks:4,
      ziel:'Mentaler Reset · Nervensystem erholen',
      training:'LeoMoves täglich · Zone 2 2×/Wo',
      ernaehrung:'Erhaltungskalorisch',
@@ -1035,15 +1035,37 @@ function getVariation(phaseNum, sessionKey, exName){
 
 
 // Übungen die Aufwärmsätze bekommen
-const NEEDS_WARMUP_SETS = ['Flat Bankdrücken','Back Squat','RDL'];
+// Übungen + Anzahl Aufwärmsätze
+const WARMUP_CONFIG = {
+  'Flat Bankdrücken': 2,   // 2 WU: 40% × 10, 75% × 6
+  'Back Squat':       2,   // 2 WU: 40% × 10, 75% × 6
+  'RDL':              2,   // 2 WU: 40% × 10, 75% × 6
+  'Chest Supp. Row':  1,   // 1 WU: 50% × 10
+  'Einarm. Rudern':   1,   // 1 WU: 50% × 10
+  'DB OHP':           1,   // 1 WU: 50% × 10
+};
 
 function needsWarmupSets(exName){
-  return NEEDS_WARMUP_SETS.some(n=>exName.toLowerCase().includes(n.toLowerCase().split(' ')[0]));
+  return Object.keys(WARMUP_CONFIG).some(n=>exName.toLowerCase().includes(n.toLowerCase().split(' ')[0]));
+}
+
+function getWarmupSetCount(exName){
+  for(const[k,v] of Object.entries(WARMUP_CONFIG)){
+    if(exName.toLowerCase().includes(k.toLowerCase().split(' ')[0])) return v;
+  }
+  return 0;
 }
 
 function getWarmupSetConfig(ex){
-  // 2 Aufwärmsätze: 40% & 75% des Arbeitsgewichts
   if(!ex.weight) return null;
+  const count = getWarmupSetCount(ex.name);
+  if(count === 1){
+    // 1 WU-Satz: 50% × 10
+    return [
+      {weight:Math.round(ex.weight*0.5/2.5)*2.5, reps:10, label:'Aufwärmsatz'},
+    ];
+  }
+  // 2 WU-Sätze: 40% × 10, 75% × 6
   return [
     {weight:Math.round(ex.weight*0.4/2.5)*2.5, reps:10, label:'Aufwärmsatz 1'},
     {weight:Math.round(ex.weight*0.75/2.5)*2.5, reps:6,  label:'Aufwärmsatz 2'},
@@ -1052,6 +1074,10 @@ function getWarmupSetConfig(ex){
 
 function getWarmupPhase(exIdx){
   return AS.warmupSetsPhase[exIdx]||0;
+}
+
+function getWarmupTotal(exName){
+  return getWarmupSetCount(exName)||0;
 }
 
 
@@ -1531,8 +1557,9 @@ function renderSessionBody(){
   const isLastSet=exWorkSets.length===ex.sets-1;
 
   // Check if warmup sets needed
-  const wuPhase=needsWarmupSets(ex.name)&&!AS.deloadMode?getWarmupPhase(AS.exIdx):2;
-  const wuConfig=wuPhase<2?getWarmupSetConfig(ex):null;
+  const wuTotal=needsWarmupSets(ex.name)&&!AS.deloadMode?getWarmupTotal(ex.name):0;
+  const wuPhase=getWarmupPhase(AS.exIdx);
+  const wuConfig=wuPhase<wuTotal?getWarmupSetConfig(ex):null;
 
   let inputArea='';
   if(wuConfig&&wuPhase<2){
@@ -1679,13 +1706,13 @@ function renderCooldownScreen(){
 function warmupSetDone(){
   const w=document.getElementById('inp-weight').value;
   const r=document.getElementById('inp-reps').value;
-  // Log as warmup set (flagged)
   AS.doneSets.push({exIdx:AS.exIdx,weight:parseFloat(w)||null,reps:parseInt(r)||0,rir:'WU',isWarmup:true});
-  // Advance warmup phase
   const phase=getWarmupPhase(AS.exIdx);
   AS.warmupSetsPhase[AS.exIdx]=phase+1;
-  // Short 45 sec rest
-  startTimer(45,'Aufwärm-Pause','warmup');
+  // Short pause: 30 sek nach 1 WU-Satz, 45 sek nach erstem von zwei
+  const total=getWarmupTotal(AS.exercises[AS.exIdx].name);
+  const pauseSek=total===1?30:45;
+  startTimer(pauseSek,'Aufwärm-Pause','warmup');
 }
 
 // ── CLUSTER LOGIC ──
