@@ -554,13 +554,13 @@ const PHASE_PLANS = {
       'Lower A':{day:'Dienstag',type:'lower',duration:'40 min',note:'Bürotag · Volumen · 3×10–12',exercises:[
         {name:'Back Squat',target:'3 × 10–12',weight:70,sets:3,reps:'10–12',unit:'kg'},
         {name:'RDL',target:'3 × 10',weight:75,sets:3,reps:'10',unit:'kg'},
-        {name:'Bulgarian SS',target:'3 × 10',weight:12.5,sets:3,reps:'10',unit:'kg/S'},
+        {name:'Bulgarian SS',target:'3 × 10',weight:12.5,sets:3,reps:'10',unit:'kg/S',isUnilateral:true},
         {name:'KB Swings',target:'3 × 20',weight:24,sets:3,reps:'20',unit:'kg'},
       ]},
       'Lower B':{day:'Samstag',type:'lower',duration:'55 min',note:'Haupttag · Intensität · 4×6–8',exercises:[
         {name:'Back Squat',target:'4 × 6–8',weight:85,sets:4,reps:'6–8',unit:'kg'},
         {name:'RDL',target:'4 × 8–10',weight:87.5,sets:4,reps:'8–10',unit:'kg'},
-        {name:'Bulgarian SS',target:'3 × 10',weight:15,sets:3,reps:'10',unit:'kg/S'},
+        {name:'Bulgarian SS',target:'3 × 10',weight:15,sets:3,reps:'10',unit:'kg/S',isUnilateral:true},
         {name:'KB Swings',target:'4 × 20',weight:24,sets:4,reps:'20',unit:'kg'},
         {name:'Hollow Hold',target:'3 × 30 sek',weight:null,sets:3,reps:'30',unit:'sek'},
       ]},
@@ -589,13 +589,13 @@ const PHASE_PLANS = {
       'Lower A':{day:'Dienstag',type:'lower',duration:'45 min',note:'Volumen · Tempo 3 sek exz.',exercises:[
         {name:'Back Squat',target:'3 × 6–8',weight:80,sets:3,reps:'6–8',unit:'kg'},
         {name:'RDL',target:'3 × 8',weight:85,sets:3,reps:'8',unit:'kg'},
-        {name:'Bulgarian SS',target:'3 × 8',weight:17.5,sets:3,reps:'8',unit:'kg/S'},
+        {name:'Bulgarian SS',target:'3 × 8',weight:17.5,sets:3,reps:'8',unit:'kg/S',isUnilateral:true},
         {name:'KB Swings',target:'3 × 20',weight:24,sets:3,reps:'20',unit:'kg'},
       ]},
       'Lower B':{day:'Samstag',type:'lower',duration:'55 min',note:'Kraft-Peak · 4×4–6',exercises:[
         {name:'Back Squat',target:'4 × 4–6',weight:92.5,sets:4,reps:'4–6',unit:'kg'},
         {name:'RDL',target:'4 × 5–6',weight:95,sets:4,reps:'5–6',unit:'kg'},
-        {name:'Bulgarian SS',target:'3 × 8',weight:17.5,sets:3,reps:'8',unit:'kg/S'},
+        {name:'Bulgarian SS',target:'3 × 8',weight:17.5,sets:3,reps:'8',unit:'kg/S',isUnilateral:true},
         {name:'KB Swings',target:'4 × 20',weight:28,sets:4,reps:'20',unit:'kg'},
         {name:'Hollow Hold',target:'3 × 35 sek',weight:null,sets:3,reps:'35',unit:'sek'},
       ]},
@@ -621,7 +621,7 @@ const PHASE_PLANS = {
       'Lower B':{day:'Samstag',type:'lower',duration:'50 min',note:'Kraft halten',exercises:[
         {name:'Back Squat',target:'3 × 4–6',weight:90,sets:3,reps:'4–6',unit:'kg'},
         {name:'RDL',target:'3 × 6–8',weight:90,sets:3,reps:'6–8',unit:'kg'},
-        {name:'Bulgarian SS',target:'3 × 8',weight:17.5,sets:3,reps:'8',unit:'kg/S'},
+        {name:'Bulgarian SS',target:'3 × 8',weight:17.5,sets:3,reps:'8',unit:'kg/S',isUnilateral:true},
         {name:'KB Swings',target:'4 × 20',weight:28,sets:4,reps:'20',unit:'kg'},
       ]},
       'Cardio':{day:'Di/Fr',type:'zone2',duration:'38 min',note:'2× / Woche · HF 120–140 bpm',exercises:[]},
@@ -1184,6 +1184,10 @@ function startTimer(seconds, label, type){
       clearInterval(AS.timerInterval);
       return;
     }
+    // iOS: AudioContext bei jedem Tick entsperren
+    if(SharedAudio.ctx && SharedAudio.ctx.state === 'suspended'){
+      SharedAudio.ctx.resume().catch(()=>{});
+    }
     const remaining = Math.max(0, Math.round((TIMER_TARGET_MS - Date.now()) / 1000));
     AS.timerRemaining = remaining;
     updateTimerDisplay();
@@ -1303,13 +1307,13 @@ const PLAN = {
   'Lower A':{day:'Dienstag',type:'lower',duration:'40 min',note:'Bürotag · Volumen-Fokus',exercises:[
     {name:'Back Squat',target:'3 × 10–12',weight:70,sets:3,reps:'10–12',unit:'kg'},
     {name:'RDL',target:'3 × 10',weight:75,sets:3,reps:'10',unit:'kg'},
-    {name:'Bulgarian SS',target:'3 × 10',weight:12.5,sets:3,reps:'10',unit:'kg/S'},
+    {name:'Bulgarian SS',target:'3 × 10',weight:12.5,sets:3,reps:'10',unit:'kg/S',isUnilateral:true},
     {name:'KB Swings',target:'3 × 20',weight:24,sets:3,reps:'20',unit:'kg'},
   ]},
   'Lower B':{day:'Samstag',type:'lower',duration:'55 min',note:'Haupttag · Intensitäts-Fokus',exercises:[
     {name:'Back Squat',target:'4 × 6–8',weight:85,sets:4,reps:'6–8',unit:'kg'},
     {name:'RDL',target:'4 × 8–10',weight:87.5,sets:4,reps:'8–10',unit:'kg'},
-    {name:'Bulgarian SS',target:'3 × 10',weight:15,sets:3,reps:'10',unit:'kg/S'},
+    {name:'Bulgarian SS',target:'3 × 10',weight:15,sets:3,reps:'10',unit:'kg/S',isUnilateral:true},
     {name:'KB Swings',target:'4 × 20',weight:24,sets:4,reps:'20',unit:'kg'},
     {name:'Hollow Hold',target:'3 × 30 sek',weight:null,sets:3,reps:'30',unit:'sek'},
   ]},
@@ -1601,7 +1605,10 @@ let AS = {
   deloadMode:false,
   warmupDone:false,
   cooldownShown:false,
-  warmupSetsPhase:{}, // {exIdx: 0|1|2} — 0=beide noch offen, 1=erster done, 2=beide done
+  warmupSetsPhase:{},
+  _uniRightDone:false,
+  _uniLeftReps:0,
+  _uniLeftWeight:null, // {exIdx: 0|1|2} — 0=beide noch offen, 1=erster done, 2=beide done
 };
 
 const CIRCUMFERENCE = 2 * Math.PI * 65;
@@ -1739,6 +1746,14 @@ function renderSessionBody(){
   const wuPhase=getWarmupPhase(AS.exIdx);
   const wuConfig=wuPhase<wuTotal?getWarmupSetConfig(ex):null;
 
+  // Satznummer-Label berechnen (außerhalb Template-String um Backtick-Konflikte zu vermeiden)
+  const wuN_count=needsWarmupSets(ex.name)&&!AS.deloadMode?getWarmupTotal(ex.name):0;
+  const totalSetsLabel=ex.sets+wuN_count;
+  const currentSatzLabel=exWorkSets.length+1+wuN_count;
+  const satzLabel=wuN_count>0
+    ?'Satz '+currentSatzLabel+' von '+totalSetsLabel+" <span style='font-size:10px;color:var(--green);font-weight:600;'>("+wuN_count+' WU + '+ex.sets+' Arbeit)</span>'
+    :'Satz '+(exWorkSets.length+1)+' von '+ex.sets;
+
   let inputArea='';
   if(wuConfig&&wuPhase<wuTotal){
     // Show warmup set input
@@ -1770,16 +1785,30 @@ function renderSessionBody(){
           <button class="btn btn-amber" style="flex:1;" onclick="clusterDone()">✓ Cluster beendet → 20 sek Pause</button>
         </div>
       </div>`;
-  } else {
+  } else if(ex.isUnilateral){
+    // Unilateral (z.B. Bulgarian SS): Links → 20sek → Rechts
+    const _uniSide=AS._uniSide||'links';
     inputArea=`
-      <div class="set-input-area" id="set-input-area">
-        <div style="font-size:13px;color:var(--text2);margin-bottom:10px;font-weight:500;">${(()=>{const wuN=needsWarmupSets(ex.name)&&!AS.deloadMode?getWarmupTotal(ex.name):0;const totalSets=ex.sets+wuN;const currentSatz=exSets.length+1;return `Satz ${currentSatz} von ${totalSets}${wuN>0?' <span style=\"font-size:10px;color:var(--teal);font-weight:600;\">(${wuN} WU + ${ex.sets} Arbeit)</span>':''}`;})()} </div>
+      <div class="set-input-area" id="set-input-area" style="background:${_uniSide==='links'?'#ECFDF5':'#EFF6FF'};">
+        <div style="font-size:13px;color:var(--text2);margin-bottom:6px;font-weight:500;">${satzLabel}</div>
+        <div style="font-size:16px;font-weight:700;margin-bottom:10px;color:${_uniSide==='links'?'var(--green)':'var(--blue)'};">${_uniSide==='links'?'← Links':'→ Rechts'}</div>
         <div class="g3">
           <div><label>${ex.unit}</label><input type="number" id="inp-weight" placeholder="${ex.weight||'—'}" value="${getLastWeight(ex.name,ex.weight)||''}" step="0.5" inputmode="decimal" style="text-align:center;font-size:16px;"></div>
           <div><label>Wdh</label><input type="number" id="inp-reps" placeholder="Wdh" value="${getLastReps(ex.name,'')||''}" inputmode="numeric" style="text-align:center;font-size:16px;"></div>
           <div><label>RIR</label><input type="number" id="inp-rir" placeholder="0" min="0" max="5" inputmode="numeric" style="text-align:center;font-size:16px;"></div>
         </div>
-        <button class="btn btn-primary btn-full" style="margin-top:10px;" onclick="setDone()">✓ Satz beendet</button>
+        <button class="btn btn-primary btn-full" style="margin-top:10px;background:${_uniSide==='links'?'var(--green)':'var(--blue)'};" onclick="uniSideDone()">✓ ${_uniSide==='links'?'Links':'Rechts'} beendet${_uniSide==='links'?' → 20 sek → Rechts':''}</button>
+      </div>`;
+  } else {
+    inputArea=`
+      <div class="set-input-area" id="set-input-area">
+        <div style="font-size:13px;color:var(--text2);margin-bottom:10px;font-weight:500;">${satzLabel}</div>
+        <div class="g3">
+          <div><label>${ex.unit}</label><input type="number" id="inp-weight" placeholder="${ex.weight||'—'}" value="${getLastWeight(ex.name,ex.weight)||''}" step="0.5" inputmode="decimal" style="text-align:center;font-size:16px;"></div>
+          <div><label>Wdh</label><input type="number" id="inp-reps" placeholder="Wdh" value="${getLastReps(ex.name,'')||''}" inputmode="numeric" style="text-align:center;font-size:16px;"></div>
+          <div><label>RIR</label><input type="number" id="inp-rir" placeholder="0" min="0" max="5" inputmode="numeric" style="text-align:center;font-size:16px;"></div>
+        </div>
+        <button class="btn btn-primary btn-full" style="margin-top:10px;" onclick="setDone()">${ex.isUnilateral&&!AS._uniRightDone?'✓ Links beendet → 20sek → Rechts':'✓ Satz beendet'}</button>
       </div>`;
   }
 
@@ -2130,17 +2159,36 @@ function goBackExercise(){
 
 // ── SET DONE ──
 function setDone(){
+  SharedAudio.unlock();
   const w=document.getElementById('inp-weight').value;
   const r=document.getElementById('inp-reps').value;
   const rir=document.getElementById('inp-rir').value;
   if(!r){showToast('Wiederholungen eingeben!');return;}
-  AS.doneSets.push({exIdx:AS.exIdx,weight:parseFloat(w)||null,reps:parseInt(r)||0,rir:rir});
   const ex=AS.exercises[AS.exIdx];
+
+  // Unilateral: nach Links-Eingabe → 20sek → Rechts
+  if(ex.isUnilateral && !AS._uniRightDone){
+    AS._uniLeftReps=parseInt(r)||0;
+    AS._uniLeftWeight=parseFloat(w)||null;
+    AS._uniRightDone=true;
+    startTimer(20,'Seite wechseln — Rechts','set');
+    return;
+  }
+
+  // Normaler Satz oder Rechts-Seite bei Unilateral
+  const leftReps=AS._uniRightDone?AS._uniLeftReps:null;
+  const leftWeight=AS._uniRightDone?AS._uniLeftWeight:null;
+  AS._uniRightDone=false;
+  AS._uniLeftReps=0;
+  AS._uniLeftWeight=null;
+
+  const repsToLog=ex.isUnilateral?leftReps+'/'+r:parseInt(r)||0;
+  AS.doneSets.push({exIdx:AS.exIdx,weight:parseFloat(w)||leftWeight||null,reps:repsToLog,rir:rir});
+
   const exSets=AS.doneSets.filter(s=>s.exIdx===AS.exIdx);
   const settings=getSettings();
   const workSets=exSets.filter(s=>!s.isWarmup);
   if(workSets.length>=ex.sets){
-    // Last working set done → show decision screen
     renderLastSetDecision();
   } else {
     startTimer(settings.restBetweenSets,'Pause zwischen Sätzen','set');
@@ -2170,7 +2218,7 @@ function renderLastSetDecision(){
             <div style="font-size:11px;color:var(--text2);margin-top:2px;">Pause starten → dann Satz ${exSets.length+1} eingeben</div>
           </button>
           ${isLast?
-            `<button class="btn btn-primary btn-full" style="text-align:left;padding:14px 16px;" onclick="renderSessionBody()">
+            `<button class="btn btn-primary btn-full" style="text-align:left;padding:14px 16px;" onclick="finishSession()">
               <div style="font-size:14px;font-weight:600;">Session abschließen ✓</div>
               <div style="font-size:11px;opacity:.8;margin-top:2px;">Zur Cool-down & Zusammenfassung</div>
             </button>` :
@@ -2179,7 +2227,8 @@ function renderLastSetDecision(){
               <div style="font-size:11px;opacity:.8;margin-top:2px;">Pause zwischen Übungen starten</div>
             </button>`
           }
-          ${AS.exIdx>0?`<button class="btn btn-ghost btn-full" style="color:var(--text2);" onclick="goBackExercise()">← Zurück zu ${AS.exercises[AS.exIdx-1].name}</button>`:''}
+          <button class="btn btn-ghost btn-full" style="color:var(--text2);" onclick="undoLastSet()">← Letzten Satz wiederholen</button>
+          ${AS.exIdx>0?`<button class="btn btn-ghost btn-full" style="color:var(--text2);font-size:12px;" onclick="goBackExercise()">← Zurück zu ${AS.exercises[AS.exIdx-1].name}</button>`:''}
         </div>
       </div>
     </div>`;
@@ -2191,6 +2240,59 @@ function addExtraSet(){
   ex.sets++;
   const settings=getSettings();
   startTimer(settings.restBetweenSets,'Pause vor Extra-Satz','set');
+}
+
+
+
+
+function uniSideDone(){
+  const w=document.getElementById('inp-weight').value;
+  const r=document.getElementById('inp-reps').value;
+  const rir=document.getElementById('inp-rir').value;
+  if(!r){showToast('Wiederholungen eingeben!');return;}
+  const side=AS._uniSide||'links';
+  if(side==='links'){
+    // Links gespeichert, 20sek Timer, dann Rechts
+    AS._uniLeft={weight:parseFloat(w)||null,reps:parseInt(r)||0,rir:rir};
+    AS._uniSide='rechts';
+    startTimer(20,'Seite wechseln → Rechts','cluster');
+  } else {
+    // Beide Seiten fertig → als einen Satz loggen
+    AS.doneSets.push({
+      exIdx:AS.exIdx,
+      weight:AS._uniLeft?.weight||null,
+      reps:(AS._uniLeft?.reps||0)+'/'+r+' (L/R)',
+      rir:rir,
+      isUnilateral:true,
+    });
+    AS._uniSide='links';
+    AS._uniLeft=null;
+    // Weiter wie setDone
+    const ex=AS.exercises[AS.exIdx];
+    const workSets=AS.doneSets.filter(s=>s.exIdx===AS.exIdx&&!s.isWarmup);
+    const settings=getSettings();
+    if(workSets.length>=ex.sets){
+      renderLastSetDecision();
+    } else {
+      startTimer(settings.restBetweenSets,'Pause zwischen Sätzen','set');
+    }
+  }
+}
+
+function undoLastSet(){
+  // Letzten Arbeitssatz dieser Übung löschen
+  for(let i=AS.doneSets.length-1;i>=0;i--){
+    if(AS.doneSets[i].exIdx===AS.exIdx&&!AS.doneSets[i].isWarmup){
+      AS.doneSets.splice(i,1);
+      break;
+    }
+  }
+  renderSessionBody();
+}
+
+function goToCooldown(){
+  AS.exIdx=AS.exercises.length; // Ende markieren
+  renderSessionBody(); // → geht zu Cooldown
 }
 
 function proceedToNextExercise(){
@@ -2228,17 +2330,17 @@ function renderTimer(label,type){
       </div>`:''}
     </div>`;
   } else if(!isBetween && !isWarmup && ex){
-    const exWorkSets=AS.doneSets.filter(s=>s.exIdx===AS.exIdx&&!s.isWarmup);
-    const wuTotal=needsWarmupSets(ex.name)&&!AS.deloadMode?getWarmupTotal(ex.name):0;
-    const totalSets=ex.sets+wuTotal;
+    const _exWorkSets=AS.doneSets.filter(s=>s.exIdx===AS.exIdx&&!s.isWarmup);
+    const _wuTotal=needsWarmupSets(ex.name)&&!AS.deloadMode?getWarmupTotal(ex.name):0;
+    const _totalSets=ex.sets+_wuTotal;
     const lastW=getLastWeight(ex.name,ex.weight);
-    if(exWorkSets.length<ex.sets){
+    if(_exWorkSets.length<ex.sets){
       nextInfo=`<div style="margin:0 16px;background:var(--surface);border-radius:var(--radius);padding:14px 16px;box-shadow:var(--shadow);">
         <div style="font-size:10px;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px;">Nächster Satz</div>
         <div style="display:flex;align-items:center;justify-content:space-between;">
           <div>
             <div style="font-size:15px;font-weight:700;color:var(--text);">${ex.name}</div>
-            <div style="font-size:11px;color:var(--text2);font-family:var(--mono);margin-top:2px;">Satz ${exWorkSets.length+1+wuTotal} von ${totalSets}</div>
+            <div style="font-size:11px;color:var(--text2);font-family:var(--mono);margin-top:2px;">Satz ${_exWorkSets.length+1+_wuTotal} von ${_totalSets}</div>
           </div>
           <div style="text-align:right;">
             <div style="font-size:24px;font-weight:700;color:var(--text);font-family:var(--mono);">${lastW?lastW+' kg':'—'}</div>
