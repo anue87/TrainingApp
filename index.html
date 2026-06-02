@@ -470,6 +470,7 @@ label { font-size: 11px; color: var(--text2); font-weight: 600; margin-bottom: 6
     <div class="card">
       <div style="display:flex;flex-direction:column;gap:10px;">
         <button class="btn btn-ghost btn-full" onclick="exportData()">Daten exportieren (JSON)</button>
+        <button class="btn btn-ghost btn-full" onclick="importData()">Daten importieren (JSON)</button>
         <button class="btn btn-danger btn-full" onclick="clearAllData()">Alle Daten löschen</button>
       </div>
     </div>
@@ -670,21 +671,18 @@ const PHASE_META = {
 function getPhaseSettings(){
   const today=new Date().toISOString().split('T')[0];
   const def={activePhase:1,startDate:today,durationWeeks:10,isManual:false};
-  const stored=localStorage.getItem('phaseSettings');
-  if(!stored) return def;
-  const parsed=JSON.parse(stored);
-  // Falls startDate in der Vergangenheit liegt und Woche > total: startDate auf heute setzen
+  const parsed=DB.get('phaseSettings')||def;
   if(!parsed.isManual){
     const start=new Date(parsed.startDate);
     const weeksDone=Math.floor((new Date()-start)/(7*24*60*60*1000));
     if(weeksDone>=parsed.durationWeeks){
       parsed.startDate=today;
-      localStorage.setItem('phaseSettings',JSON.stringify(parsed));
+      DB.set('phaseSettings',parsed);
     }
   }
   return parsed;
 }
-function savePhaseSettings(s){localStorage.setItem('phaseSettings',JSON.stringify(s));}
+function savePhaseSettings(s){DB.set('phaseSettings',s);}
 
 function getCurrentPhase(){
   const ps=getPhaseSettings();
@@ -1092,30 +1090,41 @@ const SharedAudio = {
 
   getCtx(){
     if(!this.ctx){
-      this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+      try { this.ctx = new (window.AudioContext || window.webkitAudioContext)(); }
+      catch(e){ return null; }
     }
     return this.ctx;
   },
 
   unlock(){
-    if(this.unlocked) return;
     try {
       const ctx = this.getCtx();
-      // iOS entsperren: kurzen stummen Buffer abspielen
-      const buf = ctx.createBuffer(1,1,22050);
+      if(!ctx) return;
+      // iOS: stummen Buffer + resume — auch wenn schon unlocked (re-unlock nach Background)
+      const buf = ctx.createBuffer(1, 1, 22050);
       const src = ctx.createBufferSource();
       src.buffer = buf;
       src.connect(ctx.destination);
       src.start(0);
-      if(ctx.state === 'suspended') ctx.resume();
+      if(ctx.state === 'suspended') ctx.resume().catch(()=>{});
       this.unlocked = true;
     } catch(e) {}
   },
 
+  // Sicherstellen dass Context läuft vor jedem Ton
+  _ensureRunning(){
+    const ctx = this.getCtx();
+    if(!ctx) return ctx;
+    if(ctx.state === 'suspended'){
+      ctx.resume().catch(()=>{});
+    }
+    return ctx;
+  },
+
   beep(){
     try {
-      const ctx = this.getCtx();
-      if(ctx.state === 'suspended') ctx.resume();
+      const ctx = this._ensureRunning();
+      if(!ctx) return;
       [0, 150, 300].forEach(delay => {
         const o = ctx.createOscillator();
         const g = ctx.createGain();
@@ -1127,12 +1136,38 @@ const SharedAudio = {
         o.stop(ctx.currentTime + delay/1000 + 0.2);
       });
     } catch(e) {}
+  },
+
+  // Einzelner Ton mit bestimmter Frequenz und Zeitpunkt
+  tone(freq, delayMs, duration=0.12){
+    try {
+      const ctx = this._ensureRunning();
+      if(!ctx) return;
+      const o = ctx.createOscillator();
+      const g = ctx.createGain();
+      o.connect(g); g.connect(ctx.destination);
+      o.frequency.value = freq; o.type = 'sine';
+      const t = ctx.currentTime + delayMs/1000;
+      g.gain.setValueAtTime(0.35, t);
+      g.gain.exponentialRampToValueAtTime(0.001, t + duration);
+      o.start(t); o.stop(t + duration + 0.05);
+    } catch(e) {}
+  },
+
+  // 3-2-1 Countdown
+  countdown(){
+    // Drei kurze Ticks, dann ein langer Beep
+    this.tone(660, 0,   0.08);  // 3
+    this.tone(660, 1000, 0.08); // 2
+    this.tone(660, 2000, 0.08); // 1
+    this.tone(880, 3000, 0.25); // GO
   }
 };
 
-// AudioContext bei erstem Touch entsperren
-document.addEventListener('touchstart', () => SharedAudio.unlock(), {once: true, passive: true});
-document.addEventListener('click', () => SharedAudio.unlock(), {once: true, passive: true});
+// AudioContext bei JEDEM Touch re-entsperren (nicht nur einmal)
+// iOS setzt den Context manchmal nach Hintergrundwechsel zurück
+document.addEventListener('touchstart', () => SharedAudio.unlock(), {passive: true});
+document.addEventListener('touchend', () => SharedAudio.unlock(), {passive: true});
 
 // ── Fix 2: Absoluter Timer (läuft nach Background-Pause korrekt weiter) ──
 let TIMER_TARGET_MS = null; // Date.now() + seconds*1000
@@ -1293,10 +1328,136 @@ const PHASE_GOALS=[
 // PHASE_START replaced by phaseSettings.startDate
 
 // ═══ STORAGE ═══
-function getData(){return JSON.parse(localStorage.getItem('trainingData')||'{"sessions":[],"bodyStats":[]}')}
-function saveData(d){localStorage.setItem('trainingData',JSON.stringify(d))}
-function getSettings(){return JSON.parse(localStorage.getItem('trainingSettings')||'{"restBetweenSets":90,"restBetweenEx":120}')}
-function saveSettings(s){localStorage.setItem('trainingSettings',JSON.stringify(s))}
+
+// ═══ INDEXEDDB STORAGE LAYER ═══
+// Synchroner In-Memory-Cache + async IndexedDB Persistenz
+// Alle getData/saveData Aufrufe bleiben synchron
+
+const DB = {
+  name: 'logset_db',
+  version: 1,
+  db: null,
+  cache: {
+    trainingData: {sessions:[], bodyStats:[]},
+    trainingSettings: {restBetweenSets:90, restBetweenEx:120},
+    phaseSettings: null,
+  },
+  ready: false,
+
+  async init(){
+    return new Promise((resolve, reject) => {
+      if(!window.indexedDB){ this.ready=true; resolve(); return; }
+      const req = indexedDB.open(this.name, this.version);
+      req.onupgradeneeded = e => {
+        const db = e.target.result;
+        if(!db.objectStoreNames.contains('store')){
+          db.createObjectStore('store');
+        }
+      };
+      req.onsuccess = async e => {
+        this.db = e.target.result;
+        // Lade alle Keys in Cache
+        await this._loadAll();
+        // Migration: localStorage → IndexedDB
+        await this._migrate();
+        this.ready = true;
+        resolve();
+      };
+      req.onerror = () => { this.ready=true; resolve(); }; // Fallback auf Cache
+    });
+  },
+
+  async _loadAll(){
+    const keys = ['trainingData','trainingSettings','phaseSettings'];
+    for(const key of keys){
+      const val = await this._idbGet(key);
+      if(val !== null) this.cache[key] = val;
+    }
+  },
+
+  async _migrate(){
+    // Einmalige Migration von localStorage zu IndexedDB
+    if(localStorage.getItem('_idb_migrated')) return;
+    const td = localStorage.getItem('trainingData');
+    const ts = localStorage.getItem('trainingSettings');
+    const ps = localStorage.getItem('phaseSettings');
+    if(td){ const parsed=JSON.parse(td); this.cache.trainingData=parsed; await this._idbSet('trainingData',parsed); }
+    if(ts){ const parsed=JSON.parse(ts); this.cache.trainingSettings=parsed; await this._idbSet('trainingSettings',parsed); }
+    if(ps){ const parsed=JSON.parse(ps); this.cache.phaseSettings=parsed; await this._idbSet('phaseSettings',parsed); }
+    if(td||ts||ps){
+      localStorage.setItem('_idb_migrated','1');
+      console.log('Log.seT: Daten von localStorage zu IndexedDB migriert');
+    }
+  },
+
+  _idbGet(key){
+    return new Promise(resolve => {
+      if(!this.db){ resolve(null); return; }
+      try {
+        const tx = this.db.transaction('store','readonly');
+        const req = tx.objectStore('store').get(key);
+        req.onsuccess = () => resolve(req.result ?? null);
+        req.onerror = () => resolve(null);
+      } catch(e){ resolve(null); }
+    });
+  },
+
+  _idbSet(key, value){
+    return new Promise(resolve => {
+      if(!this.db){ resolve(); return; }
+      try {
+        const tx = this.db.transaction('store','readwrite');
+        tx.objectStore('store').put(value, key);
+        tx.oncomplete = () => resolve();
+        tx.onerror = () => resolve();
+      } catch(e){ resolve(); }
+    });
+  },
+
+  // Synchron lesen (aus Cache)
+  get(key){ return this.cache[key] ?? null; },
+
+  // Synchron schreiben (Cache sofort, IDB async im Hintergrund)
+  set(key, value){
+    this.cache[key] = value;
+    this._idbSet(key, value); // fire & forget
+  },
+
+  // Löschen
+  delete(key){
+    this.cache[key] = key==='trainingData'?{sessions:[],bodyStats:[]}:null;
+    if(this.db){
+      try {
+        const tx = this.db.transaction('store','readwrite');
+        tx.objectStore('store').delete(key);
+      } catch(e){}
+    }
+    localStorage.removeItem(key);
+  },
+
+  // Export: alle Daten als JSON
+  export(){
+    return {
+      trainingData: this.cache.trainingData,
+      trainingSettings: this.cache.trainingSettings,
+      phaseSettings: this.cache.phaseSettings,
+      exportedAt: new Date().toISOString(),
+      version: 1,
+    };
+  },
+
+  // Import: JSON zurückspielen
+  async import(json){
+    if(json.trainingData){ this.set('trainingData', json.trainingData); }
+    if(json.trainingSettings){ this.set('trainingSettings', json.trainingSettings); }
+    if(json.phaseSettings){ this.set('phaseSettings', json.phaseSettings); }
+  }
+};
+
+function getData(){return DB.get('trainingData')||{sessions:[],bodyStats:[]}}
+function saveData(d){DB.set('trainingData',d)}
+function getSettings(){return DB.get('trainingSettings')||{restBetweenSets:90,restBetweenEx:120}}
+function saveSettings(s){DB.set('trainingSettings',s)}
 
 // ═══ PHASE (replaced by PHASE STORAGE above) ═══
 
@@ -1579,7 +1740,7 @@ function renderSessionBody(){
   const wuConfig=wuPhase<wuTotal?getWarmupSetConfig(ex):null;
 
   let inputArea='';
-  if(wuConfig&&wuPhase<2){
+  if(wuConfig&&wuPhase<wuTotal){
     // Show warmup set input
     const wuSet=wuConfig[wuPhase];
     inputArea=`<div class="set-input-area" style="background:#ECFDF522;border:1px solid #05966944;">
@@ -1612,10 +1773,10 @@ function renderSessionBody(){
   } else {
     inputArea=`
       <div class="set-input-area" id="set-input-area">
-        <div style="font-size:13px;color:var(--text2);margin-bottom:10px;font-weight:500;">Satz ${exSets.length+1} von ${ex.sets}${needsWarmupSets(ex.name)&&!AS.deloadMode?' <span style=\"font-size:10px;color:var(--teal);\">nach 2 Aufwärmsätzen</span>':''}</div>
+        <div style="font-size:13px;color:var(--text2);margin-bottom:10px;font-weight:500;">${(()=>{const wuN=needsWarmupSets(ex.name)&&!AS.deloadMode?getWarmupTotal(ex.name):0;const totalSets=ex.sets+wuN;const currentSatz=exSets.length+1;return `Satz ${currentSatz} von ${totalSets}${wuN>0?' <span style=\"font-size:10px;color:var(--teal);font-weight:600;\">(${wuN} WU + ${ex.sets} Arbeit)</span>':''}`;})()} </div>
         <div class="g3">
-          <div><label>${ex.unit}</label><input type="number" id="inp-weight" placeholder="${ex.weight||'—'}" value="${ex.weight||''}" step="0.5" inputmode="decimal" style="text-align:center;font-size:16px;"></div>
-          <div><label>Wdh</label><input type="number" id="inp-reps" placeholder="Wdh" inputmode="numeric" style="text-align:center;font-size:16px;"></div>
+          <div><label>${ex.unit}</label><input type="number" id="inp-weight" placeholder="${ex.weight||'—'}" value="${getLastWeight(ex.name,ex.weight)||''}" step="0.5" inputmode="decimal" style="text-align:center;font-size:16px;"></div>
+          <div><label>Wdh</label><input type="number" id="inp-reps" placeholder="Wdh" value="${getLastReps(ex.name,'')||''}" inputmode="numeric" style="text-align:center;font-size:16px;"></div>
           <div><label>RIR</label><input type="number" id="inp-rir" placeholder="0" min="0" max="5" inputmode="numeric" style="text-align:center;font-size:16px;"></div>
         </div>
         <button class="btn btn-primary btn-full" style="margin-top:10px;" onclick="setDone()">✓ Satz beendet</button>
@@ -1910,6 +2071,33 @@ function finishClusterSet(){
   }
 }
 
+
+function getLastWeight(exName, fallbackWeight){
+  const exSetsNow=AS.doneSets.filter(s=>s.exIdx===AS.exIdx&&!s.isWarmup);
+  if(exSetsNow.length>0){const last=exSetsNow[exSetsNow.length-1];if(last.weight)return last.weight;}
+  const data=getData();
+  const sessions=[...data.sessions].filter(s=>s.type===AS.type).sort((a,b)=>new Date(b.date)-new Date(a.date));
+  for(const s of sessions){
+    if(!s.exercises)continue;
+    const ex=s.exercises.find(e=>e.name===exName||e.name.toLowerCase().includes(exName.toLowerCase().split(' ')[0]));
+    if(ex){const ws=ex.sets.filter(st=>!st.isWarmup&&st.weight);if(ws.length>0)return ws[ws.length-1].weight;}
+  }
+  return fallbackWeight||null;
+}
+
+function getLastReps(exName, fallbackReps){
+  const exSetsNow=AS.doneSets.filter(s=>s.exIdx===AS.exIdx&&!s.isWarmup);
+  if(exSetsNow.length>0){const last=exSetsNow[exSetsNow.length-1];if(last.reps)return last.reps;}
+  const data=getData();
+  const sessions=[...data.sessions].filter(s=>s.type===AS.type).sort((a,b)=>new Date(b.date)-new Date(a.date));
+  for(const s of sessions){
+    if(!s.exercises)continue;
+    const ex=s.exercises.find(e=>e.name===exName||e.name.toLowerCase().includes(exName.toLowerCase().split(' ')[0]));
+    if(ex){const ws=ex.sets.filter(st=>!st.isWarmup&&st.reps);if(ws.length>0)return ws[ws.length-1].reps;}
+  }
+  return fallbackReps||null;
+}
+
 // ── DELETE SET (Satz rückgängig) ──
 function deleteSet(globalIdx){
   AS.doneSets.splice(globalIdx, 1);
@@ -2018,17 +2206,60 @@ function renderTimer(label,type){
   const ex=AS.exercises[AS.exIdx];
   const isCluster=type==='cluster';
   const isBetween=type==='between-ex';
+  const isWarmup=type==='warmup';
   const strokeClass=isCluster?'cluster':isBetween?'between-ex':'';
-  const color=isCluster?'var(--amber)':isBetween?'var(--purple)':'var(--teal-bright)';
+  const color=isCluster?'var(--amber)':isBetween?'var(--indigo)':'var(--green)';
 
   let nextInfo='';
+
   if(isBetween && AS.exIdx+1<AS.exercises.length){
     const next=AS.exercises[AS.exIdx+1];
+    const nextWuTotal=needsWarmupSets(next.name)&&!AS.deloadMode?getWarmupTotal(next.name):0;
+    const nextWeight=getLastWeight(next.name, next.weight);
+    const wu1=nextWeight?Math.round(nextWeight*0.4/2.5)*2.5:null;
+    const wu2=nextWeight?Math.round(nextWeight*0.75/2.5)*2.5:null;
+    const wu1s=nextWeight?Math.round(nextWeight*0.5/2.5)*2.5:null;
     nextInfo=`<div class="between-ex-banner">
-      <div class="between-ex-next">Nächste Übung</div>
-      <div style="font-size:18px;font-weight:600;color:var(--text);margin-bottom:2px;">${next.name}</div>
-      <div style="font-size:12px;color:var(--purple);font-family:var(--mono);">${next.target}</div>
+      <div class="between-ex-next">Nächste Übung — jetzt umrüsten</div>
+      <div style="font-size:18px;font-weight:700;color:var(--text);margin-bottom:4px;letter-spacing:-.02em;">${next.name}</div>
+      <div style="font-size:12px;color:var(--indigo);font-family:var(--mono);margin-bottom:6px;">${next.target}</div>
+      ${nextWuTotal>0&&nextWeight?`<div style="font-size:11px;color:var(--text2);background:rgba(255,255,255,.5);border-radius:6px;padding:5px 8px;">
+        ${nextWuTotal===2?`WU: ${wu1} kg × 10 → ${wu2} kg × 6`:`WU: ${wu1s} kg × 10`}
+      </div>`:''}
     </div>`;
+  } else if(!isBetween && !isWarmup && ex){
+    const exWorkSets=AS.doneSets.filter(s=>s.exIdx===AS.exIdx&&!s.isWarmup);
+    const wuTotal=needsWarmupSets(ex.name)&&!AS.deloadMode?getWarmupTotal(ex.name):0;
+    const totalSets=ex.sets+wuTotal;
+    const lastW=getLastWeight(ex.name,ex.weight);
+    if(exWorkSets.length<ex.sets){
+      nextInfo=`<div style="margin:0 16px;background:var(--surface);border-radius:var(--radius);padding:14px 16px;box-shadow:var(--shadow);">
+        <div style="font-size:10px;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px;">Nächster Satz</div>
+        <div style="display:flex;align-items:center;justify-content:space-between;">
+          <div>
+            <div style="font-size:15px;font-weight:700;color:var(--text);">${ex.name}</div>
+            <div style="font-size:11px;color:var(--text2);font-family:var(--mono);margin-top:2px;">Satz ${exWorkSets.length+1+wuTotal} von ${totalSets}</div>
+          </div>
+          <div style="text-align:right;">
+            <div style="font-size:24px;font-weight:700;color:var(--text);font-family:var(--mono);">${lastW?lastW+' kg':'—'}</div>
+            <div style="font-size:11px;color:var(--text2);">Ziel: ${ex.reps} Wdh</div>
+          </div>
+        </div>
+      </div>`;
+    }
+  } else if(isWarmup && ex){
+    const wuPhaseNow=getWarmupPhase(AS.exIdx);
+    const wuConfig=getWarmupSetConfig(ex);
+    const nextWu=wuConfig&&wuConfig[wuPhaseNow];
+    if(nextWu){
+      nextInfo=`<div style="margin:0 16px;background:#ECFDF5;border-radius:var(--radius);padding:14px 16px;">
+        <div style="font-size:10px;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px;">${nextWu.label}</div>
+        <div style="display:flex;align-items:center;justify-content:space-between;">
+          <div style="font-size:15px;font-weight:700;color:var(--text);">${ex.name}</div>
+          <div style="font-size:24px;font-weight:700;color:var(--green);font-family:var(--mono);">${nextWu.weight} kg × ${nextWu.reps}</div>
+        </div>
+      </div>`;
+    }
   }
 
   const dotsHTML=AS.exercises.map((e,i)=>`<div class="ex-dot ${i<AS.exIdx?'done':i===AS.exIdx?'active':''}"></div>`).join('');
@@ -2052,11 +2283,12 @@ function renderTimer(label,type){
         <button class="timer-skip-btn" onclick="skipTimer()">Überspringen →</button>
         <button class="timer-add-btn" onclick="addTimerTime(-15)">–15 sek</button>
       </div>
-      <button onclick="backFromTimer()" style="width:100%;margin-top:8px;padding:10px;border-radius:10px;border:1px solid var(--border2);background:none;color:var(--text2);font-size:13px;cursor:pointer;">← Letzten Satz wiederholen</button>
+      <button onclick="backFromTimer()" style="width:100%;margin-top:8px;padding:10px;border-radius:10px;border:1px solid var(--border);background:none;color:var(--text2);font-size:13px;cursor:pointer;">← Letzten Satz wiederholen</button>
     </div>
     ${nextInfo}`;
   updateTimerDisplay();
 }
+
 
 function updateTimerDisplay(){
   try{
@@ -2068,7 +2300,15 @@ function updateTimerDisplay(){
     const circ=2*Math.PI*72;
     ring.style.strokeDasharray=circ.toFixed(1);
     ring.style.strokeDashoffset=(circ*(1-pct)).toFixed(1);
-    if(AS.timerRemaining<=5){el.style.color='var(--red)';ring.style.stroke='var(--red)';}
+    // Farbe bei letzten 5 Sekunden
+    if(AS.timerRemaining<=5){
+      el.style.color='var(--red)';
+      ring.style.stroke='var(--red)';
+    }
+    // Countdown-Ton bei 3, 2, 1
+    if(AS.timerRemaining===3||AS.timerRemaining===2||AS.timerRemaining===1){
+      SharedAudio.tone(AS.timerRemaining===1?880:660, 0, 0.08);
+    }
   }catch(e){}
 }
 
@@ -2436,7 +2676,13 @@ function renderPlanSessions(phaseNum){
     const color = typeColors[p.type]||'var(--text3)';
     const exRows = p.exercises.length > 0 ? p.exercises.map((ex,i) => {
       const variation=getVariation(phaseNum,key,ex.name);
-      return `<div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:0.5px solid var(--border);">
+      const isFirst=i===0;
+      const isLast=i===p.exercises.length-1;
+      return `<div style="display:flex;align-items:center;gap:6px;padding:8px 0;border-bottom:0.5px solid var(--border);">
+        <div style="display:flex;flex-direction:column;gap:2px;flex-shrink:0;">
+          <button onclick="${isFirst?'':` moveExercise(${phaseNum},'${key}',${i},-1)`}" style="background:none;border:none;padding:2px 4px;cursor:${isFirst?'default':'pointer'};color:${isFirst?'var(--text3)':'var(--text2)'};font-size:14px;line-height:1;opacity:${isFirst?'0.25':'1'};">↑</button>
+          <button onclick="${isLast?'':` moveExercise(${phaseNum},'${key}',${i},1)`}" style="background:none;border:none;padding:2px 4px;cursor:${isLast?'default':'pointer'};color:${isLast?'var(--text3)':'var(--text2)'};font-size:14px;line-height:1;opacity:${isLast?'0.25':'1'};">↓</button>
+        </div>
         <div style="flex:1;cursor:pointer;" onclick="openExerciseEditor(${phaseNum},'${key}',${i})">
           <div style="font-size:13px;font-weight:500;">${ex.name}</div>
           <div style="font-size:11px;color:var(--text2);font-family:var(--mono);margin-top:1px;">${ex.target}${ex.weight?` · ${ex.weight} ${ex.unit}`:''}${ex.isCluster?' · Cluster':''}</div>
@@ -2592,6 +2838,19 @@ function saveExerciseEdit(phaseNum, sessionKey, exIdx){
   if(phaseNum === ps.activePhase) renderSessionButtons();
 }
 
+
+function moveExercise(phaseNum, sessionKey, exIdx, direction){
+  const exs = getExercisesForSession(phaseNum, sessionKey);
+  const newIdx = exIdx + direction;
+  if(newIdx < 0 || newIdx >= exs.length) return;
+  // Swap
+  const tmp = exs[exIdx];
+  exs[exIdx] = exs[newIdx];
+  exs[newIdx] = tmp;
+  saveCustomExercises(phaseNum, sessionKey, exs);
+  renderPlanSessions(phaseNum);
+}
+
 function deleteExercise(phaseNum, sessionKey, exIdx){
   const exs = getExercisesForSession(phaseNum, sessionKey);
   exs.splice(exIdx, 1);
@@ -2647,15 +2906,35 @@ function renderBodyChart(){
 }
 
 function exportData(){
-  const data=getData();const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
-  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='training_data.json';a.click();
+  const blob=new Blob([JSON.stringify(DB.export(),null,2)],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  a.download='logset_backup_'+new Date().toISOString().split('T')[0]+'.json';a.click();
 }
+function importData(){
+  const input=document.createElement('input');
+  input.type='file';input.accept='.json';
+  input.onchange=async e=>{
+    const file=e.target.files[0];if(!file)return;
+    const reader=new FileReader();
+    reader.onload=async ev=>{
+      try{
+        const json=JSON.parse(ev.target.result);
+        await DB.import(json);
+        showToast('Daten importiert ✓');
+        renderHeutePage();renderFullLog();
+      }catch(e){showToast('Fehler beim Importieren');}
+    };
+    reader.readAsText(file);
+  };
+  input.click();
+}
+
 function clearAllData(){
   const overlay=document.createElement('div');
   overlay.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:900;display:flex;align-items:center;justify-content:center;padding:24px;';
   overlay.innerHTML=`<div style="background:var(--bg2);border:1px solid var(--border);border-radius:20px;padding:24px;width:100%;max-width:320px;text-align:center;"><div style="font-size:32px;margin-bottom:12px;">🗑</div><div style="font-size:17px;font-weight:600;margin-bottom:8px;">Alle Daten löschen?</div><div style="font-size:13px;color:var(--text2);margin-bottom:24px;">Nicht rückgängig zu machen.</div><div style="display:flex;flex-direction:column;gap:10px;"><button class="btn btn-danger btn-full" id="confirm-clear-yes">Ja, alles löschen</button><button class="btn btn-ghost btn-full" id="confirm-clear-no">Abbrechen</button></div></div>`;
   document.body.appendChild(overlay);
-  document.getElementById('confirm-clear-yes').addEventListener('click',()=>{overlay.remove();localStorage.removeItem('trainingData');showToast('Daten gelöscht');renderHeutePage();renderFullLog();});
+  document.getElementById('confirm-clear-yes').addEventListener('click',()=>{overlay.remove();DB.delete('trainingData');showToast('Daten gelöscht');renderHeutePage();renderFullLog();});
   document.getElementById('confirm-clear-no').addEventListener('click',()=>overlay.remove());
 }
 
@@ -2663,7 +2942,9 @@ function clearAllData(){
 function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2000);}
 
 // ═══ INIT ═══
-document.addEventListener('DOMContentLoaded',()=>{
+document.addEventListener('DOMContentLoaded', async ()=>{
+  // IndexedDB initialisieren (inkl. Migration von localStorage)
+  await DB.init();
   renderHeutePage();renderFullLog();renderPlanPage();loadTimerSettings();
 });
 </script>
