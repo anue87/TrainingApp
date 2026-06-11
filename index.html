@@ -379,7 +379,7 @@ function playSound(id){
 <div class="toast" id="toast"></div>
 
 <!-- ══ ACTIVE SESSION OVERLAY ══ -->
-<div class="session-overlay" id="session-overlay" ontouchstart="_AUDIO.init();playBeep();">
+<div class="session-overlay" id="session-overlay" ontouchstart="_AUDIO.init()">
   <div class="sess-topbar">
     <div>
       <div class="sess-topbar-title" id="sess-title">Upper B</div>
@@ -445,11 +445,11 @@ function playSound(id){
     <div style="display:flex;gap:10px;margin-bottom:14px;">
       <div style="flex:1;">
         <label style="font-size:10px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:6px;">Intervall 1 (sek)</label>
-        <input type="number" id="metro-t1" value="30" min="1" max="300" inputmode="numeric" style="text-align:center;font-size:22px;font-weight:700;padding:10px;border-radius:10px;border:1.5px solid var(--border);background:var(--surface2);width:100%;">
+        <input type="number" id="metro-t1" value="30" min="1" max="300" inputmode="numeric" style="text-align:center;font-size:22px;font-weight:700;padding:10px;border-radius:10px;border:1.5px solid var(--border);background:var(--surface2);width:100%;" onfocus="this.select()">
       </div>
       <div style="flex:1;">
         <label style="font-size:10px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:6px;">Intervall 2 (optional)</label>
-        <input type="number" id="metro-t2" placeholder="—" min="1" max="300" inputmode="numeric" style="text-align:center;font-size:22px;font-weight:700;padding:10px;border-radius:10px;border:1.5px solid var(--border);background:var(--surface2);width:100%;">
+        <input type="number" id="metro-t2" placeholder="—" min="1" max="300" inputmode="numeric" style="text-align:center;font-size:22px;font-weight:700;padding:10px;border-radius:10px;border:1.5px solid var(--border);background:var(--surface2);width:100%;" onfocus="this.select()">
       </div>
     </div>
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
@@ -547,8 +547,8 @@ function playSound(id){
   <div style="padding:0 16px;margin-bottom:12px;">
     <div class="card">
       <div class="g2" style="gap:12px;">
-        <div class="field"><label>Gewicht (kg)</label><input type="number" id="set-weight" placeholder="87.5" step="0.1"></div>
-        <div class="field"><label>KFA (%)</label><input type="number" id="set-kfa" placeholder="20" step="0.1"></div>
+        <div class="field"><label>Gewicht (kg)</label><input type="number" id="set-weight" placeholder="87.5" step="0.1" onfocus="this.select()"></div>
+        <div class="field"><label>KFA (%)</label><input type="number" id="set-kfa" placeholder="20" step="0.1" onfocus="this.select()"></div>
       </div>
       <button class="btn btn-primary btn-full" onclick="saveBodyStats()">Speichern</button>
     </div>
@@ -557,8 +557,8 @@ function playSound(id){
   <div style="padding:0 16px;margin-bottom:12px;">
     <div class="card">
       <div class="g2" style="gap:12px;">
-        <div class="field"><label>Pause zw. Sätzen (sek)</label><input type="number" id="set-rest" placeholder="90" value="90"></div>
-        <div class="field"><label>Pause zw. Übungen (sek)</label><input type="number" id="set-rest-ex" placeholder="120" value="120"></div>
+        <div class="field"><label>Pause zw. Sätzen (sek)</label><input type="number" id="set-rest" placeholder="90" value="90" onfocus="this.select()"></div>
+        <div class="field"><label>Pause zw. Übungen (sek)</label><input type="number" id="set-rest-ex" placeholder="120" value="120" onfocus="this.select()"></div>
       </div>
       <button class="btn btn-ghost btn-full" onclick="saveTimerSettings()">Speichern</button>
     </div>
@@ -1899,9 +1899,9 @@ function renderSessionBody(){
     inputArea=`<div class="set-input-area" style="background:#ECFDF522;border:1px solid #05966944;">
       <div style="font-size:12px;font-weight:600;color:var(--teal);margin-bottom:10px;">${wuSet.label} · leicht · kein RIR-Tracking</div>
       <div class="g3">
-        <div><label>kg</label><input type="number" id="inp-weight" placeholder="${wuSet.weight}" value="${wuSet.weight}" step="0.5" inputmode="decimal" style="text-align:center;font-size:16px;"></div>
-        <div><label>Wdh</label><input type="number" id="inp-reps" placeholder="${wuSet.reps}" value="${wuSet.reps}" inputmode="numeric" style="text-align:center;font-size:16px;"></div>
-        <div><label>—</label><input type="number" id="inp-rir" placeholder="—" disabled style="text-align:center;font-size:16px;background:var(--bg4);color:var(--text3);"></div>
+        <div><label>kg</label><input type="number" id="inp-weight" placeholder="${wuSet.weight}" value="${wuSet.weight}" step="0.5" inputmode="decimal" style="text-align:center;font-size:16px;" onfocus="this.select()"></div>
+        <div><label>Wdh</label><input type="number" id="inp-reps" placeholder="${wuSet.reps}" value="${wuSet.reps}" inputmode="numeric" style="text-align:center;font-size:16px;" onfocus="this.select()"></div>
+        <div><label>—</label><input type="number" id="inp-rir" placeholder="—" disabled style="text-align:center;font-size:16px;background:var(--bg4);color:var(--text3);" onfocus="this.select()"></div>
       </div>
       <button class="btn btn-full" style="margin-top:10px;background:#ECFDF5;color:var(--teal);border:1px solid var(--teal);" onclick="warmupSetDone()">✓ Aufwärmsatz ${wuPhase+1} erledigt → kurze Pause</button>
     </div>`;
@@ -1916,7 +1916,7 @@ function renderSessionBody(){
         <div class="cluster-title">Cluster-Set ${exSets.length+1} von ${ex.sets} · ${clusterLabel}${partialSum}</div>
         <div class="cluster-progress">${clusterDots}</div>
         <div class="cluster-reps-input">
-          <input type="number" id="cluster-reps-input" placeholder="Reps" style="max-width:80px;text-align:center;font-size:20px;font-weight:600;" inputmode="numeric">
+          <input type="number" id="cluster-reps-input" placeholder="Reps" style="max-width:80px;text-align:center;font-size:20px;font-weight:600;" inputmode="numeric" onfocus="this.select()">
           <span class="cluster-reps-label">Wdh in diesem Cluster</span>
         </div>
         <div style="display:flex;gap:8px;">
@@ -1931,9 +1931,9 @@ function renderSessionBody(){
         <div style="font-size:13px;color:var(--text2);margin-bottom:6px;font-weight:500;">${satzLabel}</div>
         <div style="font-size:16px;font-weight:700;margin-bottom:10px;color:${_uniSide==='links'?'var(--green)':'var(--blue)'};">${_uniSide==='links'?'← Links':'→ Rechts'}</div>
         <div class="g3">
-          <div><label>${ex.unit}</label><input type="number" id="inp-weight" placeholder="${ex.weight||'—'}" value="${getLastWeight(ex.name,ex.weight)||''}" step="0.5" inputmode="decimal" style="text-align:center;font-size:16px;"></div>
-          <div><label>Wdh</label><input type="number" id="inp-reps" placeholder="Wdh" value="${getLastReps(ex.name,'')||''}" inputmode="numeric" style="text-align:center;font-size:16px;"></div>
-          <div><label>RIR</label><input type="number" id="inp-rir" placeholder="0" min="0" max="5" inputmode="numeric" style="text-align:center;font-size:16px;"></div>
+          <div><label>${ex.unit}</label><input type="number" id="inp-weight" placeholder="${ex.weight||'—'}" value="${getLastWeight(ex.name,ex.weight)||''}" step="0.5" inputmode="decimal" style="text-align:center;font-size:16px;" onfocus="this.select()"></div>
+          <div><label>Wdh</label><input type="number" id="inp-reps" placeholder="Wdh" value="${getLastReps(ex.name,'')||''}" inputmode="numeric" style="text-align:center;font-size:16px;" onfocus="this.select()"></div>
+          <div><label>RIR</label><input type="number" id="inp-rir" placeholder="0" min="0" max="5" inputmode="numeric" style="text-align:center;font-size:16px;" onfocus="this.select()"></div>
         </div>
         <button class="btn btn-primary btn-full" style="margin-top:10px;background:${_uniSide==='links'?'var(--green)':'var(--blue)'};" onclick="uniSideDone()">✓ ${_uniSide==='links'?'Links':'Rechts'} beendet${_uniSide==='links'?' → 20 sek → Rechts':''}</button>
       </div>`;
@@ -1946,7 +1946,7 @@ function renderSessionBody(){
         <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;">
           <div style="flex:1;">
             <label>Haltezeit (sek)</label>
-            <input type="number" id="inp-reps" value="${sekTarget}" placeholder="${sekTarget}" inputmode="numeric" style="text-align:center;font-size:22px;font-weight:700;">
+            <input type="number" id="inp-reps" value="${sekTarget}" placeholder="${sekTarget}" inputmode="numeric" style="text-align:center;font-size:22px;font-weight:700;" onfocus="this.select()">
           </div>
           <div style="flex-shrink:0;">
             <button onclick="startHoldTimer()" style="width:60px;height:60px;border-radius:50%;background:var(--green);border:none;color:#fff;font-size:24px;cursor:pointer;">▶</button>
@@ -1961,9 +1961,9 @@ function renderSessionBody(){
       <div class="set-input-area" id="set-input-area">
         <div style="font-size:13px;color:var(--text2);margin-bottom:10px;font-weight:500;">${satzLabel}</div>
         <div class="g3">
-          <div><label>${ex.unit}</label><input type="number" id="inp-weight" placeholder="${ex.weight||'—'}" value="${getLastWeight(ex.name,ex.weight)||''}" step="0.5" inputmode="decimal" style="text-align:center;font-size:16px;"></div>
-          <div><label>Wdh</label><input type="number" id="inp-reps" placeholder="Wdh" value="${getLastReps(ex.name,'')||''}" inputmode="numeric" style="text-align:center;font-size:16px;"></div>
-          <div><label>RIR</label><input type="number" id="inp-rir" placeholder="0" min="0" max="5" inputmode="numeric" style="text-align:center;font-size:16px;"></div>
+          <div><label>${ex.unit}</label><input type="number" id="inp-weight" placeholder="${ex.weight||'—'}" value="${getLastWeight(ex.name,ex.weight)||''}" step="0.5" inputmode="decimal" style="text-align:center;font-size:16px;" onfocus="this.select()"></div>
+          <div><label>Wdh</label><input type="number" id="inp-reps" placeholder="Wdh" value="${getLastReps(ex.name,'')||''}" inputmode="numeric" style="text-align:center;font-size:16px;" onfocus="this.select()"></div>
+          <div><label>RIR</label><input type="number" id="inp-rir" placeholder="0" min="0" max="5" inputmode="numeric" style="text-align:center;font-size:16px;" onfocus="this.select()"></div>
         </div>
         <button class="btn btn-primary btn-full" style="margin-top:10px;" onclick="setDone()">${ex.isUnilateral&&!AS._uniRightDone?'✓ Links beendet → 20sek → Rechts':'✓ Satz beendet'}</button>
       </div>`;
@@ -2125,17 +2125,17 @@ function renderCardioScreen(){
         <div class="g2" style="gap:10px;margin-bottom:12px;">
           <div class="field">
             <label>Distanz (km)</label>
-            <input type="number" id="cardio-distance" placeholder="5.0" step="0.1" inputmode="decimal" style="text-align:center;font-size:20px;font-weight:700;">
+            <input type="number" id="cardio-distance" placeholder="5.0" step="0.1" inputmode="decimal" style="text-align:center;font-size:20px;font-weight:700;" onfocus="this.select()">
           </div>
           <div class="field">
             <label>Zeit (min)</label>
-            <input type="number" id="cardio-duration" placeholder="30" inputmode="numeric" style="text-align:center;font-size:20px;font-weight:700;">
+            <input type="number" id="cardio-duration" placeholder="30" inputmode="numeric" style="text-align:center;font-size:20px;font-weight:700;" onfocus="this.select()">
           </div>
         </div>
         <div class="g2" style="gap:10px;margin-bottom:12px;">
           <div class="field">
             <label>Ø Puls (bpm)</label>
-            <input type="number" id="cardio-hr" placeholder="130" inputmode="numeric" style="text-align:center;font-size:20px;font-weight:700;">
+            <input type="number" id="cardio-hr" placeholder="130" inputmode="numeric" style="text-align:center;font-size:20px;font-weight:700;" onfocus="this.select()">
           </div>
           <div class="field">
             <label>Art</label>
@@ -2151,7 +2151,7 @@ function renderCardioScreen(){
         </div>`:
         `<div class="field">
           <label>Dauer (min)</label>
-          <input type="number" id="cardio-duration" placeholder="40" inputmode="numeric" style="text-align:center;font-size:24px;font-weight:700;">
+          <input type="number" id="cardio-duration" placeholder="40" inputmode="numeric" style="text-align:center;font-size:24px;font-weight:700;" onfocus="this.select()">
         </div>`}
         <div class="g2" style="gap:10px;margin-bottom:12px;">
           <div class="field">
@@ -3148,21 +3148,21 @@ function _showExSheet(phaseNum, sessionKey, exIdx, ex){
     <div style="font-size:17px;font-weight:600;margin-bottom:16px;">${isNew?'Übung hinzufügen':'Übung bearbeiten'}</div>
 
     <div class="field"><label>Name</label>
-      <input type="text" id="ee-name" value="${ex.name}" placeholder="z.B. Flat Bankdrücken">
+      <input type="text" id="ee-name" value="${ex.name}" placeholder="z.B. Flat Bankdrücken" onfocus="this.select()">
     </div>
 
     <div class="g2" style="gap:10px;">
       <div class="field"><label>Sätze</label>
-        <input type="number" id="ee-sets" value="${ex.sets||3}" min="1" max="10" inputmode="numeric" style="text-align:center;">
+        <input type="number" id="ee-sets" value="${ex.sets||3}" min="1" max="10" inputmode="numeric" style="text-align:center;" onfocus="this.select()">
       </div>
       <div class="field"><label>Wdh / Range</label>
-        <input type="text" id="ee-reps" value="${ex.reps||'10'}" placeholder="z.B. 6–8 oder Cluster">
+        <input type="text" id="ee-reps" value="${ex.reps||'10'}" placeholder="z.B. 6–8 oder Cluster" onfocus="this.select()">
       </div>
     </div>
 
     <div class="g2" style="gap:10px;">
       <div class="field"><label>Gewicht</label>
-        <input type="number" id="ee-weight" value="${ex.weight||''}" placeholder="kg" step="0.5" inputmode="decimal" style="text-align:center;">
+        <input type="number" id="ee-weight" value="${ex.weight||''}" placeholder="kg" step="0.5" inputmode="decimal" style="text-align:center;" onfocus="this.select()">
       </div>
       <div class="field"><label>Einheit</label>
         <select id="ee-unit">
@@ -3313,6 +3313,7 @@ const METRO = {
     const t2raw = document.getElementById('metro-t2')?.value;
     const t2 = t2raw ? parseInt(t2raw) : null;
     _AUDIO.init();
+    WakeLock.request();
     this.running = true;
     this.phase = 0;
     this.cycle = 0;
@@ -3366,6 +3367,7 @@ const METRO = {
   stop(){
     this.running = false;
     clearInterval(this.interval);
+    WakeLock.release();
     const bar = document.getElementById('metro-bar');
     if(bar) bar.style.width = '0%';
     const status = document.getElementById('metro-status');
