@@ -373,6 +373,17 @@ const _AUDIO = {
 document.addEventListener('touchstart', ()=>_AUDIO.init(), {passive:true});
 document.addEventListener('click', ()=>_AUDIO.init(), {passive:true});
 
+// iOS suspendiert den AudioContext oft im Hintergrund — bei JEDER sichtbaren Rückkehr
+// sofort und wiederholt versuchen zu resumen, damit der nächste Timer-Ton durchkommt
+document.addEventListener('visibilitychange', () => {
+  if(document.visibilityState === 'visible'){
+    _AUDIO.init();
+    // Mehrfach versuchen, da iOS das resume manchmal erst nach kurzer Verzögerung zulässt
+    setTimeout(()=>_AUDIO.init(), 100);
+    setTimeout(()=>_AUDIO.init(), 400);
+  }
+});
+
 function playBeep(){
   _AUDIO.play('end1');
   _AUDIO.play('end2', 220);
@@ -578,6 +589,12 @@ function playSound(id){
     </div>
   </div>
   <div class="sec-label">Timer-Einstellungen</div>
+  <div style="padding:0 16px;margin-bottom:12px;">
+    <div class="card">
+      <button class="btn btn-primary btn-full" style="margin-bottom:8px;" onclick="_AUDIO.init(); setTimeout(()=>{playBeep(); showToast('Ton wurde abgespielt — hast du ihn gehört?')}, 300)">🔔 Ton jetzt testen</button>
+      <div style="font-size:12px;color:var(--text2);line-height:1.5;">Falls kein Ton kommt: Stumm-Schalter am iPhone prüfen, Lautstärke hochdrehen, und sicherstellen dass die Seite nicht im Hintergrund lief bevor du tippst.</div>
+    </div>
+  </div>
   <div style="padding:0 16px;margin-bottom:12px;">
     <div class="card">
       <div class="g2" style="gap:12px;">
@@ -1290,7 +1307,8 @@ document.addEventListener('visibilitychange', () => {
     if(remaining <= 0){
       // Zeit ist abgelaufen während App im Hintergrund war
       clearInterval(AS.timerInterval);
-      playBeep();
+      _AUDIO.init();
+      setTimeout(()=>playBeep(), 150);
       timerDone(AS.timerType);
     } else {
       updateTimerDisplay();
@@ -1415,6 +1433,7 @@ const DB = {
     trainingData: {sessions:[], bodyStats:[]},
     trainingSettings: {restBetweenSets:90, restBetweenEx:120},
     phaseSettings: null,
+    anthropicApiKey: null,
   },
   ready: false,
 
@@ -1442,7 +1461,7 @@ const DB = {
   },
 
   async _loadAll(){
-    const keys = ['trainingData','trainingSettings','phaseSettings'];
+    const keys = ['trainingData','trainingSettings','phaseSettings','anthropicApiKey'];
     for(const key of keys){
       const val = await this._idbGet(key);
       if(val !== null) this.cache[key] = val;
@@ -2663,6 +2682,7 @@ function updateTimerDisplay(){
 }
 
 function timerDone(type){
+  if(navigator.vibrate) navigator.vibrate([200,100,200,100,200]);
   playBeep();
   // Nach Vorbereitungs-Countdown → Hold-Timer starten
   if(AS._holdPending && type==='warmup'){
