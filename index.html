@@ -12,46 +12,86 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
 
 :root {
-  --bg: #F2F4F7;
+  --bg: #F5F3F0;
   --surface: #FFFFFF;
-  --surface2: #F8F9FB;
-  --surface3: #EFF1F5;
-  --border: rgba(0,0,0,.07);
-  --text: #0D1117;
-  --text2: #6E7A8A;
-  --text3: #B0BAC6;
-  --green: #00C07F;
-  --green-dim: #00A36A;
-  --green-pale: #E6FBF4;
-  --indigo: #5B5FED;
-  --indigo-pale: #EEEEFF;
-  --amber: #64748B;
-  --amber-pale: #F1F5F9;
-  --blue: #3B82F6;
-  --blue-pale: #EFF6FF;
-  --red: #EF4444;
-  --red-pale: #FEF2F2;
+  --surface2: #FAF8F6;
+  --surface3: #F0EDE9;
+  --border: rgba(60,45,30,.09);
+  --border2: rgba(60,45,30,.14);
+  --text: #1A1614;
+  --text2: #6E655C;
+  --text3: #B3A99E;
+  /* Kupfer-Akzent */
+  --accent: #B06E3C;
+  --accent-dim: #96592C;
+  --accent-pale: #FBF1E8;
+  --green: var(--accent);
+  --green-dim: var(--accent-dim);
+  --green-pale: var(--accent-pale);
+  --indigo: #6B5B8A;
+  --indigo-pale: #F2EFF6;
+  --amber: #7A6A5A;
+  --amber-pale: #F4F1ED;
+  --blue: #4A7A9B;
+  --blue-pale: #EFF4F7;
+  --red: #C05A47;
+  --red-pale: #FBF0EE;
+  --cyan: #5C8A8A;
+  --cyan-pale: #EFF5F4;
   --radius: 16px;
   --radius-sm: 10px;
   --radius-xs: 7px;
-  --shadow: 0 1px 3px rgba(0,0,0,.06), 0 4px 12px rgba(0,0,0,.04);
-  --shadow-sm: 0 1px 2px rgba(0,0,0,.05);
+  --shadow: 0 1px 3px rgba(60,45,30,.07), 0 4px 12px rgba(60,45,30,.05);
+  --shadow-sm: 0 1px 2px rgba(60,45,30,.06);
   --safe-top: env(safe-area-inset-top, 0px);
   --safe-bottom: env(safe-area-inset-bottom, 0px);
   --font: 'Inter', -apple-system, sans-serif;
   --mono: 'JetBrains Mono', monospace;
+  --on-accent: #FFF9F4;
+  --glass-nav: rgba(255,255,255,.92);
+  --glass-head: rgba(245,243,240,.92);
   /* Legacy aliases */
   --bg2: var(--surface);
   --bg3: var(--surface2);
   --bg4: var(--surface3);
-  --teal: var(--green);
-  --teal-dim: var(--green-dim);
-  --teal-bright: var(--green);
+  --teal: var(--accent);
+  --teal-dim: var(--accent-dim);
+  --teal-bright: var(--accent);
   --purple: var(--indigo);
-  --amber: #64748B;
-  --blue: #3B82F6;
-  --red: #EF4444;
-  --border2: rgba(0,0,0,.1);
+}
+
+[data-theme="dark"] {
+  --bg: #12100E;
+  --surface: #1B1815;
+  --surface2: #221E1A;
+  --surface3: #2B2621;
+  --border: rgba(255,240,225,.07);
+  --border2: rgba(255,240,225,.12);
+  /* gedämpftes Warmgrau statt Weiß */
+  --text: #CFC6BB;
+  --text2: #918477;
+  --text3: #6B625A;
+  --accent: #C88A52;
+  --accent-dim: #A87043;
+  --accent-pale: #2A1F16;
+  --green: var(--accent);
+  --green-dim: var(--accent-dim);
+  --green-pale: var(--accent-pale);
+  --indigo: #8B7BA8;
+  --indigo-pale: #221E2A;
+  --amber: #9A8B7A;
+  --amber-pale: #26221D;
+  --blue: #6E9BB8;
+  --blue-pale: #1A2229;
+  --red: #D07A66;
+  --red-pale: #2A1B18;
+  --cyan: #7BA8A5;
+  --cyan-pale: #1B2422;
+  --on-accent: #16120E;
+  --glass-nav: rgba(22,25,21,.94);
+  --glass-head: rgba(18,16,14,.94);
+  --shadow: 0 1px 3px rgba(0,0,0,.45), 0 4px 12px rgba(0,0,0,.35);
+  --shadow-sm: 0 1px 2px rgba(0,0,0,.4);
 }
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
@@ -60,7 +100,7 @@ body { font-family: var(--font); background: var(--bg); color: var(--text); min-
 /* ── NAVIGATION ── */
 .nav {
   position: fixed; bottom: 0; left: 0; right: 0;
-  background: rgba(255,255,255,.92);
+  background: var(--glass-nav);
   backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
   border-top: 1px solid var(--border);
   display: flex; align-items: stretch;
@@ -91,7 +131,7 @@ body { font-family: var(--font); background: var(--bg); color: var(--text); min-
 .page-header {
   position: fixed; top: 0; left: 0; right: 0;
   padding: calc(var(--safe-top) + 16px) 20px 14px;
-  background: rgba(242,244,247,.92);
+  background: var(--glass-head);
   backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
   z-index: 99;
 }
@@ -115,10 +155,10 @@ body { font-family: var(--font); background: var(--bg); color: var(--text); min-
   letter-spacing: -.01em;
 }
 .btn:active { transform: scale(.96); opacity: .88; }
-.btn-primary { background: var(--green); color: #fff; box-shadow: 0 2px 8px rgba(0,192,127,.3); }
+.btn-primary { background: var(--accent); color: var(--on-accent); box-shadow: 0 2px 8px rgba(176,110,60,.28); }
 .btn-ghost { background: var(--surface); color: var(--text); box-shadow: var(--shadow-sm); border: 1px solid var(--border); }
 .btn-danger { background: var(--red-pale); color: var(--red); }
-.btn-amber { background: #F1F5F9; color: var(--amber); }
+.btn-amber { background: var(--amber-pale); color: var(--amber); }
 .btn-full { width: 100%; }
 
 /* ── INPUTS ── */
@@ -144,7 +184,7 @@ label { font-size: 11px; color: var(--text2); font-weight: 600; margin-bottom: 6
 .phase-pill { display: inline-flex; align-items: center; gap: 5px; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; }
 .ph1 { background: var(--green-pale); color: var(--green-dim); }
 .ph2 { background: var(--indigo-pale); color: var(--indigo); }
-.ph3 { background: #F1F5F9; color: var(--amber); }
+.ph3 { background: var(--amber-pale); color: var(--amber); }
 .ph4 { background: var(--blue-pale); color: var(--blue); }
 
 /* ── STATS ROW ── */
@@ -177,7 +217,7 @@ label { font-size: 11px; color: var(--text2); font-weight: 600; margin-bottom: 6
 /* ── TOGGLE BUTTONS ── */
 .toggle-row { display: flex; gap: 6px; padding: 0 16px; margin-bottom: 14px; flex-wrap: wrap; margin-top: 4px; }
 .toggle-btn { padding: 7px 13px; border-radius: 20px; font-size: 12px; font-weight: 600; background: var(--surface); color: var(--text2); border: none; cursor: pointer; box-shadow: var(--shadow-sm); transition: all .15s; }
-.toggle-btn.on { background: var(--green); color: #fff; box-shadow: 0 2px 8px rgba(0,192,127,.3); }
+.toggle-btn.on { background: var(--accent); color: var(--on-accent); box-shadow: 0 2px 8px rgba(176,110,60,.28); }
 
 /* ── MODALS ── */
 .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.5); z-index: 200; align-items: flex-end; backdrop-filter: blur(4px); }
@@ -195,7 +235,7 @@ label { font-size: 11px; color: var(--text2); font-weight: 600; margin-bottom: 6
 .toast {
   position: fixed; bottom: calc(var(--safe-bottom) + 88px); left: 50%;
   transform: translateX(-50%) translateY(16px);
-  background: var(--text); color: #fff;
+  background: var(--text); color: var(--bg);
   padding: 10px 20px; border-radius: 20px;
   font-size: 14px; font-weight: 500;
   z-index: 300; opacity: 0; transition: all .25s cubic-bezier(.34,1.56,.64,1);
@@ -223,7 +263,7 @@ label { font-size: 11px; color: var(--text2); font-weight: 600; margin-bottom: 6
 .sess-topbar {
   display: flex; align-items: center; justify-content: space-between;
   padding: calc(var(--safe-top) + 14px) 20px 14px;
-  background: rgba(242,244,247,.92);
+  background: var(--glass-head);
   backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
   border-bottom: 1px solid var(--border); flex-shrink: 0;
 }
@@ -262,7 +302,7 @@ label { font-size: 11px; color: var(--text2); font-weight: 600; margin-bottom: 6
 .timer-ring svg { position: absolute; inset: 0; transform: rotate(-90deg); }
 .timer-ring-track { fill: none; stroke: var(--surface3); stroke-width: 8; }
 .timer-ring-fill { fill: none; stroke: var(--green); stroke-width: 8; stroke-linecap: round; transition: stroke-dashoffset .9s linear; stroke-dasharray: 452; stroke-dashoffset: 0; }
-.timer-ring-fill.cluster { stroke: #06B6D4; }
+.timer-ring-fill.cluster { stroke: var(--cyan); }
 .timer-ring-fill.between-ex { stroke: var(--indigo); }
 .timer-ring-fill.warmup { stroke: var(--green); }
 .timer-ring-fill.hold { stroke: var(--green); }
@@ -280,12 +320,12 @@ label { font-size: 11px; color: var(--text2); font-weight: 600; margin-bottom: 6
 .between-ex-target { font-size: 12px; color: var(--indigo); font-family: var(--mono); font-weight: 500; }
 
 /* Cluster */
-.cluster-area { margin: 0 16px 12px; background: #ECFEFF; border-radius: var(--radius); padding: 16px; }
-.cluster-title { font-size: 13px; font-weight: 600; color: #0891B2; margin-bottom: 12px; }
+.cluster-area { margin: 0 16px 12px; background: var(--cyan-pale); border-radius: var(--radius); padding: 16px; }
+.cluster-title { font-size: 13px; font-weight: 600; color: var(--cyan); margin-bottom: 12px; }
 .cluster-progress { display: flex; gap: 8px; margin-bottom: 14px; }
 .cluster-dot { width: 32px; height: 32px; border-radius: 50%; background: var(--surface3); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; color: var(--text3); transition: all .25s cubic-bezier(.34,1.56,.64,1); }
-.cluster-dot.done { background: #0E7490; color: #fff; }
-.cluster-dot.active { background: #06B6D4; color: #fff; animation: pulse .8s ease-in-out infinite; }
+.cluster-dot.done { background: var(--cyan); color: var(--on-accent); }
+.cluster-dot.active { background: var(--cyan); color: var(--on-accent); animation: pulse .8s ease-in-out infinite; }
 @keyframes pulse { 0%,100%{opacity:1}50%{opacity:.65} }
 
 /* Finish btn */
@@ -302,6 +342,19 @@ label { font-size: 11px; color: var(--text2); font-weight: 600; margin-bottom: 6
 .sess-quick-btn-label { font-size: 16px; font-weight: 700; color: var(--text); letter-spacing: -.02em; }
 .sess-quick-btn-sub { font-size: 11px; color: var(--text2); margin-top: 3px; font-weight: 500; }
 .sess-quick-btn-dot { width: 8px; height: 8px; border-radius: 50%; margin-bottom: 10px; }
+
+/* ── THEME TOGGLE ── */
+.theme-opt {
+  flex: 1; padding: 10px 8px; border-radius: var(--radius-sm);
+  border: 1px solid var(--border); background: var(--surface2);
+  color: var(--text2); font-family: var(--font); font-size: 13px; font-weight: 500;
+  cursor: pointer; transition: all .15s;
+}
+.theme-opt-active {
+  background: var(--green-pale); border-color: var(--green);
+  color: var(--green-dim); font-weight: 600;
+}
+[data-theme="dark"] .theme-opt-active { color: var(--green); }
 </style>
 </head>
 <body>
@@ -424,12 +477,25 @@ function playSound(id){
 <div class="page active" id="page-heute">
   <div class="page-header">
     <div style="display:flex;align-items:center;justify-content:space-between;">
-      <svg viewBox="0 0 220 44" width="110" height="22" xmlns="http://www.w3.org/2000/svg" style="display:block;margin-bottom:2px;"><style>.lw{font-family:-apple-system,"SF Pro Display","Helvetica Neue",sans-serif;font-size:38px;letter-spacing:-2px;}</style><text y="36" class="lw"><tspan x="0" font-weight="300" fill="var(--text)">Log</tspan><tspan font-weight="700" fill="#00C07F">.seT</tspan></text></svg>
+      <svg viewBox="0 0 220 44" width="110" height="22" xmlns="http://www.w3.org/2000/svg" style="display:block;margin-bottom:2px;"><style>.lw{font-family:-apple-system,"SF Pro Display","Helvetica Neue",sans-serif;font-size:38px;letter-spacing:-2px;}
+/* ── THEME TOGGLE ── */
+.theme-opt {
+  flex: 1; padding: 10px 8px; border-radius: var(--radius-sm);
+  border: 1px solid var(--border); background: var(--surface2);
+  color: var(--text2); font-family: var(--font); font-size: 13px; font-weight: 500;
+  cursor: pointer; transition: all .15s;
+}
+.theme-opt-active {
+  background: var(--green-pale); border-color: var(--green);
+  color: var(--green-dim); font-weight: 600;
+}
+[data-theme="dark"] .theme-opt-active { color: var(--green); }
+</style><text y="36" class="lw"><tspan x="0" font-weight="300" fill="var(--text)">Log</tspan><tspan font-weight="700" fill="var(--accent)">.seT</tspan></text></svg>
       <div id="today-date" style="font-size:12px;color:var(--text2);font-weight:500;"></div>
     </div>
   </div>
   <div style="padding:16px 16px 0;">
-    <div class="card" id="phase-card" style="margin:0 16px 16px;background:linear-gradient(135deg,#00C07F,#00A36A);border-radius:20px;padding:20px;cursor:pointer;box-shadow:0 4px 20px rgba(0,192,127,.3);" onclick="openPhaseSheet()">
+    <div class="card" id="phase-card" style="margin:0 16px 16px;background:linear-gradient(135deg,#B06E3C,#96592C);border-radius:20px;padding:20px;cursor:pointer;box-shadow:0 4px 20px rgba(176,110,60,.28);" onclick="openPhaseSheet()">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
         <div id="current-phase-pill" style="font-size:13px;font-weight:700;color:rgba(255,255,255,.85);text-transform:uppercase;letter-spacing:.06em;">Phase 1 · Basis & Recomp</div>
         <span style="font-size:11px;color:rgba(255,255,255,.6);font-family:var(--mono);" id="phase-week-count">Wo 1/10</span>
@@ -457,7 +523,7 @@ function playSound(id){
   </div>
   <div class="sec-label">Diese Woche</div>
   <div class="stats-row">
-    <div class="stat-card"><div class="stat-val" style="color:#00C07F;" id="stat-sessions">0</div><div class="stat-lbl">Sessions</div></div>
+    <div class="stat-card"><div class="stat-val" style="color:var(--accent);" id="stat-sessions">0</div><div class="stat-lbl">Sessions</div></div>
     <div class="stat-card"><div class="stat-val" style="color:#64748B;" id="stat-volume">0</div><div class="stat-lbl">Tonnen</div></div>
     <div class="stat-card"><div class="stat-val" style="color:#6366F1;" id="stat-sets">0</div><div class="stat-lbl">Sätze</div></div>
     <div class="stat-card"><div class="stat-val" style="color:#3B82F6;" id="stat-streak">0</div><div class="stat-lbl">Streak 🔥</div></div>
@@ -567,6 +633,17 @@ function playSound(id){
 <!-- ══ PAGE: EINSTELLUNGEN ══ -->
 <div class="page" id="page-settings">
   <div class="page-header"><div class="page-title">Profil</div></div>
+  <div class="sec-label">Darstellung</div>
+  <div style="padding:0 16px;margin-bottom:12px;">
+    <div class="card">
+      <div style="display:flex;gap:8px;">
+        <button data-theme-opt="light" class="theme-opt" onclick="setTheme('light')">☀️ Hell</button>
+        <button data-theme-opt="dark" class="theme-opt" onclick="setTheme('dark')">🌙 Dunkel</button>
+        <button data-theme-opt="auto" class="theme-opt" onclick="setTheme('auto')">Auto</button>
+      </div>
+      <div style="font-size:11px;color:var(--text3);margin-top:8px;">Auto folgt der Systemeinstellung. Dunkel empfohlen fürs 5-Uhr-Training.</div>
+    </div>
+  </div>
   <div class="sec-label">Körperwerte</div>
   <div style="padding:0 16px;margin-bottom:12px;">
     <div class="card">
@@ -638,19 +715,31 @@ function playSound(id){
 // ═══ DATA ═══
 
 const EXERCISE_META = {
-  'Flat Bankdrücken': {'muscle': 'Brust', 'focus': 'Drücken', 'color': '#1D9E75'},
+  'Flat Bankdrücken': {'muscle': 'Brust', 'focus': 'Drücken', 'color': 'var(--accent)'},
   'Chin-ups': {'muscle': 'Rücken', 'focus': 'Ziehen', 'color': '#4A44B0'},
-  'Back Squat': {'muscle': 'Beine', 'focus': 'Quad', 'color': '#64748B'},
-  'RDL': {'muscle': 'Hamstrings', 'focus': 'Hip Hinge', 'color': '#1D9E75'},
+  'Back Squat': {'muscle': 'Beine', 'focus': 'Quad', 'color': 'var(--amber)'},
+  'RDL': {'muscle': 'Hamstrings', 'focus': 'Hip Hinge', 'color': 'var(--accent)'},
   'DB OHP': {'muscle': 'Schultern', 'focus': 'Drücken', 'color': '#4A44B0'},
-  'Chest Supp. Row': {'muscle': 'Rücken', 'focus': 'Ziehen', 'color': '#64748B'},
-  'Einarm. Rudern': {'muscle': 'Rücken', 'focus': 'Ziehen', 'color': '#1D9E75'},
+  'Chest Supp. Row': {'muscle': 'Rücken', 'focus': 'Ziehen', 'color': 'var(--amber)'},
+  'Einarm. Rudern': {'muscle': 'Rücken', 'focus': 'Ziehen', 'color': 'var(--accent)'},
   'Bulgarian SS': {'muscle': 'Beine', 'focus': 'Unilateral', 'color': '#4A44B0'},
-  'KB Swings': {'muscle': 'Posterior', 'focus': 'Power', 'color': '#64748B'},
-  'Incline Flys': {'muscle': 'Brust', 'focus': 'Isolation', 'color': '#1D9E75'},
+  'KB Swings': {'muscle': 'Posterior', 'focus': 'Power', 'color': 'var(--amber)'},
+  'Incline Flys': {'muscle': 'Brust', 'focus': 'Isolation', 'color': 'var(--accent)'},
   'French Press': {'muscle': 'Trizeps', 'focus': 'Isolation', 'color': '#4A44B0'},
-  'LH-Curls': {'muscle': 'Bizeps', 'focus': 'Isolation', 'color': '#64748B'},
-  'Hollow Hold': {'muscle': 'Core', 'focus': 'Stabilität', 'color': '#1D9E75'},
+  'LH-Curls': {'muscle': 'Bizeps', 'focus': 'Isolation', 'color': 'var(--amber)'},
+  'Hollow Hold': {'muscle': 'Core', 'focus': 'Stabilität', 'color': 'var(--accent)'},
+  'Pallof Press': {'muscle': 'Core', 'focus': 'Anti-Rotation', 'color': 'var(--accent)'},
+  'Cable Crunches': {'muscle': 'Core', 'focus': 'Flexion', 'color': 'var(--accent)'},
+  'Clamshells': {'muscle': 'Hüfte', 'focus': 'Stabilität', 'color': 'var(--amber)'},
+  'Außenrotation liegend': {'muscle': 'Rotatoren', 'focus': 'Prophylaxe', 'color': 'var(--amber)'},
+  'Front Squat': {'muscle': 'Quadrizeps', 'focus': 'Compound', 'color': 'var(--accent)'},
+  'Pendlay Row': {'muscle': 'Rücken', 'focus': 'Compound', 'color': 'var(--accent)'},
+  'Hip Thrust': {'muscle': 'Gesäß', 'focus': 'Compound', 'color': 'var(--accent)'},
+  'Preacher Curls': {'muscle': 'Bizeps', 'focus': 'Isolation', 'color': 'var(--amber)'},
+  'Konzentrationscurls': {'muscle': 'Bizeps', 'focus': 'Isolation', 'color': 'var(--amber)'},
+  'Chest Supp. Row': {'muscle': 'Rücken', 'focus': 'Isolation', 'color': 'var(--accent)'},
+  'DB Floor Press': {'muscle': 'Brust', 'focus': 'Compound', 'color': 'var(--accent)'},
+  'Waden einbeinig': {'muscle': 'Waden', 'focus': 'Exzentrik', 'color': 'var(--amber)'},
   'default': {'muscle': '', 'focus': '', 'color': '#AAAAAA'},
 };
 
@@ -701,6 +790,106 @@ function getLastSessionHTML(exName){
   </div>`;
 }
 
+// ═══ DOPPELPROGRESSION ═══
+// Liest die Zielspanne aus dem Plan (z.B. "8–10") und prüft die letzten Arbeitssätze:
+// Satz 1 UND 2 am oberen Ende → Last +5 % · Abfall > 2 Wdh → Gewicht war zu hoch
+function parseRepRange(reps){
+  if(!reps) return null;
+  const m=String(reps).match(/(\d+)\s*[–\-]\s*(\d+)/);
+  if(m) return {lo:+m[1], hi:+m[2]};
+  const single=String(reps).match(/^(\d+)$/);
+  if(single) return {lo:+single[1], hi:+single[1]};
+  return null;
+}
+
+function getProgressionAdvice(ex){
+  const range=parseRepRange(ex.reps);
+  if(!range||ex.isCluster) return null;
+  const last=getLastSessionSets(ex.name);
+  if(!last||last.sets.length<2) return null;
+
+  const reps=last.sets.map(s=>parseInt(s.reps)).filter(n=>!isNaN(n));
+  if(reps.length<2) return null;
+
+  const weights=last.sets.map(s=>s.weight).filter(w=>w!=null&&w>0);
+  const lastWeight=weights.length?Math.max(...weights):null;
+  const drop=reps[0]-reps[reps.length-1];
+
+  // 1) Beide ersten Sätze am oberen Ende → steigern
+  if(reps[0]>=range.hi && reps[1]>=range.hi){
+    if(ex.unit==='band'){
+      const usedKey=last.sets.map(st=>st.band).filter(Boolean).pop();
+      const idx=BANDS.findIndex(b=>b.key===usedKey);
+      const next=(idx>=0&&idx<BANDS.length-1)?BANDS[idx+1]:null;
+      return next
+        ? {type:'up', text:`Satz 1+2 am oberen Ende → Band ${next.label} (${next.hint})`, color:'var(--accent)', bg:'var(--accent-pale)'}
+        : {type:'up', text:'Satz 1+2 am oberen Ende → Band verkürzen oder Wdh erhöhen', color:'var(--accent)', bg:'var(--accent-pale)'};
+    }
+    if(lastWeight){
+      const raw=lastWeight*1.05;
+      const next=Math.round(raw/2.5)*2.5;
+      const target=next>lastWeight?next:lastWeight+2.5;
+      return {type:'up', text:`Satz 1+2 am oberen Ende → heute ${target} kg`, color:'var(--green)', bg:'var(--green-pale)'};
+    }
+    return {type:'up', text:'Satz 1+2 am oberen Ende → Wdh oder Zusatzlast erhöhen', color:'var(--green)', bg:'var(--green-pale)'};
+  }
+
+  // 2) Starker Abfall über die Sätze → Last war zu hoch
+  if(drop>2){
+    return {type:'down', text:`Letztes Mal ${reps[0]}→${reps[reps.length-1]} Wdh · Abfall zu groß, Gewicht halten oder reduzieren`, color:'var(--amber)', bg:'var(--amber-pale)'};
+  }
+
+  // 3) Unter dem unteren Ende → Gewicht halten
+  if(reps[0]<range.lo){
+    return {type:'hold', text:`Unter Zielspanne → Gewicht halten, Wdh aufbauen`, color:'var(--text2)', bg:'var(--surface3)'};
+  }
+
+  // 4) In der Spanne → weiter Wdh sammeln
+  return {type:'hold', text:`In der Spanne → gleiche Last, Wdh aufbauen`, color:'var(--text2)', bg:'var(--surface3)'};
+}
+
+function getProgressionHTML(ex){
+  const a=getProgressionAdvice(ex);
+  if(!a) return '';
+  const icon=a.type==='up'?'▲':a.type==='down'?'▼':'→';
+  return `<div style="margin-top:8px;padding:8px 10px;background:${a.bg};border-radius:8px;border-left:2px solid ${a.color};display:flex;align-items:center;gap:7px;">
+    <span style="color:${a.color};font-weight:700;font-size:12px;">${icon}</span>
+    <span style="font-size:12px;color:var(--text);line-height:1.4;">${a.text}</span>
+  </div>`;
+}
+
+// ═══ WIDERSTANDSBÄNDER ═══
+// Reihenfolge nach Widerstand: Rot (dünn) < Schwarz (mittel) < Grün (breit)
+const BANDS = [
+  {key:'rot',    label:'Rot',     hint:'leicht', color:'#C0563F'},
+  {key:'schwarz',label:'Schwarz', hint:'mittel', color:'#4A423C'},
+  {key:'gruen',  label:'Grün',    hint:'schwer', color:'#5C7A5C'},
+];
+function bandByKey(k){ return BANDS.find(b=>b.key===k)||null; }
+function bandPickerHTML(current){
+  return `<div style="display:flex;gap:6px;">` + BANDS.map(b=>{
+    const on = b.key===current;
+    return `<button type="button" data-band="${b.key}" onclick="pickBand('${b.key}')"
+      style="flex:1;padding:9px 4px;border-radius:var(--radius-sm);cursor:pointer;
+      border:1.5px solid ${on?b.color:'var(--border)'};
+      background:${on?b.color:'var(--surface2)'};
+      color:${on?'var(--on-accent)':'var(--text2)'};
+      font-family:var(--font);font-size:12px;font-weight:${on?'600':'500'};line-height:1.25;">
+      ${b.label}<br><span style="font-size:10px;opacity:.8;">${b.hint}</span></button>`;
+  }).join('') + `</div>`;
+}
+function pickBand(key){
+  AS._band = key;
+  document.querySelectorAll('[data-band]').forEach(btn=>{
+    const b = bandByKey(btn.getAttribute('data-band'));
+    const on = btn.getAttribute('data-band')===key;
+    btn.style.borderColor = on ? b.color : 'var(--border)';
+    btn.style.background  = on ? b.color : 'var(--surface2)';
+    btn.style.color       = on ? 'var(--on-accent)' : 'var(--text2)';
+    btn.style.fontWeight  = on ? '600' : '500';
+  });
+}
+
 function getExBadgeHTML(name){
   const m=getExMeta(name);
   if(!m.muscle) return '';
@@ -714,44 +903,47 @@ function getExBadgeHTML(name){
 
 // ═══ PHASE-SPECIFIC PLANS ═══
 const PHASE_PLANS = {
-  1: { // Basis & Recomp — 3-Wochen Peaking Block (Urlaubs-Vorbereitung)
+  1: { // Block 2 — Lean & Strong (24.08.–11.10.2026)
     sessions: ['Pull','Lower','Push','Fullbody','Cardio','LeoMoves'],
     plan: {
-      'Pull':{day:'Montag',type:'upper',duration:'55 min',note:'Zug-Fokus · Wo1 RIR 2–3 · Wo2 +2,5kg · Wo3 RIR 0–1',exercises:[
+      'Pull':{day:'Montag',type:'upper',duration:'60 min',note:'Compounds: Wdh über die Sätze stabil halten, Satz beenden wenn eine Wdh grindet · Isolation ausreizen',exercises:[
         {name:'Chin-ups',target:'3 Sets Cluster',sets:3,reps:'Cluster',unit:'reps',isCluster:true},
-        {name:'Bent Over Row',target:'4 × 6–8',weight:70,sets:4,reps:'6–8',unit:'kg'},
-        {name:'Einarm. Rudern',target:'3 × 10–12',weight:35,sets:3,reps:'10–12',unit:'kg'},
-        {name:'Facepulls',target:'3 × 15–20',weight:15,sets:3,reps:'15–20',unit:'kg'},
-        {name:'LH-Curls',target:'3 × 10–12',weight:30,sets:3,reps:'10–12',unit:'kg'},
-        {name:'Hammer Curls',target:'2 × 12–15',weight:14,sets:2,reps:'12–15',unit:'kg/S'},
+        {name:'Pendlay Row',target:'4 × 8–10',weight:50,sets:4,reps:'8–10',unit:'kg'},
+        {name:'Einarm. Rudern',target:'3 × 10–12',weight:32.5,sets:3,reps:'10–12',unit:'kg'},
+        {name:'Facepulls',target:'3 × 15',weight:15,sets:3,reps:'15',unit:'kg'},
+        {name:'Außenrotation liegend',target:'2 × 15',weight:null,sets:2,reps:'15',unit:'band',isUnilateral:true},
+        {name:'Preacher Curls',target:'3 × 10–12',weight:20,sets:3,reps:'10–12',unit:'kg'},
+        {name:'Hammer Curls',target:'3 × 10–12',weight:17.5,sets:3,reps:'10–12',unit:'kg/S'},
       ]},
-      'Push':{day:'Donnerstag',type:'upper',duration:'65 min',note:'Druck-Fokus · Schulter moderat · Progressionswoche beachten',exercises:[
-        {name:'Flat Bankdrücken',target:'4 × 6–8',weight:80,sets:4,reps:'6–8',unit:'kg'},
-        {name:'Incline DB Press / DB Fly',target:'3 × 8–10',weight:22.5,sets:3,reps:'8–10',unit:'kg/S'},
-        {name:'Dips (Ringe)',target:'3 × 8–12',weight:null,sets:3,reps:'8–12',unit:'reps'},
-        {name:'DB OHP sitzend',target:'3 × 10–12',weight:15,sets:3,reps:'10–12',unit:'kg/S'},
-        {name:'French Press',target:'3 × 10–12',weight:30,sets:3,reps:'10–12',unit:'kg'},
-        {name:'Kabel Trizeps',target:'2 × 12–15',weight:15,sets:2,reps:'12–15',unit:'kg'},
+      'Lower':{day:'Mittwoch',type:'lower',duration:'65 min',note:'Front Squat Wo 1–4, danach Back Squat · Waden einbeinig mit 3 s exzentrisch',exercises:[
+        {name:'Front Squat',target:'4 × 8–10',weight:60,sets:4,reps:'8–10',unit:'kg'},
+        {name:'RDL',target:'4 × 10–12',weight:85,sets:4,reps:'10–12',unit:'kg'},
+        {name:'Bulgarian SS',target:'3 × 10–12',weight:15,sets:3,reps:'10–12',unit:'kg/S',isUnilateral:true},
+        {name:'Hip Thrust',target:'3 × 12–15',weight:60,sets:3,reps:'12–15',unit:'kg'},
+        {name:'Waden einbeinig',target:'4 × 8–12 (3 s exz.)',weight:null,sets:4,reps:'8–12',unit:'reps',isUnilateral:true},
+        {name:'Clamshells',target:'2 × 12–15',weight:null,sets:2,reps:'12–15',unit:'band',isUnilateral:true},
+        {name:'Pallof Press',target:'3 × 12',weight:null,sets:3,reps:'12',unit:'band',isUnilateral:true},
       ]},
-      'Lower':{day:'Dienstag',type:'lower',duration:'55 min',note:'Haupttag Beine · Wo1 RIR 2 · Wo2 steigern · Wo3 ausbelasten',exercises:[
-        {name:'Back Squat',target:'4 × 6–8',weight:82.5,sets:4,reps:'6–8',unit:'kg'},
-        {name:'RDL',target:'4 × 8–10',weight:80,sets:4,reps:'8–10',unit:'kg'},
-        {name:'Bulgarian SS',target:'3 × 10–12',weight:14,sets:3,reps:'10–12',unit:'kg/S',isUnilateral:true},
-        {name:'KB Swings',target:'3 × 20',weight:24,sets:3,reps:'20',unit:'kg'},
-        {name:'Calf Raises',target:'3 × 15–20',weight:40,sets:3,reps:'15–20',unit:'kg'},
+      'Push':{day:'Donnerstag',type:'upper',duration:'55 min',note:'Kein Flachbank, kein OHP bis Physio-Freigabe · Seitheben unter 90°',exercises:[
+        {name:'Incline DB Press',target:'4 × 10–12',weight:22.5,sets:4,reps:'10–12',unit:'kg/S'},
+        {name:'DB Floor Press',target:'4 × 12–15',weight:20,sets:4,reps:'12–15',unit:'kg/S'},
+        {name:'Seitheben',target:'3 × 15 (unter 90°)',weight:8,sets:3,reps:'15',unit:'kg/S'},
+        {name:'Kabel Trizeps eng',target:'3 × 12–15',weight:20,sets:3,reps:'12–15',unit:'kg'},
+        {name:'Kabel Pushdown',target:'3 × 12–15',weight:20,sets:3,reps:'12–15',unit:'kg'},
+        {name:'Facepulls',target:'2 × 15',weight:15,sets:2,reps:'15',unit:'kg'},
+        {name:'Cable Crunches',target:'3 × 12–15',weight:25,sets:3,reps:'12–15',unit:'kg'},
       ]},
-      'Fullbody':{day:'Samstag',type:'lower',duration:'65 min',note:'Full Body · zweiter Wochenstimulus',exercises:[
-        {name:'Flat Bankdrücken',target:'3 × 8–10',weight:75,sets:3,reps:'8–10',unit:'kg'},
-        {name:'Chin-ups (Ringe)',target:'3 Sets Cluster',sets:3,reps:'Cluster',unit:'reps',isCluster:true},
-        {name:'KB Clean & Press',target:'3 × 8–10',weight:20,sets:3,reps:'8–10',unit:'kg/S'},
-        {name:'KB Goblet Squat',target:'3 × 15',weight:24,sets:3,reps:'15',unit:'kg'},
-        {name:'KB Swings',target:'4 × 20',weight:24,sets:4,reps:'20',unit:'kg'},
-        {name:'LH-Curls',target:'2 × 10–12',weight:30,sets:2,reps:'10–12',unit:'kg'},
-        {name:'Kabel Trizeps',target:'2 × 12–15',weight:15,sets:2,reps:'12–15',unit:'kg'},
-        {name:'Hollow Hold',target:'3 × 30–45 sek',weight:null,sets:3,reps:'30–45',unit:'sek'},
+      'Fullbody':{day:'Samstag',type:'lower',duration:'50 min',note:'Zweiter Wochenimpuls · bewusst leichter als die Haupttage',exercises:[
+        {name:'Back Squat',target:'3 × 12',weight:70,sets:3,reps:'12',unit:'kg'},
+        {name:'Chin-ups',target:'2 Sets Cluster',sets:2,reps:'Cluster',unit:'reps',isCluster:true},
+        {name:'Incline DB Press',target:'3 × 15',weight:17.5,sets:3,reps:'15',unit:'kg/S'},
+        {name:'Chest Supp. Row',target:'3 × 12',weight:22.5,sets:3,reps:'12',unit:'kg'},
+        {name:'Konzentrationscurls',target:'2 × 12',weight:12.5,sets:2,reps:'12',unit:'kg/S',isUnilateral:true},
+        {name:'Kabel Trizeps',target:'2 × 15',weight:15,sets:2,reps:'15',unit:'kg'},
+        {name:'Hollow Hold',target:'3 × 40 sek',weight:null,sets:3,reps:'40',unit:'sek'},
       ]},
-      'Cardio':{day:'Di/Fr',type:'zone2',duration:'60–90 min',note:'Gravel · Zone 2 · HF 130–145 bpm · Di 60 min · Fr 75–90 min',exercises:[]},
-      'LeoMoves':{day:'Sonntag',type:'leo',duration:'—',note:'Aktive Erholung · Mobilität',exercises:[]},
+      'Cardio':{day:'Di/Fr',type:'zone2',duration:'60–90 min',note:'Di Zone 2 (126–146 bpm) · Fr Sweetspot 3×12 min bei 155–162 bpm oder Z2',exercises:[]},
+      'LeoMoves':{day:'Sonntag',type:'leo',duration:'—',note:'Aktive Erholung · Mobilität · Spaziergang',exercises:[]},
     }
   },
   2: { // Kraft-Peak
@@ -826,31 +1018,46 @@ const PHASE_PLANS = {
 };
 
 const PHASE_META = {
-  1:{num:1,label:'Peaking Block — Urlaub',cls:'ph1',color:'#1D9E75',bg:'#E8F7F2',border:'#1D9E75',
-     period:'3 Wochen',weeks:3,
-     ziel:'Max. Hypertrophie · KFA runter · Schulter schonen · Deload im Urlaub',
-     training:'Upper Zug Mo · Lower Di · Upper Druck Do · Full Body Sa · Gravel Di+Fr',
-     ernaehrung:'–300 kcal/Tag · 2 g Protein/kg · Kreatin 3–5g täglich',
-     progression:'Wo1 RIR 2–3 einspielen · Wo2 +2,5–5 kg RIR 1 · Wo3 Ausbelastung RIR 0'},
-  2:{num:2,label:'Kraft-Peak',cls:'ph2',color:'#4A44B0',bg:'#EEEDF8',border:'#4A44B0',
+  1:{num:1,label:'Block 2 — Lean & Strong',cls:'ph1',color:'#B06E3C',bg:'#FBF1E8',bgDark:'#2A1F16',colorDark:'#C88A52',border:'#B06E3C',
+     period:'7 Wochen · bis 11.10.',weeks:7,
+     ziel:'KFA 21,5 → 19 % · 86 → 83,5 kg · Muskelmasse halten · Schulter ausheilen',
+     training:'Pull Mo · Lower Mi · Push Do · Fullbody Sa · Gravel Di+Fr · Deload Wo 4',
+     ernaehrung:'Krafttag –400 kcal · Radtag –500 · Ruhetag –700 · 175 g Protein',
+     progression:'Doppelprogression: Satz 1+2 am oberen Ende → Last +5 %'},
+  2:{num:2,label:'Kraft-Peak',cls:'ph2',color:'#6B5B8A',bg:'#F2EFF6',bgDark:'#221E2A',colorDark:'#8B7BA8',border:'#6B5B8A',
      period:'8 Wochen',weeks:8,
      ziel:'Bankdrücken 92–95 kg · Squat 95–100 kg',
      training:'Upper/Lower 4×/Wo · Cardio 1× (35 min)',
      ernaehrung:'Erhaltungskalorisch · 190 g Protein',
      progression:'4–6 Reps · Tempo 3 sek exz. · Pausen 75 sek'},
-  3:{num:3,label:'KFA-Cut',cls:'ph3',color:'#64748B',bg:'#FEF3E2',border:'#64748B',
+  3:{num:3,label:'KFA-Cut',cls:'ph3',color:'#7A6A5A',bg:'#F4F1ED',bgDark:'#26221D',colorDark:'#9A8B7A',border:'#7A6A5A',
      period:'8 Wochen',weeks:8,
      ziel:'KFA 18% → 15–16% · Kraft halten',
      training:'3 Krafttage · Cardio 2×/Wo (38 min)',
      ernaehrung:'–300 kcal/Tag · 2 g Protein/kg',
      progression:'Intensität hoch · Volumen –30% · Gewicht halten'},
-  4:{num:4,label:'Recovery',cls:'ph4',color:'#1A5FA0',bg:'#E8F2FC',border:'#1A5FA0',
+  4:{num:4,label:'Recovery',cls:'ph4',color:'#4A7A9B',bg:'#EFF4F7',bgDark:'#1A2229',colorDark:'#6E9BB8',border:'#4A7A9B',
      period:'4 Wochen',weeks:4,
      ziel:'Mentaler Reset · Nervensystem erholen',
      training:'LeoMoves täglich · Cardio 2×/Wo',
      ernaehrung:'Erhaltungskalorisch',
      progression:'Keine — aktive Erholung'},
 };
+
+// Theme-abhängige Phasenfarben — im Dark Mode dunkle Varianten nutzen
+function isDark(){ return document.documentElement.getAttribute('data-theme')==='dark'; }
+// Chart-Farben je Theme
+function cssVar(name){ return getComputedStyle(document.documentElement).getPropertyValue(name).trim(); }
+function chartAccent(){ return cssVar('--accent'); }
+function chartAccentFill(){ return isDark() ? 'rgba(200,138,82,.14)' : 'rgba(176,110,60,.12)'; }
+function chartAmber(){ return cssVar('--amber'); }
+function chartGrid(){ return isDark() ? 'rgba(255,240,225,.07)' : 'rgba(60,45,30,.08)'; }
+function chartTick(){ return isDark() ? '#6B625A' : '#B3A99E'; }
+function chartTipBg(){ return isDark() ? '#2B2621' : '#1A1614'; }
+function chartTipText(){ return isDark() ? '#CFC6BB' : '#F5F3F0'; }
+function chartTipBody(){ return isDark() ? '#918477' : '#B3A99E'; }
+function phBg(m){ return isDark() && m.bgDark ? m.bgDark : m.bg; }
+function phColor(m){ return isDark() && m.colorDark ? m.colorDark : m.color; }
 
 
 // ═══ PHASE STORAGE ═══
@@ -926,6 +1133,23 @@ function saveCustomExercises(phaseNum, sessionKey, exercises){
   savePhaseSettings(ps);
 }
 
+function saveCustomSessionMeta(phaseNum, sessionKey, meta){
+  const ps=getPhaseSettings();
+  if(!ps.customPlans) ps.customPlans={};
+  if(!ps.customPlans[phaseNum]) ps.customPlans[phaseNum]={};
+  if(!ps.customPlans[phaseNum][sessionKey]){
+    ps.customPlans[phaseNum][sessionKey]=JSON.parse(JSON.stringify(PHASE_PLANS[phaseNum].plan[sessionKey]));
+  }
+  Object.assign(ps.customPlans[phaseNum][sessionKey], meta);
+  savePhaseSettings(ps);
+}
+
+// Eigene Anzeigenamen je Session
+function getSessionLabel(phaseNum, key){
+  const plan=getPlanForPhase(phaseNum);
+  return (plan[key] && plan[key].label) || null;
+}
+
 function resetCustomPlan(phaseNum, sessionKey){
   const ps=getPhaseSettings();
   if(ps.customPlans && ps.customPlans[phaseNum] && ps.customPlans[phaseNum][sessionKey]){
@@ -949,10 +1173,10 @@ function openPhaseSheet(){
   function phaseCard(num){
     const m=PHASE_META[num];
     const isActive=num===activeNum;
-    return `<div style="border-radius:12px;border:1.5px solid ${isActive?m.color:m.border+'44'};background:${m.bg};padding:14px;margin-bottom:10px;">
+    return `<div style="border-radius:12px;border:1.5px solid ${isActive?phColor(m):m.border+'44'};background:${phBg(m)};padding:14px;margin-bottom:10px;">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
         <span style="font-size:11px;font-weight:600;color:${m.color};text-transform:uppercase;letter-spacing:.06em;">Phase ${num}</span>
-        ${isActive?`<span style="font-size:10px;background:${m.color};color:#fff;padding:2px 8px;border-radius:20px;font-weight:600;">AKTIV</span>`:''}
+        ${isActive?`<span style="font-size:10px;background:${m.color};color:var(--on-accent);padding:2px 8px;border-radius:20px;font-weight:600;">AKTIV</span>`:''}
       </div>
       <div style="font-size:16px;font-weight:600;margin-bottom:4px;">${m.label}</div>
       <div style="font-size:11px;color:var(--text2);margin-bottom:10px;">${m.period} · ${m.weeks} Wochen</div>
@@ -1017,7 +1241,7 @@ function openPhaseManage(){
         ${[1,2,3,4].map(n=>{
           const m=PHASE_META[n];
           const isActive=n===ps.activePhase;
-          return `<button onclick="${isActive?'':` confirmPhaseSwitch(${n})`}" style="padding:12px 10px;border-radius:10px;border:1.5px solid ${isActive?m.color:m.border+'44'};background:${isActive?m.bg:'var(--bg2)'};cursor:${isActive?'default':'pointer'};text-align:left;opacity:${isActive?'1':'0.8'};">
+          return `<button onclick="${isActive?'':` confirmPhaseSwitch(${n})`}" style="padding:12px 10px;border-radius:10px;border:1.5px solid ${isActive?phColor(m):m.border+'44'};background:${isActive?phBg(m):'var(--bg2)'};cursor:${isActive?'default':'pointer'};text-align:left;opacity:${isActive?'1':'0.8'};">
             <div style="font-size:10px;font-weight:600;color:${m.color};margin-bottom:2px;">PHASE ${n}</div>
             <div style="font-size:13px;font-weight:500;">${m.label}</div>
             <div style="font-size:10px;color:var(--text3);margin-top:2px;">${m.period} · ${m.weeks} Wo</div>
@@ -1434,6 +1658,7 @@ const DB = {
     trainingSettings: {restBetweenSets:90, restBetweenEx:120},
     phaseSettings: null,
     anthropicApiKey: null,
+    appTheme: 'light',
   },
   ready: false,
 
@@ -1461,7 +1686,7 @@ const DB = {
   },
 
   async _loadAll(){
-    const keys = ['trainingData','trainingSettings','phaseSettings','anthropicApiKey'];
+    const keys = ['trainingData','trainingSettings','phaseSettings','anthropicApiKey','appTheme'];
     for(const key of keys){
       const val = await this._idbGet(key);
       if(val !== null) this.cache[key] = val;
@@ -1616,8 +1841,8 @@ function renderHeutePage(){
   if(plEl) plEl.textContent=`${totalDone} Sessions seit Phase-Start`;
 
   // Card-Farbe
-  const _grads={1:'linear-gradient(135deg,#00C07F,#00A36A)',2:'linear-gradient(135deg,#6366F1,#4F46E5)',3:'linear-gradient(135deg,#64748B,#475569)',4:'linear-gradient(135deg,#3B82F6,#2563EB)'};
-  const _shads={1:'rgba(0,192,127,.3)',2:'rgba(99,102,241,.3)',3:'rgba(100,116,139,.25)',4:'rgba(59,130,246,.3)'};
+  const _grads={1:'linear-gradient(135deg,#B06E3C,#96592C)',2:'linear-gradient(135deg,#6B5B8A,#544671)',3:'linear-gradient(135deg,#7A6A5A,#5E5145)',4:'linear-gradient(135deg,#4A7A9B,#3A6480)'};
+  const _shads={1:'rgba(176,110,60,.28)',2:'rgba(107,91,138,.26)',3:'rgba(122,106,90,.24)',4:'rgba(74,122,155,.26)'};
   const card=document.getElementById('phase-card');
   if(card){card.style.background=_grads[ph.phase];card.style.boxShadow=`0 4px 20px ${_shads[ph.phase]}`;}
   renderWeekStats();renderRecentLog();renderSessionButtons();
@@ -1627,8 +1852,8 @@ function renderSessionButtons(){
   const ps=getPhaseSettings();
   const sessions=PHASE_PLANS[ps.activePhase].sessions;
   const dn={'Cardio':'Cardio','LeoMoves':'Functional','Cardio 2':'Cardio 2','Zone 2':'Cardio','Zone 2b':'Cardio 2'};
-  const dots={1:'#00C07F',2:'#6366F1',3:'#64748B',4:'#3B82F6'};
-  const dotColor=dots[ps.activePhase]||'#00C07F';
+  const dots={1:'var(--accent)',2:'var(--indigo)',3:'var(--amber)',4:'var(--blue)'};
+  const dotColor=dots[ps.activePhase]||'var(--accent)';
   const isCardioSess=s=>s.startsWith('Zone')||s.startsWith('Cardio')||s==='LeoMoves'||s==='Functional';
   const kraftSessions=sessions.filter(s=>!isCardioSess(s));
   const cardioSessions=sessions.filter(s=>isCardioSess(s));
@@ -1647,7 +1872,7 @@ function renderSessionButtons(){
     cardioSessions.forEach(s=>{
       const isLeo=s==='LeoMoves'||s==='Functional';
       h+=`<button class="sess-quick-btn" onclick="quickStart('${s}')">
-        <div class="sess-quick-btn-dot" style="background:${isLeo?'#64748B':'#3B82F6'};"></div>
+        <div class="sess-quick-btn-dot" style="background:${isLeo?'var(--amber)':'var(--blue)'};"></div>
         <div class="sess-quick-btn-label">${dn[s]||s}</div>
         <div class="sess-quick-btn-sub">${isLeo?'Aktive Erholung':'Cardio · HF 120–140'}</div>
       </button>`;
@@ -1725,9 +1950,11 @@ function quickStart(type, deload){
   AS.warmupDone=false;AS.cooldownShown=false;
   AS.warmupSetsPhase={};AS._uniSide='links';AS._uniLeft=null;
   AS._uniRightDone=false;AS._uniLeftReps=0;AS._uniLeftWeight=null;
-  AS._holdSek=30;AS._holdPending=false;AS._cardioData=null;
+  AS._holdSek=30;AS._holdPending=false;AS._cardioData=null;AS._band=null;
   const _dn={'Zone 2':'Cardio','Cardio':'Cardio','LeoMoves':'Functional','Functional':'Functional'};
-  document.getElementById('sess-title').textContent=(_dn[type]||type)+(deload?' · Deload':'');
+  const _ps=getPhaseSettings();
+  const _custLabel=(getPlanForPhase(_ps.activePhase)[type]||{}).label;
+  document.getElementById('sess-title').textContent=(_custLabel||_dn[type]||type)+(deload?' · Deload':'');
   clearInterval(AS.elapsedInterval);
   AS.elapsedInterval=setInterval(()=>{AS.elapsedSeconds++;updateElapsed();},1000);
   _AUDIO.init();
@@ -1750,7 +1977,7 @@ function askDeload(type){
         <div style="font-size:15px;font-weight:600;">Normal</div>
         <div style="font-size:12px;opacity:.75;margin-top:1px;">Plangewichte wie vorgesehen</div>
       </button>
-      <button class="btn btn-full" id="ask-deload" style="background:#F1F5F9;color:var(--amber);border:1px solid #CBD5E1;text-align:left;padding:14px 16px;">
+      <button class="btn btn-full" id="ask-deload" style="background:var(--amber-pale);color:var(--amber);border:1px solid var(--border2);text-align:left;padding:14px 16px;">
         <div style="font-size:15px;font-weight:600;">Deload</div>
         <div style="font-size:12px;opacity:.75;margin-top:1px;">Alle Gewichte auf 60% reduziert</div>
       </button>
@@ -1827,7 +2054,7 @@ function renderSessionBody(){
       <span class="set-done-num" style="${s.isWarmup?'color:var(--teal);':''}">
         ${s.isWarmup?'WU'+(i+1):i+1-exSets.filter((x,j)=>j<i&&x.isWarmup).length}
       </span>
-      <span class="set-done-vals">${s.weight?s.weight+'kg · ':''}${s.reps} ${ex.unit==='sek'?'sek':'Wdh'}${s.isWarmup?' <span style=\"font-size:10px;color:var(--teal);\">Aufwärm</span>':''}</span>
+      <span class="set-done-vals">${s.band?(bandByKey(s.band)?.label||s.band)+' · ':(s.weight?s.weight+'kg · ':'')}${s.reps} ${ex.unit==='sek'?'sek':'Wdh'}${s.isWarmup?' <span style=\"font-size:10px;color:var(--teal);\">Aufwärm</span>':''}</span>
       <span class="set-done-rir" style="margin-left:auto;">${s.rir&&s.rir!=='WU'?s.rir+' RIR':''}</span>
       <button onclick="deleteSet(${exSetIndices[i]})" style="background:none;border:none;padding:4px 6px;cursor:pointer;color:var(--text3);font-size:16px;line-height:1;margin-left:6px;">✕</button>
     </div>`).join('');
@@ -1853,14 +2080,14 @@ function renderSessionBody(){
   if(wuConfig&&wuPhase<wuTotal){
     // Show warmup set input
     const wuSet=wuConfig[wuPhase];
-    inputArea=`<div class="set-input-area" style="background:#ECFDF522;border:1px solid #05966944;">
+    inputArea=`<div class="set-input-area" style="background:var(--accent-pale);border:1px solid var(--border2);">
       <div style="font-size:12px;font-weight:600;color:var(--teal);margin-bottom:10px;">${wuSet.label} · leicht · kein RIR-Tracking</div>
       <div class="g3">
         <div><label>kg</label><input type="number" id="inp-weight" placeholder="${wuSet.weight}" value="${wuSet.weight}" step="0.5" inputmode="decimal" style="text-align:center;font-size:16px;" onfocus="this.select()"></div>
         <div><label>Wdh</label><input type="number" id="inp-reps" placeholder="${wuSet.reps}" value="${wuSet.reps}" inputmode="numeric" style="text-align:center;font-size:16px;" onfocus="this.select()"></div>
         <div><label>—</label><input type="number" id="inp-rir" placeholder="—" disabled style="text-align:center;font-size:16px;background:var(--bg4);color:var(--text3);" onfocus="this.select()"></div>
       </div>
-      <button class="btn btn-full" style="margin-top:10px;background:#ECFDF5;color:var(--teal);border:1px solid var(--teal);" onclick="warmupSetDone()">✓ Aufwärmsatz ${wuPhase+1} erledigt → kurze Pause</button>
+      <button class="btn btn-full" style="margin-top:10px;background:var(--green-pale);color:var(--teal);border:1px solid var(--teal);" onclick="warmupSetDone()">✓ Aufwärmsatz ${wuPhase+1} erledigt → kurze Pause</button>
     </div>`;
   } else if(isCluster){
     // Show done clusters + current active
@@ -1884,11 +2111,13 @@ function renderSessionBody(){
     // Unilateral (z.B. Bulgarian SS): Links → 20sek → Rechts
     const _uniSide=AS._uniSide||'links';
     inputArea=`
-      <div class="set-input-area" id="set-input-area" style="background:${_uniSide==='links'?'#ECFDF5':'#EFF6FF'};">
+      <div class="set-input-area" id="set-input-area" style="background:${_uniSide==='links'?'var(--green-pale)':'var(--blue-pale)'};">
         <div style="font-size:13px;color:var(--text2);margin-bottom:6px;font-weight:500;">${satzLabel}</div>
         <div style="font-size:16px;font-weight:700;margin-bottom:10px;color:${_uniSide==='links'?'var(--green)':'var(--blue)'};">${_uniSide==='links'?'← Links':'→ Rechts'}</div>
         <div class="g3">
-          <div><label>${ex.unit}</label><input type="number" id="inp-weight" placeholder="${ex.weight||'—'}" value="${getLastWeight(ex.name,ex.weight)||''}" step="0.5" inputmode="decimal" style="text-align:center;font-size:16px;" onfocus="this.select()"></div>
+          ${ex.unit==='band'
+            ? `<div style="grid-column:1/-1;"><label>Band</label>${bandPickerHTML(AS._band||getLastBand(ex.name))}</div>`
+            : `<div><label>${ex.unit}</label><input type="number" id="inp-weight" placeholder="${ex.weight||'—'}" value="${getLastWeight(ex.name,ex.weight)||''}" step="0.5" inputmode="decimal" style="text-align:center;font-size:16px;" onfocus="this.select()"></div>`}
           <div><label>Wdh</label><input type="number" id="inp-reps" placeholder="Wdh" value="${getLastReps(ex.name,'')||''}" inputmode="numeric" style="text-align:center;font-size:16px;" onfocus="this.select()"></div>
           <div><label>RIR</label><input type="number" id="inp-rir" placeholder="0" min="0" max="5" inputmode="numeric" style="text-align:center;font-size:16px;" onfocus="this.select()"></div>
         </div>
@@ -1906,7 +2135,7 @@ function renderSessionBody(){
             <input type="number" id="inp-reps" value="${sekTarget}" placeholder="${sekTarget}" inputmode="numeric" style="text-align:center;font-size:22px;font-weight:700;" onfocus="this.select()">
           </div>
           <div style="flex-shrink:0;">
-            <button onclick="startHoldTimer()" style="width:60px;height:60px;border-radius:50%;background:var(--green);border:none;color:#fff;font-size:24px;cursor:pointer;">▶</button>
+            <button onclick="startHoldTimer()" style="width:60px;height:60px;border-radius:50%;background:var(--accent);border:none;color:var(--on-accent);font-size:24px;cursor:pointer;">▶</button>
           </div>
         </div>
         <input type="hidden" id="inp-weight" value="">
@@ -1918,7 +2147,9 @@ function renderSessionBody(){
       <div class="set-input-area" id="set-input-area">
         <div style="font-size:13px;color:var(--text2);margin-bottom:10px;font-weight:500;">${satzLabel}</div>
         <div class="g3">
-          <div><label>${ex.unit}</label><input type="number" id="inp-weight" placeholder="${ex.weight||'—'}" value="${getLastWeight(ex.name,ex.weight)||''}" step="0.5" inputmode="decimal" style="text-align:center;font-size:16px;" onfocus="this.select()"></div>
+          ${ex.unit==='band'
+            ? `<div style="grid-column:1/-1;"><label>Band</label>${bandPickerHTML(AS._band||getLastBand(ex.name))}</div>`
+            : `<div><label>${ex.unit}</label><input type="number" id="inp-weight" placeholder="${ex.weight||'—'}" value="${getLastWeight(ex.name,ex.weight)||''}" step="0.5" inputmode="decimal" style="text-align:center;font-size:16px;" onfocus="this.select()"></div>`}
           <div><label>Wdh</label><input type="number" id="inp-reps" placeholder="Wdh" value="${getLastReps(ex.name,'')||''}" inputmode="numeric" style="text-align:center;font-size:16px;" onfocus="this.select()"></div>
           <div><label>RIR</label><input type="number" id="inp-rir" placeholder="0" min="0" max="5" inputmode="numeric" style="text-align:center;font-size:16px;" onfocus="this.select()"></div>
         </div>
@@ -1939,8 +2170,9 @@ function renderSessionBody(){
           <div class="curr-ex-name">${ex.name}</div>
           <div class="curr-ex-target">${ex.target}</div>
           ${getExBadgeHTML(ex.name)}
-          ${(()=>{const ps=getPhaseSettings();const v=getVariation(ps.activePhase,AS.type,ex.name);return v?`<div style="margin-top:5px;font-size:11px;color:var(--blue);background:#EFF6FF;padding:3px 8px;border-radius:6px;display:inline-block;">↻ ${v}</div>`:''})()}
+          ${(()=>{const ps=getPhaseSettings();const v=getVariation(ps.activePhase,AS.type,ex.name);return v?`<div style="margin-top:5px;font-size:11px;color:var(--blue);background:var(--blue-pale);padding:3px 8px;border-radius:6px;display:inline-block;">↻ ${v}</div>`:''})()}
           ${getLastSessionHTML(ex.name)}
+          ${getProgressionHTML(ex)}
         </div>
         <div style="font-size:12px;color:var(--text3);text-align:right;flex-shrink:0;margin-left:12px;">${setsLeft} Sätze<br>übrig</div>
       </div>
@@ -1972,14 +2204,14 @@ function renderWarmupScreen(){
   body.innerHTML=`
     <div class="ex-dots">${dotsHTML}</div>
     <div style="margin:0 16px 12px;background:var(--bg2);border:1px solid var(--border);border-radius:16px;overflow:hidden;">
-      <div style="padding:14px 16px;border-bottom:1px solid var(--border);background:#ECFDF5;">
+      <div style="padding:14px 16px;border-bottom:1px solid var(--border);background:var(--green-pale);">
         <div style="font-size:11px;font-weight:600;color:var(--teal);text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px;">Warm-up · ~7–10 min</div>
         <div style="font-size:17px;font-weight:600;">${AS.type}</div>
       </div>
       <div style="padding:14px 16px;">
         ${wu.warmup.map((step,i)=>`
           <div style="display:flex;gap:10px;align-items:flex-start;padding:8px 0;border-bottom:0.5px solid var(--border);">
-            <div style="width:22px;height:22px;border-radius:50%;background:#ECFDF5;color:var(--teal);font-size:11px;font-weight:600;display:flex;align-items:center;justify-content:center;flex-shrink:0;">${i+1}</div>
+            <div style="width:22px;height:22px;border-radius:50%;background:var(--green-pale);color:var(--teal);font-size:11px;font-weight:600;display:flex;align-items:center;justify-content:center;flex-shrink:0;">${i+1}</div>
             <div style="font-size:13px;color:var(--text);line-height:1.5;padding-top:2px;">${step}</div>
           </div>`).join('')}
         <button class="btn btn-primary btn-full" style="margin-top:14px;" onclick="skipWarmup()">
@@ -2006,14 +2238,14 @@ function renderCooldownScreen(){
 
   body.innerHTML=`
     <div style="margin:16px 16px 12px;background:var(--bg2);border:1px solid var(--border);border-radius:16px;overflow:hidden;">
-      <div style="padding:14px 16px;border-bottom:1px solid var(--border);background:#EFF6FF;">
+      <div style="padding:14px 16px;border-bottom:1px solid var(--border);background:var(--blue-pale);">
         <div style="font-size:11px;font-weight:600;color:var(--blue);text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px;">Cool-down · ~5–7 min</div>
         <div style="font-size:17px;font-weight:600;">Training abgeschlossen 💪</div>
       </div>
       <div style="padding:14px 16px;">
         ${wu.cooldown.map((step,i)=>`
           <div style="display:flex;gap:10px;align-items:flex-start;padding:8px 0;border-bottom:0.5px solid var(--border);">
-            <div style="width:22px;height:22px;border-radius:50%;background:#EFF6FF;color:var(--blue);font-size:11px;font-weight:600;display:flex;align-items:center;justify-content:center;flex-shrink:0;">${i+1}</div>
+            <div style="width:22px;height:22px;border-radius:50%;background:var(--blue-pale);color:var(--blue);font-size:11px;font-weight:600;display:flex;align-items:center;justify-content:center;flex-shrink:0;">${i+1}</div>
             <div style="font-size:13px;color:var(--text);line-height:1.5;padding-top:2px;">${step}</div>
           </div>`).join('')}
         <button class="btn btn-primary btn-full" style="margin-top:14px;" onclick="renderSessionFinish()">
@@ -2031,9 +2263,10 @@ function renderCooldownScreen(){
 
 
 function warmupSetDone(){
-  const w=document.getElementById('inp-weight').value;
+  const _wEl=document.getElementById('inp-weight');
+  const w=_wEl?_wEl.value:'';
   const r=document.getElementById('inp-reps').value;
-  AS.doneSets.push({exIdx:AS.exIdx,weight:parseFloat(w)||null,reps:parseInt(r)||0,rir:'WU',isWarmup:true});
+  AS.doneSets.push({exIdx:AS.exIdx,weight:parseFloat(w)||null,band:AS._band||null,reps:parseInt(r)||0,rir:'WU',isWarmup:true});
   const phase=getWarmupPhase(AS.exIdx);
   AS.warmupSetsPhase[AS.exIdx]=phase+1;
   // Short pause: 30 sek nach 1 WU-Satz, 45 sek nach erstem von zwei
@@ -2068,8 +2301,8 @@ function renderCardioScreen(){
   const _cc=document.getElementById('sess-ex-counter');if(_cc)_cc.textContent=isLeo?'Functional':'Cardio';
   const dn={'Cardio':'Cardio','LeoMoves':'Functional','Cardio 2':'Cardio 2','Zone 2':'Cardio','Zone 2b':'Cardio 2'};
   const displayName=dn[AS.type]||AS.type;
-  const color=isLeo?'#64748B':'#3B82F6';
-  const pale=isLeo?'#F1F5F9':'#EFF6FF';
+  const color=isLeo?'var(--amber)':'var(--blue)';
+  const pale=isLeo?'var(--amber-pale)':'var(--blue-pale)';
 
   body.innerHTML=`
     <div style="margin:16px 16px 12px;background:var(--surface);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow);">
@@ -2221,6 +2454,19 @@ function finishClusterSet(){
 }
 
 
+function getLastBand(exName){
+  const exSetsNow=AS.doneSets.filter(s=>s.exIdx===AS.exIdx&&!s.isWarmup);
+  if(exSetsNow.length>0){const last=exSetsNow[exSetsNow.length-1];if(last.band)return last.band;}
+  const data=getData();
+  const sessions=[...data.sessions].filter(s=>s.type===AS.type).sort((a,b)=>new Date(b.date)-new Date(a.date));
+  for(const s of sessions){
+    if(!s.exercises)continue;
+    const ex=s.exercises.find(e=>e.name===exName);
+    if(ex){const ws=(ex.sets||[]).filter(st=>!st.isWarmup&&st.band);if(ws.length>0)return ws[ws.length-1].band;}
+  }
+  return 'schwarz';
+}
+
 function getLastWeight(exName, fallbackWeight){
   const exSetsNow=AS.doneSets.filter(s=>s.exIdx===AS.exIdx&&!s.isWarmup);
   if(exSetsNow.length>0){const last=exSetsNow[exSetsNow.length-1];if(last.weight)return last.weight;}
@@ -2280,7 +2526,8 @@ function goBackExercise(){
 // ── SET DONE ──
 function setDone(){
   _AUDIO.init();
-  const w=document.getElementById('inp-weight').value;
+  const _wEl=document.getElementById('inp-weight');
+  const w=_wEl?_wEl.value:'';
   const r=document.getElementById('inp-reps').value;
   const rir=document.getElementById('inp-rir').value;
   if(!r){showToast('Wiederholungen eingeben!');return;}
@@ -2298,12 +2545,12 @@ function setDone(){
   // Normaler Satz oder Rechts-Seite bei Unilateral
   const leftReps=AS._uniRightDone?AS._uniLeftReps:null;
   const leftWeight=AS._uniRightDone?AS._uniLeftWeight:null;
-  AS._uniRightDone=false;
+  AS._uniRightDone=false;AS._band=null;
   AS._uniLeftReps=0;
   AS._uniLeftWeight=null;
 
   const repsToLog=ex.isUnilateral?leftReps+'/'+r:parseInt(r)||0;
-  AS.doneSets.push({exIdx:AS.exIdx,weight:parseFloat(w)||leftWeight||null,reps:repsToLog,rir:rir});
+  AS.doneSets.push({exIdx:AS.exIdx,weight:parseFloat(w)||leftWeight||null,band:AS._band||null,reps:repsToLog,rir:rir});
 
   const exSets=AS.doneSets.filter(s=>s.exIdx===AS.exIdx);
   const settings=getSettings();
@@ -2405,7 +2652,7 @@ function addExtraExercise(){
                 <div style="font-size:14px;font-weight:600;color:var(--text);">${ex.name}</div>
                 <div style="font-size:11px;color:var(--text2);font-family:var(--mono);margin-top:2px;">${ex.target}${ex.weight?' · '+ex.weight+' '+ex.unit:''}</div>
               </div>
-              <button data-add="${i}" style="background:var(--green);color:#fff;border:none;border-radius:10px;padding:8px 14px;font-size:13px;font-weight:600;cursor:pointer;font-family:var(--font);">+ Add</button>
+              <button data-add="${i}" style="background:var(--accent);color:var(--on-accent);border:none;border-radius:10px;padding:8px 14px;font-size:13px;font-weight:600;cursor:pointer;font-family:var(--font);">+ Add</button>
             </div>
             <div style="display:flex;gap:8px;">
               <button data-uni="${i}" style="flex:1;padding:7px 10px;border-radius:8px;border:1.5px solid ${st.uni?'var(--green)':'var(--border)'};background:${st.uni?'var(--green-pale)':'var(--surface2)'};color:${st.uni?'var(--green)':'var(--text2)'};font-size:12px;font-weight:600;cursor:pointer;font-family:var(--font);">
@@ -2513,7 +2760,8 @@ function addExtraSet(){
 
 
 function uniSideDone(){
-  const w=document.getElementById('inp-weight').value;
+  const _wEl=document.getElementById('inp-weight');
+  const w=_wEl?_wEl.value:'';
   const r=document.getElementById('inp-reps').value;
   const rir=document.getElementById('inp-rir').value;
   if(!r){showToast('Wiederholungen eingeben!');return;}
@@ -2528,6 +2776,7 @@ function uniSideDone(){
     AS.doneSets.push({
       exIdx:AS.exIdx,
       weight:AS._uniLeft?.weight||null,
+      band:AS._band||null,
       reps:(AS._uniLeft?.reps||0)+'/'+r+' (L/R)',
       rir:rir,
       isUnilateral:true,
@@ -2592,7 +2841,7 @@ function renderTimer(label,type){
       <div class="between-ex-next">Nächste Übung — jetzt umrüsten</div>
       <div style="font-size:18px;font-weight:700;color:var(--text);margin-bottom:4px;letter-spacing:-.02em;">${next.name}</div>
       <div style="font-size:12px;color:var(--indigo);font-family:var(--mono);margin-bottom:6px;">${next.target}</div>
-      ${nextWuTotal>0&&nextWeight?`<div style="font-size:11px;color:var(--text2);background:rgba(255,255,255,.5);border-radius:6px;padding:5px 8px;">
+      ${nextWuTotal>0&&nextWeight?`<div style="font-size:11px;color:var(--text2);background:var(--surface3);border-radius:6px;padding:5px 8px;">
         ${nextWuTotal===2?`WU: ${wu1} kg × 10 → ${wu2} kg × 6`:`WU: ${wu1s} kg × 10`}
       </div>`:''}
     </div>`;
@@ -2621,7 +2870,7 @@ function renderTimer(label,type){
     const wuConfig=getWarmupSetConfig(ex);
     const nextWu=wuConfig&&wuConfig[wuPhaseNow];
     if(nextWu){
-      nextInfo=`<div style="margin:0 16px;background:#ECFDF5;border-radius:var(--radius);padding:14px 16px;">
+      nextInfo=`<div style="margin:0 16px;background:var(--green-pale);border-radius:var(--radius);padding:14px 16px;">
         <div style="font-size:10px;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px;">${nextWu.label}</div>
         <div style="display:flex;align-items:center;justify-content:space-between;">
           <div style="font-size:15px;font-weight:700;color:var(--text);">${ex.name}</div>
@@ -2783,8 +3032,8 @@ function finishSession(){
     const workOnly=sets.filter(s=>!s.isWarmup);
     if(sets.length>0)exercises.push({
       name:ex.name,unit:ex.unit||'kg',
-      sets:sets.map(s=>({weight:s.weight,reps:s.reps,rir:s.rir,isWarmup:s.isWarmup||false})),
-      workSets:workOnly.map(s=>({weight:s.weight,reps:s.reps,rir:s.rir}))
+      sets:sets.map(s=>({weight:s.weight,band:s.band||null,reps:s.reps,rir:s.rir,isWarmup:s.isWarmup||false})),
+      workSets:workOnly.map(s=>({weight:s.weight,band:s.band||null,reps:s.reps,rir:s.rir}))
     });
   });
   WakeLock.release();TIMER_TARGET_MS=null;
@@ -2906,7 +3155,7 @@ function renderLogEntryHTML(s){
   const dateStr=d.toLocaleDateString('de-DE',{weekday:'short',day:'numeric',month:'short'})+(s.time?' · '+s.time:'');
   const _logNames={'LeoMoves':'Functional','Zone 2':'Cardio','Zone 2b':'Cardio 2'};
   const displayType=_logNames[s.type]||s.type;
-  const colors={'Upper A':'#6366F1','Upper B':'#6366F1','Lower A':'#64748B','Lower B':'#64748B','Zone 2':'#3B82F6','Cardio':'#3B82F6','Cardio 2':'#3B82F6','LeoMoves':'#6B7280','Functional':'#6B7280'};
+  const colors={'Upper A':'var(--indigo)','Upper B':'var(--indigo)','Lower A':'var(--amber)','Lower B':'var(--amber)','Zone 2':'var(--blue)','Cardio':'var(--blue)','Cardio 2':'var(--blue)','LeoMoves':'var(--text2)','Functional':'var(--text2)'};
   const color=colors[s.type]||'#5F5E5A';
   let exHTML='';
   const _dn2={'Zone 2':'Cardio','LeoMoves':'Functional','Zone 2b':'Cardio 2'};
@@ -2951,8 +3200,8 @@ function showSessionDetail(id){
   const _logNames={'LeoMoves':'Functional','Zone 2':'Cardio','Zone 2b':'Cardio 2'};
   const displayType=_logNames[s.type]||s.type;
   const d=new Date(s.date).toLocaleDateString('de-DE',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
-  const colors={'Upper A':'#6366F1','Upper B':'#6366F1','Lower A':'#64748B','Lower B':'#64748B','Zone 2':'#3B82F6','Cardio':'#3B82F6','LeoMoves':'#6B7280','Functional':'#6B7280'};
-  const color=colors[s.type]||'#6B7280';
+  const colors={'Upper A':'var(--indigo)','Upper B':'var(--indigo)','Lower A':'var(--amber)','Lower B':'var(--amber)','Zone 2':'var(--blue)','Cardio':'var(--blue)','LeoMoves':'var(--text2)','Functional':'var(--text2)'};
+  const color=colors[s.type]||'var(--text2)';
 
   let html=`
     <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;">
@@ -2987,8 +3236,8 @@ function showSessionDetail(id){
       const workSets=ex.sets.filter(st=>!st.isWarmup);
       const wuSets=ex.sets.filter(st=>st.isWarmup);
       html+=`<div style="margin-bottom:14px;"><div style="font-size:14px;font-weight:600;margin-bottom:6px;">${ex.name}</div>`;
-      wuSets.forEach(set=>{html+=`<div class="log-set-row" style="opacity:.5;"><span class="log-set-num">WU</span><span class="log-set-val">${set.weight?set.weight+'kg · ':''}${set.reps} Wdh</span></div>`;});
-      workSets.forEach((set,i)=>{html+=`<div class="log-set-row"><span class="log-set-num">${i+1}</span><span class="log-set-val">${set.weight?set.weight+'kg · ':''}${set.reps} ${ex.unit==='sek'?'sek':'Wdh'}</span><span style="margin-left:auto;color:var(--text3);font-size:11px;">${set.rir&&set.rir!=='WU'?set.rir+' RIR':''}</span></div>`;});
+      wuSets.forEach(set=>{html+=`<div class="log-set-row" style="opacity:.5;"><span class="log-set-num">WU</span><span class="log-set-val">${set.band?(bandByKey(set.band)?.label||set.band)+' · ':(set.weight?set.weight+'kg · ':'')}${set.reps} Wdh</span></div>`;});
+      workSets.forEach((set,i)=>{html+=`<div class="log-set-row"><span class="log-set-num">${i+1}</span><span class="log-set-val">${set.band?(bandByKey(set.band)?.label||set.band)+' · ':(set.weight?set.weight+'kg · ':'')}${set.reps} ${ex.unit==='sek'?'sek':'Wdh'}</span><span style="margin-left:auto;color:var(--text3);font-size:11px;">${set.rir&&set.rir!=='WU'?set.rir+' RIR':''}</span></div>`;});
       html+=`</div>`;
     });
   }
@@ -3066,7 +3315,7 @@ function renderProgress(exName){
   }
   if(chartInstances['progress-chart'])chartInstances['progress-chart'].destroy();
   const ctx=document.getElementById('progress-chart').getContext('2d');
-  chartInstances['progress-chart']=new Chart(ctx,{type:'line',data:{labels:points.map(p=>new Date(p.date).toLocaleDateString('de-DE',{day:'numeric',month:'short'})),datasets:[{data:points.map(p=>p.weight),borderColor:'#00C07F',backgroundColor:'rgba(0,192,127,.1)',borderWidth:2,fill:true,tension:.3,pointRadius:4,pointBackgroundColor:'#00C07F'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{backgroundColor:'#1e1e1e',titleColor:'#f0f0f0',bodyColor:'#888'}},scales:{x:{grid:{color:'#2a2a2a'},ticks:{color:'#555',font:{size:10}}},y:{grid:{color:'#2a2a2a'},ticks:{color:'#555',font:{size:10},callback:v=>v+'kg'}}}}});
+  chartInstances['progress-chart']=new Chart(ctx,{type:'line',data:{labels:points.map(p=>new Date(p.date).toLocaleDateString('de-DE',{day:'numeric',month:'short'})),datasets:[{data:points.map(p=>p.weight),borderColor:chartAccent(),backgroundColor:chartAccentFill(),borderWidth:2,fill:true,tension:.3,pointRadius:4,pointBackgroundColor:chartAccent()}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{backgroundColor:chartTipBg(),titleColor:chartTipText(),bodyColor:chartTipBody()}},scales:{x:{grid:{color:chartGrid()},ticks:{color:chartTick(),font:{size:10}}},y:{grid:{color:chartGrid()},ticks:{color:chartTick(),font:{size:10},callback:v=>v+'kg'}}}}});
   renderPBs();renderPhaseGoals();
 }
 
@@ -3113,7 +3362,7 @@ function renderPlanTabs(){
     const m = PHASE_META[n];
     const isView = n === _planViewPhase;
     const isActive = n === ps.activePhase;
-    return `<button onclick="switchPlanView(${n})" style="flex-shrink:0;padding:8px 14px;border-radius:10px;border:1.5px solid ${isView?m.color:m.border+'55'};background:${isView?m.bg:'var(--bg2)'};cursor:pointer;text-align:left;min-width:90px;">
+    return `<button onclick="switchPlanView(${n})" style="flex-shrink:0;padding:8px 14px;border-radius:10px;border:1.5px solid ${isView?phColor(m):m.border+'55'};background:${isView?phBg(m):'var(--bg2)'};cursor:pointer;text-align:left;min-width:90px;">
       <div style="font-size:9px;font-weight:700;color:${m.color};text-transform:uppercase;letter-spacing:.06em;">Phase ${n}${isActive?' ●':''}</div>
       <div style="font-size:12px;font-weight:600;color:var(--text${isView?'':'2'});margin-top:1px;">${m.label}</div>
       <div style="font-size:10px;color:var(--text3);">${m.period}</div>
@@ -3163,28 +3412,91 @@ function renderPlanSessions(phaseNum){
     const cdLine=wu.cooldown.slice(0,2).join(' · ');
     return `<div style="margin:0 16px 12px;background:var(--bg2);border:1px solid var(--border);border-radius:14px;overflow:hidden;">
       <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border-bottom:1px solid var(--border);background:var(--bg3);">
-        <div>
+        <div style="cursor:pointer;flex:1;" onclick="openSessionMetaEditor(${phaseNum},'${key}')">
           <div style="font-size:11px;font-weight:600;color:${color};text-transform:uppercase;letter-spacing:.06em;">${p.day} · ${p.duration}</div>
-          <div style="font-size:15px;font-weight:600;margin-top:1px;">${dn[key]||key}${isCustomized(key)?` <span style="font-size:9px;color:#0891B2;font-weight:600;">ANGEPASST</span>`:''}</div>
+          <div style="font-size:15px;font-weight:600;margin-top:1px;">${p.label||dn[key]||key}${isCustomized(key)?` <span style="font-size:9px;color:var(--cyan);font-weight:600;">ANGEPASST</span>`:''}</div>
         </div>
         <div style="display:flex;gap:6px;align-items:center;">
+          <button onclick="openSessionMetaEditor(${phaseNum},'${key}')" style="font-size:14px;padding:4px 8px;border-radius:6px;border:1px solid var(--border2);background:none;color:var(--text2);cursor:pointer;line-height:1;">✎</button>
           ${isCustomized(key)?`<button onclick="resetSession(${phaseNum},'${key}')" style="font-size:10px;padding:4px 8px;border-radius:6px;border:1px solid var(--border2);background:none;color:var(--text3);cursor:pointer;">Reset</button>`:''}
         </div>
       </div>
-      ${p.type!=='leo'?`<div style="padding:8px 14px;background:#ECFDF522;border-bottom:0.5px solid var(--border);font-size:11px;color:var(--teal);line-height:1.6;">
+      ${p.type!=='leo'?`<div style="padding:8px 14px;background:var(--accent-pale);border-bottom:0.5px solid var(--border);font-size:11px;color:var(--teal);line-height:1.6;">
         <span style="font-weight:600;">WU:</span> ${wuLine}…
       </div>`:''}
       <div style="padding:0 14px;">
         ${exRows}
         <button onclick="addExercise(${phaseNum},'${key}')" style="width:100%;padding:10px;border:none;background:none;color:var(--teal);font-size:13px;font-weight:500;cursor:pointer;text-align:left;">+ Übung hinzufügen</button>
       </div>
-      ${p.type!=='leo'?`<div style="padding:8px 14px;background:#EFF6FF22;border-top:0.5px solid var(--border);font-size:11px;color:var(--blue);line-height:1.6;">
+      ${p.type!=='leo'?`<div style="padding:8px 14px;background:var(--blue-pale)22;border-top:0.5px solid var(--border);font-size:11px;color:var(--blue);line-height:1.6;">
         <span style="font-weight:600;">CD:</span> ${cdLine}…
       </div>`:''}
     </div>`;
   }).join('');
 }
 
+
+
+// ── SESSION-META EDITOR (Name / Wochentag / Dauer) ──
+const WEEKDAYS=['Montag','Dienstag','Mittwoch','Donnerstag','Freitag','Samstag','Sonntag','Di/Fr','flexibel'];
+
+function openSessionMetaEditor(phaseNum, key){
+  const plan=getPlanForPhase(phaseNum);
+  const p=plan[key];
+  if(!p) return;
+  const dn={'Zone 2':'Cardio','LeoMoves':'Functional','Zone 2b':'Cardio 2'};
+  const currentName=p.label||dn[key]||key;
+
+  const overlay=document.createElement('div');
+  overlay.id='sessmeta-overlay';
+  overlay.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:900;display:flex;align-items:flex-end;';
+  overlay.innerHTML=`<div style="background:var(--surface);border-radius:20px 20px 0 0;width:100%;padding:20px 20px calc(20px + var(--safe-bottom));max-height:80vh;overflow-y:auto;">
+    <div style="font-size:17px;font-weight:700;margin-bottom:4px;">Session anpassen</div>
+    <div style="font-size:12px;color:var(--text2);margin-bottom:16px;">Nur Anzeige — die Trainingsdaten bleiben unter „${key}“ gespeichert.</div>
+
+    <div class="field" style="margin-bottom:14px;">
+      <label>Name</label>
+      <input type="text" id="sm-name" value="${currentName.replace(/"/g,'&quot;')}" placeholder="${key}" style="font-size:16px;">
+    </div>
+
+    <div class="field" style="margin-bottom:14px;">
+      <label>Wochentag</label>
+      <select id="sm-day" style="font-size:16px;">
+        ${WEEKDAYS.map(d=>`<option value="${d}" ${p.day===d?'selected':''}>${d}</option>`).join('')}
+        ${WEEKDAYS.includes(p.day)?'':`<option value="${p.day}" selected>${p.day}</option>`}
+      </select>
+    </div>
+
+    <div class="field" style="margin-bottom:18px;">
+      <label>Dauer</label>
+      <input type="text" id="sm-duration" value="${(p.duration||'').replace(/"/g,'&quot;')}" placeholder="60 min" style="font-size:16px;">
+    </div>
+
+    <button class="btn btn-primary btn-full" onclick="saveSessionMeta(${phaseNum},'${key}')">Speichern</button>
+    <button class="btn btn-full" style="margin-top:8px;background:none;color:var(--text2);" onclick="closeSessionMetaEditor()">Abbrechen</button>
+  </div>`;
+  overlay.addEventListener('click',e=>{ if(e.target===overlay) closeSessionMetaEditor(); });
+  document.body.appendChild(overlay);
+}
+
+function closeSessionMetaEditor(){
+  const o=document.getElementById('sessmeta-overlay');
+  if(o) o.remove();
+}
+
+function saveSessionMeta(phaseNum, key){
+  const name=document.getElementById('sm-name').value.trim();
+  const day=document.getElementById('sm-day').value;
+  const duration=document.getElementById('sm-duration').value.trim();
+  const meta={day:day, duration:duration||'—'};
+  const dn={'Zone 2':'Cardio','LeoMoves':'Functional','Zone 2b':'Cardio 2'};
+  meta.label = (name && name!==(dn[key]||key)) ? name : null;
+  saveCustomSessionMeta(phaseNum, key, meta);
+  closeSessionMetaEditor();
+  renderPlanPage();
+  try{ renderHeutePage(); }catch(e){}
+  showToast('Session angepasst');
+}
 
 // ═══ PLAN EDITOR ═══
 
@@ -3238,17 +3550,18 @@ function _showExSheet(phaseNum, sessionKey, exIdx, ex){
           <option value="kg/S" ${ex.unit==='kg/S'?'selected':''}>kg/Seite</option>
           <option value="reps" ${ex.unit==='reps'?'selected':''}>Reps</option>
           <option value="sek" ${ex.unit==='sek'?'selected':''}>Sekunden</option>
+          <option value="band" ${ex.unit==='band'?'selected':''}>Band</option>
         </select>
       </div>
     </div>
 
     <div style="display:flex;align-items:center;gap:12px;padding:12px 0;border-top:0.5px solid var(--border);">
       <div style="flex:1;font-size:14px;font-weight:500;">Links / Rechts</div>
-      <button id="ee-uni-toggle" onclick="toggleUniBtn()" style="padding:6px 16px;border-radius:8px;border:1px solid ${ex.isUnilateral?'var(--green)':'var(--border2)'};background:${ex.isUnilateral?'var(--green)':'var(--bg3)'};color:${ex.isUnilateral?'#fff':'var(--text2)'};font-size:13px;cursor:pointer;">${ex.isUnilateral?'AN':'AUS'}</button>
+      <button id="ee-uni-toggle" onclick="toggleUniBtn()" style="padding:6px 16px;border-radius:8px;border:1px solid ${ex.isUnilateral?'var(--green)':'var(--border2)'};background:${ex.isUnilateral?'var(--green)':'var(--bg3)'};color:${ex.isUnilateral?'var(--on-accent)':'var(--text2)'};font-size:13px;cursor:pointer;">${ex.isUnilateral?'AN':'AUS'}</button>
     </div>
     <div style="display:flex;align-items:center;gap:12px;padding:12px 0;border-top:0.5px solid var(--border);margin-bottom:14px;">
       <div style="flex:1;font-size:14px;font-weight:500;">Cluster-Set</div>
-      <button id="ee-cluster-toggle" onclick="toggleClusterBtn()" style="padding:6px 16px;border-radius:8px;border:1px solid ${ex.isCluster?'var(--indigo)':'var(--border2)'};background:${ex.isCluster?'var(--indigo)':'var(--bg3)'};color:${ex.isCluster?'#fff':'var(--text2)'};font-size:13px;cursor:pointer;">${ex.isCluster?'AN':'AUS'}</button>
+      <button id="ee-cluster-toggle" onclick="toggleClusterBtn()" style="padding:6px 16px;border-radius:8px;border:1px solid ${ex.isCluster?'var(--indigo)':'var(--border2)'};background:${ex.isCluster?'var(--indigo)':'var(--bg3)'};color:${ex.isCluster?'var(--on-accent)':'var(--text2)'};font-size:13px;cursor:pointer;">${ex.isCluster?'AN':'AUS'}</button>
     </div>
 
     <div style="display:flex;gap:10px;">
@@ -3270,7 +3583,7 @@ function toggleUniBtn(){
   _uniOn = !_uniOn;
   btn.textContent = _uniOn ? 'AN' : 'AUS';
   btn.style.background = _uniOn ? 'var(--green)' : 'var(--bg3)';
-  btn.style.color = _uniOn ? '#fff' : 'var(--text2)';
+  btn.style.color = _uniOn ? 'var(--on-accent)' : 'var(--text2)';
   btn.style.borderColor = _uniOn ? 'var(--green)' : 'var(--border2)';
 }
 
@@ -3283,7 +3596,7 @@ function toggleClusterBtn(){
   _clusterOn = !_clusterOn;
   btn.textContent = _clusterOn ? 'AN' : 'AUS';
   btn.style.background = _clusterOn ? 'var(--amber)' : 'var(--bg3)';
-  btn.style.color = _clusterOn ? '#fff' : 'var(--text2)';
+  btn.style.color = _clusterOn ? 'var(--on-accent)' : 'var(--text2)';
   btn.style.borderColor = _clusterOn ? 'var(--amber)' : 'var(--border2)';
 }
 
@@ -3482,7 +3795,7 @@ function renderBodyChart(){
   const data=getData();const stats=(data.bodyStats||[]).sort((a,b)=>new Date(a.date)-new Date(b.date));
   if(chartInstances['body-chart'])chartInstances['body-chart'].destroy();
   const ctx=document.getElementById('body-chart').getContext('2d');
-  chartInstances['body-chart']=new Chart(ctx,{type:'line',data:{labels:stats.map(s=>new Date(s.date).toLocaleDateString('de-DE',{day:'numeric',month:'short'})),datasets:[{label:'Gewicht',data:stats.map(s=>s.weight),borderColor:'#00C07F',borderWidth:2,tension:.3,pointRadius:3,yAxisID:'y'},{label:'KFA %',data:stats.map(s=>s.kfa),borderColor:'#64748B',borderWidth:2,tension:.3,pointRadius:3,yAxisID:'y1'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#888',font:{size:11}}},tooltip:{backgroundColor:'#1e1e1e',titleColor:'#f0f0f0',bodyColor:'#888'}},scales:{x:{grid:{color:'#2a2a2a'},ticks:{color:'#555',font:{size:10}}},y:{position:'left',grid:{color:'#2a2a2a'},ticks:{color:'#00C07F',font:{size:10},callback:v=>v+'kg'}},y1:{position:'right',grid:{drawOnChartArea:false},ticks:{color:'#64748B',font:{size:10},callback:v=>v+'%'}}}}});
+  chartInstances['body-chart']=new Chart(ctx,{type:'line',data:{labels:stats.map(s=>new Date(s.date).toLocaleDateString('de-DE',{day:'numeric',month:'short'})),datasets:[{label:'Gewicht',data:stats.map(s=>s.weight),borderColor:chartAccent(),borderWidth:2,tension:.3,pointRadius:3,yAxisID:'y'},{label:'KFA %',data:stats.map(s=>s.kfa),borderColor:chartAmber(),borderWidth:2,tension:.3,pointRadius:3,yAxisID:'y1'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:chartTipBody(),font:{size:11}}},tooltip:{backgroundColor:chartTipBg(),titleColor:chartTipText(),bodyColor:chartTipBody()}},scales:{x:{grid:{color:chartGrid()},ticks:{color:chartTick(),font:{size:10}}},y:{position:'left',grid:{color:chartGrid()},ticks:{color:chartAccent(),font:{size:10},callback:v=>v+'kg'}},y1:{position:'right',grid:{drawOnChartArea:false},ticks:{color:chartAmber(),font:{size:10},callback:v=>v+'%'}}}}});
 }
 
 function exportData(){
@@ -3521,10 +3834,36 @@ function clearAllData(){
 // ═══ UTILS ═══
 function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2000);}
 
+// ═══ THEME ═══
+function applyTheme(mode){
+  // mode: 'light' | 'dark' | 'auto'
+  const dark = mode==='dark' || (mode==='auto' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+  if(dark){ document.documentElement.setAttribute('data-theme','dark'); }
+  else{ document.documentElement.removeAttribute('data-theme'); }
+  const meta=document.querySelector('meta[name="theme-color"]');
+  if(meta) meta.setAttribute('content', dark ? '#0C0E12' : '#0a0a0a');
+  // Umschalter-UI aktualisieren, falls sichtbar
+  document.querySelectorAll('[data-theme-opt]').forEach(b=>{
+    b.classList.toggle('theme-opt-active', b.getAttribute('data-theme-opt')===mode);
+  });
+}
+function setTheme(mode){
+  DB.set('appTheme', mode);
+  applyTheme(mode);
+  // Inline-gerenderte Farben (Phasenkarten) und Charts neu zeichnen
+  try{ renderHeutePage(); renderPlanPage(); }catch(e){}
+  try{ renderBodyChart(); }catch(e){}
+}
+// Bei Auto: auf Systemwechsel reagieren
+window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', ()=>{
+  if((DB.get('appTheme')||'light')==='auto') applyTheme('auto');
+});
+
 // ═══ INIT ═══
 document.addEventListener('DOMContentLoaded', async ()=>{
   // IndexedDB initialisieren (inkl. Migration von localStorage)
   await DB.init();
+  applyTheme(DB.get('appTheme')||'light');
   renderHeutePage();renderFullLog();renderPlanPage();loadTimerSettings();
 });
 </script>
