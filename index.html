@@ -433,9 +433,49 @@ document.addEventListener('visibilitychange', () => {
     _AUDIO.init();
     // Mehrfach versuchen, da iOS das resume manchmal erst nach kurzer Verzögerung zulässt
     setTimeout(()=>_AUDIO.init(), 100);
-    setTimeout(()=>_AUDIO.init(), 400);
+    setTimeout(()=>{ _AUDIO.init(); updateAudioBell(); }, 400);
   }
 });
+
+// ── AUDIO-STATUS & REAKTIVIERUNG ──
+function audioIsLive(){
+  return !!(_AUDIO.ctx && _AUDIO.ctx.state === 'running' && _AUDIO.ready);
+}
+
+function updateAudioBell(){
+  const b = document.getElementById('audio-bell');
+  if(!b) return;
+  if(audioIsLive()){
+    b.textContent = '🔔';
+    b.style.background = 'none';
+    b.style.opacity = '1';
+    b.title = 'Töne aktiv — tippen zum Testen';
+  } else {
+    b.textContent = '🔕';
+    b.style.background = 'var(--red-pale)';
+    b.style.opacity = '1';
+    b.title = 'Töne inaktiv — tippen zum Reaktivieren';
+  }
+}
+
+function reactivateAudio(){
+  _AUDIO.init();
+  if(_AUDIO.ctx && _AUDIO.ctx.state === 'suspended'){
+    _AUDIO.ctx.resume().catch(()=>{});
+  }
+  setTimeout(()=>{
+    updateAudioBell();
+    if(audioIsLive()){
+      playBeep();
+      showToast('Töne aktiv');
+    } else {
+      showToast('Töne noch nicht bereit — nochmal tippen');
+    }
+  }, 150);
+}
+
+// Status regelmäßig prüfen, solange eine Session läuft
+setInterval(()=>{ if(document.getElementById('audio-bell')) updateAudioBell(); }, 3000);
 
 function playBeep(){
   _AUDIO.play('end1');
@@ -465,7 +505,7 @@ function playSound(id){
     <div style="display:flex;gap:8px;align-items:center;">
       <div style="display:flex;align-items:center;gap:8px;">
         <div style="font-size:12px;color:var(--text2);" id="sess-ex-counter"></div>
-        <button onclick="playBeep()" style="background:none;border:none;font-size:16px;cursor:pointer;padding:4px;" title="Ton testen">🔔</button>
+        <button id="audio-bell" onclick="reactivateAudio()" style="background:none;border:none;font-size:16px;cursor:pointer;padding:4px 6px;border-radius:8px;transition:all .2s;" title="Töne prüfen / reaktivieren">🔔</button>
         <button class="btn btn-danger" style="padding:8px 12px;font-size:12px;" onclick="confirmEndSession()">Beenden</button>
       </div>
     </div>
@@ -730,7 +770,6 @@ const EXERCISE_META = {
   'Hollow Hold': {'muscle': 'Core', 'focus': 'Stabilität', 'color': 'var(--accent)'},
   'Pallof Press': {'muscle': 'Core', 'focus': 'Anti-Rotation', 'color': 'var(--accent)'},
   'Cable Crunches': {'muscle': 'Core', 'focus': 'Flexion', 'color': 'var(--accent)'},
-  'Clamshells': {'muscle': 'Hüfte', 'focus': 'Stabilität', 'color': 'var(--amber)'},
   'Außenrotation liegend': {'muscle': 'Rotatoren', 'focus': 'Prophylaxe', 'color': 'var(--amber)'},
   'Front Squat': {'muscle': 'Quadrizeps', 'focus': 'Compound', 'color': 'var(--accent)'},
   'Pendlay Row': {'muscle': 'Rücken', 'focus': 'Compound', 'color': 'var(--accent)'},
@@ -921,7 +960,6 @@ const PHASE_PLANS = {
         {name:'Bulgarian SS',target:'3 × 10–12',weight:15,sets:3,reps:'10–12',unit:'kg/S',isUnilateral:true},
         {name:'Hip Thrust',target:'3 × 12–15',weight:60,sets:3,reps:'12–15',unit:'kg'},
         {name:'Waden einbeinig',target:'4 × 8–12 (3 s exz.)',weight:null,sets:4,reps:'8–12',unit:'reps',isUnilateral:true},
-        {name:'Clamshells',target:'2 × 12–15',weight:null,sets:2,reps:'12–15',unit:'band',isUnilateral:true},
         {name:'Pallof Press',target:'3 × 12',weight:null,sets:3,reps:'12',unit:'band',isUnilateral:true},
       ]},
       'Push':{day:'Donnerstag',type:'upper',duration:'55 min',note:'Kein Flachbank, kein OHP bis Physio-Freigabe · Seitheben unter 90°',exercises:[
@@ -1061,6 +1099,27 @@ function phColor(m){ return isDark() && m.colorDark ? m.colorDark : m.color; }
 
 
 // ═══ PHASE STORAGE ═══
+// Wird erhöht, wenn PHASE_PLANS inhaltlich ersetzt wird.
+// Beim Wechsel werden veraltete eigene Anpassungen der betroffenen Phase verworfen.
+const PLAN_VERSION = 'block2-2026-08';
+
+function migratePlanVersion(){
+  const ps = DB.get('phaseSettings');
+  if(!ps) return;
+  if(ps.planVersion === PLAN_VERSION) return;
+  let cleared = 0;
+  if(ps.customPlans && ps.customPlans[1]){
+    cleared = Object.keys(ps.customPlans[1]).length;
+    delete ps.customPlans[1];
+    if(Object.keys(ps.customPlans).length === 0) delete ps.customPlans;
+  }
+  ps.planVersion = PLAN_VERSION;
+  DB.set('phaseSettings', ps);
+  if(cleared > 0){
+    setTimeout(()=>showToast(`Neuer Plan geladen · ${cleared} alte Anpassung${cleared>1?'en':''} ersetzt`), 800);
+  }
+}
+
 function getPhaseSettings(){
   const today=new Date().toISOString().split('T')[0];
   const def={activePhase:1,startDate:today,durationWeeks:10,isManual:false};
@@ -1456,7 +1515,8 @@ const WARMUP_CONFIG = {
 };
 
 function needsWarmupSets(exName){
-  return Object.keys(WARMUP_CONFIG).some(n=>exName.toLowerCase().includes(n.toLowerCase().split(' ')[0]));
+  // Automatische Aufwärmsätze abgeschaltet — Sätze werden manuell per Button markiert
+  return false;
 }
 
 function getWarmupSetCount(exName){
@@ -1950,7 +2010,7 @@ function quickStart(type, deload){
   AS.warmupDone=false;AS.cooldownShown=false;
   AS.warmupSetsPhase={};AS._uniSide='links';AS._uniLeft=null;
   AS._uniRightDone=false;AS._uniLeftReps=0;AS._uniLeftWeight=null;
-  AS._holdSek=30;AS._holdPending=false;AS._cardioData=null;AS._band=null;
+  AS._holdSek=30;AS._holdPending=false;AS._cardioData=null;AS._band=null;AS._markWarmup=false;
   const _dn={'Zone 2':'Cardio','Cardio':'Cardio','LeoMoves':'Functional','Functional':'Functional'};
   const _ps=getPhaseSettings();
   const _custLabel=(getPlanForPhase(_ps.activePhase)[type]||{}).label;
@@ -2153,7 +2213,14 @@ function renderSessionBody(){
           <div><label>Wdh</label><input type="number" id="inp-reps" placeholder="Wdh" value="${getLastReps(ex.name,'')||''}" inputmode="numeric" style="text-align:center;font-size:16px;" onfocus="this.select()"></div>
           <div><label>RIR</label><input type="number" id="inp-rir" placeholder="0" min="0" max="5" inputmode="numeric" style="text-align:center;font-size:16px;" onfocus="this.select()"></div>
         </div>
-        <button class="btn btn-primary btn-full" style="margin-top:10px;" onclick="setDone()">${ex.isUnilateral&&!AS._uniRightDone?'✓ Links beendet → 20sek → Rechts':'✓ Satz beendet'}</button>
+        <div style="display:flex;align-items:center;gap:8px;margin-top:10px;">
+          <button type="button" id="wu-toggle" onclick="toggleWarmupFlag()"
+            style="flex-shrink:0;padding:9px 12px;border-radius:var(--radius-sm);cursor:pointer;font-family:var(--font);font-size:12px;font-weight:600;
+            border:1.5px solid ${AS._markWarmup?'var(--accent)':'var(--border2)'};
+            background:${AS._markWarmup?'var(--accent)':'var(--surface2)'};
+            color:${AS._markWarmup?'var(--on-accent)':'var(--text2)'};">WU</button>
+          <button class="btn btn-primary" style="flex:1;" onclick="setDone()">${ex.isUnilateral&&!AS._uniRightDone?'✓ Links beendet → 20sek → Rechts':'✓ Satz beendet'}</button>
+        </div>
       </div>`;
   }
 
@@ -2524,6 +2591,20 @@ function goBackExercise(){
 }
 
 // ── SET DONE ──
+function toggleWarmupFlag(){
+  AS._markWarmup = !AS._markWarmup;
+  const b=document.getElementById('wu-toggle');
+  if(b){
+    const on=AS._markWarmup;
+    b.style.borderColor = on ? 'var(--accent)' : 'var(--border2)';
+    b.style.background  = on ? 'var(--accent)' : 'var(--surface2)';
+    b.style.color       = on ? 'var(--on-accent)' : 'var(--text2)';
+  }
+  const rirEl=document.getElementById('inp-rir');
+  if(rirEl){ rirEl.disabled = AS._markWarmup; if(AS._markWarmup) rirEl.value=''; }
+  showToast(AS._markWarmup ? 'Nächster Satz zählt als Aufwärmsatz' : 'Aufwärm-Markierung entfernt');
+}
+
 function setDone(){
   _AUDIO.init();
   const _wEl=document.getElementById('inp-weight');
@@ -2545,12 +2626,15 @@ function setDone(){
   // Normaler Satz oder Rechts-Seite bei Unilateral
   const leftReps=AS._uniRightDone?AS._uniLeftReps:null;
   const leftWeight=AS._uniRightDone?AS._uniLeftWeight:null;
-  AS._uniRightDone=false;AS._band=null;
+  const _isWU = !!AS._markWarmup;
+  const _bandUsed = AS._band||null;
+  AS._uniRightDone=false;
   AS._uniLeftReps=0;
   AS._uniLeftWeight=null;
 
   const repsToLog=ex.isUnilateral?leftReps+'/'+r:parseInt(r)||0;
-  AS.doneSets.push({exIdx:AS.exIdx,weight:parseFloat(w)||leftWeight||null,band:AS._band||null,reps:repsToLog,rir:rir});
+  AS.doneSets.push({exIdx:AS.exIdx,weight:parseFloat(w)||leftWeight||null,band:_bandUsed,reps:repsToLog,rir:_isWU?'WU':rir,isWarmup:_isWU});
+  AS._markWarmup=false;
 
   const exSets=AS.doneSets.filter(s=>s.exIdx===AS.exIdx);
   const settings=getSettings();
@@ -3863,6 +3947,7 @@ window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', ()=
 document.addEventListener('DOMContentLoaded', async ()=>{
   // IndexedDB initialisieren (inkl. Migration von localStorage)
   await DB.init();
+  migratePlanVersion();
   applyTheme(DB.get('appTheme')||'light');
   renderHeutePage();renderFullLog();renderPlanPage();loadTimerSettings();
 });
