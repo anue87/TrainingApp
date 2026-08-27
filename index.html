@@ -379,8 +379,8 @@ const _AUDIO = {
       if(!this.ctx){
         this.ctx = new (window.AudioContext||window.webkitAudioContext)();
       }
-      // Immer resume aufrufen — iOS suspendiert Context im Hintergrund
-      if(this.ctx.state === 'suspended'){
+      // Immer resume aufrufen — iOS suspendiert (oder 'interrupted') Context im Hintergrund
+      if(this.ctx.state !== 'running'){
         this.ctx.resume().catch(()=>{});
       }
       if(this.ready) return; // Puffer bereits geladen
@@ -403,9 +403,57 @@ const _AUDIO = {
     }catch(e){}
   },
 
+  // Stummer Mini-Ton — muss synchron in der Touch-Geste laufen, sonst bleibt iOS stumm
+  unlockPing(){
+    try{
+      if(!this.ctx) return;
+      const b = this.ctx.createBuffer(1, 1, 22050);
+      const src = this.ctx.createBufferSource();
+      src.buffer = b;
+      src.connect(this.ctx.destination);
+      src.start(0);
+    }catch(e){}
+  },
+
+  // Kompletter Neuaufbau — nötig, wenn iOS den Context nach Unterbrechung killt
+  hardReset(){
+    try{ if(this.ctx && this.ctx.close) this.ctx.close().catch(()=>{}); }catch(e){}
+    this.ctx = null;
+    this.bufs = {};
+    this.ready = false;
+    this.init();
+    this.unlockPing();
+  },
+
+  // Erzeugt einen Ton direkt — unabhängig von geladenen Audiodateien
+  tone(freq=880, durMs=140, delayMs=0, vol=0.35){
+    try{
+      if(!this.ctx) return false;
+      const t0 = this.ctx.currentTime + delayMs/1000;
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(freq, t0);
+      gain.gain.setValueAtTime(0.0001, t0);
+      gain.gain.exponentialRampToValueAtTime(vol, t0 + 0.01);
+      gain.gain.exponentialRampToValueAtTime(0.0001, t0 + durMs/1000);
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+      osc.start(t0);
+      osc.stop(t0 + durMs/1000 + 0.02);
+      return true;
+    }catch(e){ return false; }
+  },
+
   play(key, delayMs=0){
-    if(!this.ctx || !this.bufs[key]) return;
-    if(this.ctx.state==='suspended'){
+    if(!this.ctx) return;
+    if(!this.bufs[key]){
+      // Puffer nicht geladen → Ersatzton erzeugen
+      const map = {tick:880, tickHi:1180, end1:660, end2:780, end3:990};
+      this.tone(map[key]||880, key.startsWith('end')?260:120, delayMs);
+      return;
+    }
+    if(this.ctx.state!=='running'){
       this.ctx.resume().then(()=>this._playNow(key,delayMs)).catch(()=>{});
       return;
     }
@@ -438,44 +486,64 @@ document.addEventListener('visibilitychange', () => {
 });
 
 // ── AUDIO-STATUS & REAKTIVIERUNG ──
+function audioCtxRunning(){
+  return !!(_AUDIO.ctx && _AUDIO.ctx.state === 'running');
+}
+// Töne funktionieren, sobald der Kanal läuft — Ersatzton braucht keine Dateien
 function audioIsLive(){
-  return !!(_AUDIO.ctx && _AUDIO.ctx.state === 'running' && _AUDIO.ready);
+  return audioCtxRunning();
 }
 
 function updateAudioBell(){
-  const b = document.getElementById('audio-bell');
-  if(!b) return;
-  if(audioIsLive()){
-    b.textContent = '🔔';
-    b.style.background = 'none';
-    b.style.opacity = '1';
-    b.title = 'Töne aktiv — tippen zum Testen';
-  } else {
-    b.textContent = '🔕';
-    b.style.background = 'var(--red-pale)';
-    b.style.opacity = '1';
-    b.title = 'Töne inaktiv — tippen zum Reaktivieren';
-  }
+  document.querySelectorAll('.audio-bell').forEach(b=>{
+    if(audioIsLive()){
+      b.textContent = '🔔';
+      b.style.background = 'none';
+      b.style.border = '1px solid transparent';
+      b.title = 'Töne aktiv — tippen zum Testen';
+    } else {
+      b.textContent = '🔕';
+      b.style.background = 'var(--red-pale)';
+      b.style.border = '1px solid var(--red)';
+      b.title = 'Töne inaktiv — tippen zum Reaktivieren';
+    }
+  });
 }
 
 function reactivateAudio(){
+  // Sofortige Rückmeldung, damit der Tipp spürbar ist
+  showToast('Töne werden gestartet…');
+
+  // WICHTIG: muss synchron in der Touch-Geste passieren
   _AUDIO.init();
-  if(_AUDIO.ctx && _AUDIO.ctx.state === 'suspended'){
-    _AUDIO.ctx.resume().catch(()=>{});
+  _AUDIO.unlockPing();
+  if(_AUDIO.ctx && _AUDIO.ctx.state !== 'running'){
+    try{ _AUDIO.ctx.resume(); }catch(e){}
   }
-  setTimeout(()=>{
+
+  const report = ()=>{
     updateAudioBell();
-    if(audioIsLive()){
-      playBeep();
+    if(audioCtxRunning()){
+      _AUDIO.tone(880, 140);
       showToast('Töne aktiv');
     } else {
-      showToast('Töne noch nicht bereit — nochmal tippen');
+      showToast('Töne blockiert — Stummschalter am iPhone prüfen');
     }
-  }, 150);
+  };
+
+  // Erster Check nach kurzer Zeit; falls nicht erfolgreich, Kanal neu aufbauen
+  setTimeout(()=>{
+    if(audioCtxRunning()) return report();
+    _AUDIO.hardReset();
+    if(_AUDIO.ctx && _AUDIO.ctx.state !== 'running'){
+      try{ _AUDIO.ctx.resume(); }catch(e){}
+    }
+    setTimeout(report, 350);
+  }, 250);
 }
 
-// Status regelmäßig prüfen, solange eine Session läuft
-setInterval(()=>{ if(document.getElementById('audio-bell')) updateAudioBell(); }, 3000);
+// Status regelmäßig prüfen, solange eine Glocke sichtbar ist
+setInterval(()=>{ if(document.querySelector('.audio-bell')) updateAudioBell(); }, 2000);
 
 function playBeep(){
   _AUDIO.play('end1');
@@ -505,7 +573,7 @@ function playSound(id){
     <div style="display:flex;gap:8px;align-items:center;">
       <div style="display:flex;align-items:center;gap:8px;">
         <div style="font-size:12px;color:var(--text2);" id="sess-ex-counter"></div>
-        <button id="audio-bell" onclick="reactivateAudio()" style="background:none;border:none;font-size:16px;cursor:pointer;padding:4px 6px;border-radius:8px;transition:all .2s;" title="Töne prüfen / reaktivieren">🔔</button>
+        <button class="audio-bell" onclick="reactivateAudio()" style="background:none;border:1px solid transparent;font-size:18px;cursor:pointer;padding:8px 10px;border-radius:10px;transition:all .2s;line-height:1;" title="Töne prüfen / reaktivieren">🔔</button>
         <button class="btn btn-danger" style="padding:8px 12px;font-size:12px;" onclick="confirmEndSession()">Beenden</button>
       </div>
     </div>
@@ -708,7 +776,10 @@ function playSound(id){
   <div class="sec-label">Timer-Einstellungen</div>
   <div style="padding:0 16px;margin-bottom:12px;">
     <div class="card">
-      <button class="btn btn-primary btn-full" style="margin-bottom:8px;" onclick="_AUDIO.init(); setTimeout(()=>{playBeep(); showToast('Ton wurde abgespielt — hast du ihn gehört?')}, 300)">🔔 Ton jetzt testen</button>
+      <div style="display:flex;gap:8px;align-items:stretch;margin-bottom:8px;">
+        <button class="btn btn-primary" style="flex:1;" onclick="reactivateAudio()">Ton testen / reaktivieren</button>
+        <button class="audio-bell" onclick="reactivateAudio()" style="background:none;border:1px solid transparent;font-size:18px;cursor:pointer;padding:8px 14px;border-radius:10px;transition:all .2s;line-height:1;" title="Status">🔔</button>
+      </div>
       <div style="font-size:12px;color:var(--text2);line-height:1.5;">Falls kein Ton kommt: Stumm-Schalter am iPhone prüfen, Lautstärke hochdrehen, und sicherstellen dass die Seite nicht im Hintergrund lief bevor du tippst.</div>
     </div>
   </div>
@@ -770,6 +841,7 @@ const EXERCISE_META = {
   'Hollow Hold': {'muscle': 'Core', 'focus': 'Stabilität', 'color': 'var(--accent)'},
   'Pallof Press': {'muscle': 'Core', 'focus': 'Anti-Rotation', 'color': 'var(--accent)'},
   'Cable Crunches': {'muscle': 'Core', 'focus': 'Flexion', 'color': 'var(--accent)'},
+  'Reverse Fly vorgebeugt (Band)': {'muscle': 'Schulter hinten', 'focus': 'Isolation', 'color': 'var(--amber)'},
   'Kabel Pushdown einarmig (Untergriff)': {'muscle': 'Trizeps', 'focus': 'Isolation', 'color': 'var(--amber)'},
   'TRX Trizeps-Press': {'muscle': 'Trizeps', 'focus': 'Isolation', 'color': 'var(--amber)'},
   'French Press liegend': {'muscle': 'Trizeps', 'focus': 'Isolation', 'color': 'var(--amber)'},
@@ -965,10 +1037,10 @@ const PHASE_PLANS = {
         {name:'Waden einbeinig',target:'4 × 8–12 (3 s exz.)',weight:null,sets:4,reps:'8–12',unit:'reps',isUnilateral:true},
         {name:'Pallof Press',target:'3 × 12',weight:null,sets:3,reps:'12',unit:'band',isUnilateral:true},
       ]},
-      'Push':{day:'Donnerstag',type:'upper',duration:'55 min',note:'Kein Flachbank, kein OHP bis Physio-Freigabe · Seitheben unter 90° · Trizeps: nach Zeit und Lust auswählen',exercises:[
+      'Push':{day:'Donnerstag',type:'upper',duration:'55 min',note:'Kein Flachbank, kein OHP, kein Seitheben bis Physio-Freigabe · Trizeps: nach Zeit und Lust auswählen',exercises:[
         {name:'Incline DB Press',target:'4 × 10–12',weight:22.5,sets:4,reps:'10–12',unit:'kg/S'},
         {name:'DB Floor Press',target:'4 × 12–15',weight:20,sets:4,reps:'12–15',unit:'kg/S'},
-        {name:'Seitheben',target:'3 × 15 (unter 90°)',weight:8,sets:3,reps:'15',unit:'kg/S'},
+        {name:'Reverse Fly vorgebeugt (Band)',target:'3 × 12–15',weight:null,sets:3,reps:'12–15',unit:'band'},
         {name:'Kabel Pushdown einarmig (Untergriff)',target:'3 × 12–15',weight:10,sets:3,reps:'12–15',unit:'kg/S',isUnilateral:true},
         {name:'TRX Trizeps-Press',target:'3 × 10–12',weight:null,sets:3,reps:'10–12',unit:'reps'},
         {name:'French Press liegend',target:'3 × 10–12',weight:30,sets:3,reps:'10–12',unit:'kg'},
@@ -1846,6 +1918,7 @@ function saveSettings(s){DB.set('trainingSettings',s)}
 // ═══ NAV ═══
 let chartInstances={};
 function showPage(id){
+  setTimeout(updateAudioBell, 50);
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
   document.getElementById(id).classList.add('active');
@@ -2016,6 +2089,7 @@ function quickStart(type, deload){
   AS._uniRightDone=false;AS._uniLeftReps=0;AS._uniLeftWeight=null;
   AS._holdSek=30;AS._holdPending=false;AS._cardioData=null;AS._band=null;AS._markWarmup=false;
   const _dn={'Zone 2':'Cardio','Cardio':'Cardio','LeoMoves':'Functional','Functional':'Functional'};
+  setTimeout(updateAudioBell, 50);
   const _ps=getPhaseSettings();
   const _custLabel=(getPlanForPhase(_ps.activePhase)[type]||{}).label;
   document.getElementById('sess-title').textContent=(_custLabel||_dn[type]||type)+(deload?' · Deload':'');
@@ -3283,6 +3357,106 @@ function filterLog(filter,btn){
   btn.classList.add('on');renderFullLog(filter);
 }
 
+
+// ═══ SESSION NACHTRÄGLICH BEARBEITEN ═══
+function editSession(id){
+  const data=getData(); const s=data.sessions.find(x=>x.id==id); if(!s) return;
+  // offenes Detail-Overlay schließen
+  document.querySelectorAll('div').forEach(el=>{ if(el.style && el.style.zIndex==='600') el.remove(); });
+
+  const overlay=document.createElement('div');
+  overlay.id='sess-edit-overlay';
+  overlay.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:700;display:flex;align-items:flex-end;padding:12px 10px 0;backdrop-filter:blur(4px);';
+  overlay.innerHTML=`<div style="background:var(--surface);border-radius:20px;width:100%;max-height:90vh;overflow-y:auto;padding:20px 20px calc(env(safe-area-inset-bottom,0px)+20px);">
+    <div style="width:40px;height:4px;background:var(--surface3);border-radius:2px;margin:0 auto 16px;"></div>
+    <div style="font-size:17px;font-weight:700;margin-bottom:2px;">Session bearbeiten</div>
+    <div style="font-size:12px;color:var(--text2);margin-bottom:16px;">${new Date(s.date).toLocaleDateString('de-DE',{weekday:'long',day:'numeric',month:'long'})}</div>
+    <div id="edit-body"></div>
+    <button class="btn btn-full" style="margin-top:12px;background:var(--surface2);color:var(--text2);" onclick="addEditExercise(${id})">+ Übung hinzufügen</button>
+    <button class="btn btn-primary btn-full" style="margin-top:10px;" onclick="saveEditedSession(${id})">Speichern</button>
+    <button class="btn btn-ghost btn-full" style="margin-top:8px;" onclick="document.getElementById('sess-edit-overlay').remove()">Abbrechen</button>
+  </div>`;
+  document.body.appendChild(overlay);
+  _editDraft = JSON.parse(JSON.stringify(s.exercises||[]));
+  renderEditBody(id);
+}
+
+let _editDraft = [];
+
+function renderEditBody(id){
+  const body=document.getElementById('edit-body'); if(!body) return;
+  let h='';
+  _editDraft.forEach((ex,ei)=>{
+    h+=`<div style="margin-bottom:16px;padding:12px;background:var(--surface2);border-radius:12px;">
+      <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;">
+        <input type="text" value="${(ex.name||'').replace(/"/g,'&quot;')}" onchange="_editDraft[${ei}].name=this.value"
+          style="flex:1;font-size:14px;font-weight:600;padding:7px 9px;border:1px solid var(--border);border-radius:8px;background:var(--surface);color:var(--text);">
+        <button onclick="_editDraft.splice(${ei},1);renderEditBody(${id})"
+          style="padding:7px 10px;border-radius:8px;border:1px solid var(--border2);background:none;color:var(--red);cursor:pointer;font-size:12px;">Weg</button>
+      </div>`;
+    (ex.sets||[]).forEach((st,si)=>{
+      h+=`<div style="display:grid;grid-template-columns:28px 1fr 1fr 52px 32px;gap:6px;align-items:center;margin-bottom:6px;">
+        <button onclick="_editDraft[${ei}].sets[${si}].isWarmup=!_editDraft[${ei}].sets[${si}].isWarmup;renderEditBody(${id})"
+          style="padding:6px 2px;border-radius:6px;cursor:pointer;font-size:10px;font-weight:600;
+          border:1px solid ${st.isWarmup?'var(--accent)':'var(--border)'};
+          background:${st.isWarmup?'var(--accent)':'var(--surface)'};
+          color:${st.isWarmup?'var(--on-accent)':'var(--text3)'};">${st.isWarmup?'WU':si+1}</button>
+        <input type="text" value="${st.band?(bandByKey(st.band)?.label||st.band):(st.weight!=null?st.weight:'')}" placeholder="kg"
+          onchange="setEditWeight(${ei},${si},this.value)"
+          style="font-size:13px;padding:6px 8px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text);text-align:center;">
+        <input type="text" value="${st.reps!=null?st.reps:''}" placeholder="Wdh"
+          onchange="_editDraft[${ei}].sets[${si}].reps=this.value"
+          style="font-size:13px;padding:6px 8px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text);text-align:center;">
+        <input type="text" value="${(st.rir!=null&&st.rir!=='WU')?st.rir:''}" placeholder="RIR"
+          onchange="_editDraft[${ei}].sets[${si}].rir=this.value"
+          style="font-size:12px;padding:6px 4px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text);text-align:center;">
+        <button onclick="_editDraft[${ei}].sets.splice(${si},1);renderEditBody(${id})"
+          style="padding:6px 2px;border-radius:6px;border:none;background:none;color:var(--text3);cursor:pointer;font-size:15px;">×</button>
+      </div>`;
+    });
+    h+=`<button onclick="_editDraft[${ei}].sets.push({weight:null,band:null,reps:'',rir:''});renderEditBody(${id})"
+      style="width:100%;margin-top:4px;padding:7px;border-radius:8px;border:1px dashed var(--border2);background:none;color:var(--text2);cursor:pointer;font-size:12px;">+ Satz</button>
+    </div>`;
+  });
+  if(_editDraft.length===0) h='<div style="padding:16px;text-align:center;color:var(--text2);font-size:13px;">Keine Übungen — unten hinzufügen</div>';
+  body.innerHTML=h;
+}
+
+// Gewichtsfeld akzeptiert Zahl oder Bandfarbe
+function setEditWeight(ei,si,val){
+  const v=(val||'').trim();
+  const set=_editDraft[ei].sets[si];
+  const band=BANDS.find(b=>b.label.toLowerCase()===v.toLowerCase()||b.key===v.toLowerCase());
+  if(band){ set.band=band.key; set.weight=null; }
+  else { set.band=null; set.weight=v===''?null:(parseFloat(v.replace(',','.'))||null); }
+}
+
+function addEditExercise(id){
+  _editDraft.push({name:'Neue Übung',unit:'kg',sets:[{weight:null,band:null,reps:'',rir:''}]});
+  renderEditBody(id);
+}
+
+function saveEditedSession(id){
+  const data=getData();
+  const s=data.sessions.find(x=>x.id==id);
+  if(!s) return;
+  // leere Sätze verwerfen
+  const cleaned=_editDraft.map(ex=>({
+    ...ex,
+    name:(ex.name||'').trim()||'Übung',
+    sets:(ex.sets||[]).filter(st=>st.reps!==''&&st.reps!=null)
+  })).filter(ex=>ex.sets.length>0);
+  cleaned.forEach(ex=>{
+    ex.workSets=ex.sets.filter(st=>!st.isWarmup).map(st=>({weight:st.weight,band:st.band||null,reps:st.reps,rir:st.rir}));
+  });
+  s.exercises=cleaned;
+  saveData(data);
+  const o=document.getElementById('sess-edit-overlay'); if(o) o.remove();
+  renderFullLog();
+  try{ renderHeutePage(); }catch(e){}
+  showToast('Session gespeichert');
+}
+
 function showSessionDetail(id){
   const data=getData();const s=data.sessions.find(x=>x.id==id);if(!s)return;
   const _logNames={'LeoMoves':'Functional','Zone 2':'Cardio','Zone 2b':'Cardio 2'};
@@ -3337,6 +3511,7 @@ function showSessionDetail(id){
     html+=`<button class="btn btn-primary btn-full" style="margin-bottom:10px;" onclick="let _el=this;while(_el&&!_el.style?.zIndex)_el=_el.parentElement;if(_el)_el.remove();analyseSession(${s.id})">✦ KI-Auswertung & Gewichtsempfehlung</button>`;
   }
 
+  html+=`<button class="btn btn-full" style="margin-bottom:10px;background:var(--surface2);color:var(--text);" onclick="editSession(${s.id})">✎ Session bearbeiten</button>`;
   html+=`<button class="btn btn-danger btn-full" style="margin-top:4px;" onclick="deleteSession(${s.id})">Session löschen</button>`;
 
   const overlay=document.createElement('div');
@@ -3920,7 +4095,7 @@ function clearAllData(){
 }
 
 // ═══ UTILS ═══
-function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2000);}
+function showToast(msg){const t=document.getElementById('toast');if(!t)return;t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2000);}
 
 // ═══ THEME ═══
 function applyTheme(mode){
