@@ -2237,6 +2237,16 @@ function renderSessionBody(){
       <div class="cluster-area" id="cluster-area">
         <div class="cluster-title">Cluster-Set ${exSets.length+1} von ${ex.sets} · ${clusterLabel}${partialSum}</div>
         <div class="cluster-progress">${clusterDots}</div>
+        ${ex.unit==='band'
+          ? `<div style="margin-bottom:12px;">
+               <label style="display:flex;justify-content:space-between;align-items:center;font-size:11px;color:var(--text2);margin-bottom:6px;">Band (z.B. als Zughilfe)
+                 <button type="button" onclick="toggleExerciseUnit()" style="background:none;border:none;color:var(--accent);font-size:11px;cursor:pointer;">→ ohne</button>
+               </label>
+               ${bandPickerHTML(AS._band||getLastBand(ex.name))}
+             </div>`
+          : `<div style="text-align:right;margin-bottom:6px;">
+               <button type="button" onclick="toggleExerciseUnit()" style="background:none;border:none;color:var(--accent);font-size:11px;cursor:pointer;padding:2px 4px;">→ Band</button>
+             </div>`}
         <div class="cluster-reps-input">
           <input type="number" id="cluster-reps-input" placeholder="Reps" style="max-width:80px;text-align:center;font-size:20px;font-weight:600;" inputmode="numeric" onfocus="this.select()">
           <span class="cluster-reps-label">Wdh in diesem Cluster</span>
@@ -2254,8 +2264,18 @@ function renderSessionBody(){
         <div style="font-size:16px;font-weight:700;margin-bottom:10px;color:${_uniSide==='links'?'var(--green)':'var(--blue)'};">${_uniSide==='links'?'← Links':'→ Rechts'}</div>
         <div class="g3">
           ${ex.unit==='band'
-            ? `<div style="grid-column:1/-1;"><label>Band</label>${bandPickerHTML(AS._band||getLastBand(ex.name))}</div>`
-            : `<div><label>${ex.unit}</label><input type="number" id="inp-weight" placeholder="${ex.weight||'—'}" value="${getLastWeight(ex.name,ex.weight)||''}" step="0.5" inputmode="decimal" style="text-align:center;font-size:16px;" onfocus="this.select()"></div>`}
+            ? `<div style="grid-column:1/-1;">
+                 <label style="display:flex;justify-content:space-between;align-items:center;">Band
+                   <button type="button" onclick="toggleExerciseUnit()" style="background:none;border:none;color:var(--accent);font-size:11px;cursor:pointer;padding:2px 4px;">→ kg</button>
+                 </label>
+                 ${bandPickerHTML(AS._band||getLastBand(ex.name))}
+               </div>`
+            : `<div>
+                 <label style="display:flex;justify-content:space-between;align-items:center;">${ex.unit}
+                   <button type="button" onclick="toggleExerciseUnit()" style="background:none;border:none;color:var(--accent);font-size:11px;cursor:pointer;padding:2px 4px;">→ Band</button>
+                 </label>
+                 <input type="number" id="inp-weight" placeholder="${ex.weight||'—'}" value="${getLastWeight(ex.name,ex.weight)||''}" step="0.5" inputmode="decimal" style="text-align:center;font-size:16px;" onfocus="this.select()">
+               </div>`}
           <div><label>Wdh</label><input type="number" id="inp-reps" placeholder="Wdh" value="${getLastReps(ex.name,'')||''}" inputmode="numeric" style="text-align:center;font-size:16px;" onfocus="this.select()"></div>
           <div><label>RIR</label><input type="number" id="inp-rir" placeholder="0" min="0" max="5" inputmode="numeric" style="text-align:center;font-size:16px;" onfocus="this.select()"></div>
         </div>
@@ -2267,6 +2287,16 @@ function renderSessionBody(){
     inputArea=`
       <div class="set-input-area" id="set-input-area">
         <div style="font-size:13px;color:var(--text2);margin-bottom:10px;font-weight:500;">${satzLabel}</div>
+        ${ex.unit==='band'
+          ? `<div style="margin-bottom:12px;">
+               <label style="display:flex;justify-content:space-between;align-items:center;font-size:11px;color:var(--text2);margin-bottom:6px;">Band
+                 <button type="button" onclick="toggleExerciseUnit()" style="background:none;border:none;color:var(--accent);font-size:11px;cursor:pointer;">→ ohne</button>
+               </label>
+               ${bandPickerHTML(AS._band||getLastBand(ex.name))}
+             </div>`
+          : `<div style="text-align:right;margin-bottom:6px;">
+               <button type="button" onclick="toggleExerciseUnit()" style="background:none;border:none;color:var(--accent);font-size:11px;cursor:pointer;padding:2px 4px;">→ Band</button>
+             </div>`}
         <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;">
           <div style="flex:1;">
             <label>Haltezeit (sek)</label>
@@ -2286,8 +2316,18 @@ function renderSessionBody(){
         <div style="font-size:13px;color:var(--text2);margin-bottom:10px;font-weight:500;">${satzLabel}</div>
         <div class="g3">
           ${ex.unit==='band'
-            ? `<div style="grid-column:1/-1;"><label>Band</label>${bandPickerHTML(AS._band||getLastBand(ex.name))}</div>`
-            : `<div><label>${ex.unit}</label><input type="number" id="inp-weight" placeholder="${ex.weight||'—'}" value="${getLastWeight(ex.name,ex.weight)||''}" step="0.5" inputmode="decimal" style="text-align:center;font-size:16px;" onfocus="this.select()"></div>`}
+            ? `<div style="grid-column:1/-1;">
+                 <label style="display:flex;justify-content:space-between;align-items:center;">Band
+                   <button type="button" onclick="toggleExerciseUnit()" style="background:none;border:none;color:var(--accent);font-size:11px;cursor:pointer;padding:2px 4px;">→ kg</button>
+                 </label>
+                 ${bandPickerHTML(AS._band||getLastBand(ex.name))}
+               </div>`
+            : `<div>
+                 <label style="display:flex;justify-content:space-between;align-items:center;">${ex.unit}
+                   <button type="button" onclick="toggleExerciseUnit()" style="background:none;border:none;color:var(--accent);font-size:11px;cursor:pointer;padding:2px 4px;">→ Band</button>
+                 </label>
+                 <input type="number" id="inp-weight" placeholder="${ex.weight||'—'}" value="${getLastWeight(ex.name,ex.weight)||''}" step="0.5" inputmode="decimal" style="text-align:center;font-size:16px;" onfocus="this.select()">
+               </div>`}
           <div><label>Wdh</label><input type="number" id="inp-reps" placeholder="Wdh" value="${getLastReps(ex.name,'')||''}" inputmode="numeric" style="text-align:center;font-size:16px;" onfocus="this.select()"></div>
           <div><label>RIR</label><input type="number" id="inp-rir" placeholder="0" min="0" max="5" inputmode="numeric" style="text-align:center;font-size:16px;" onfocus="this.select()"></div>
         </div>
@@ -2306,6 +2346,7 @@ function renderSessionBody(){
     ?`<button class="btn btn-ghost btn-full" onclick="skipExercise()" style="margin:0 16px;width:calc(100% - 32px);">Übung überspringen →</button>`
     :`<button class="btn btn-ghost btn-full" onclick="renderLastSetDecision()" style="margin:0 16px;width:calc(100% - 32px);">Übung überspringen →</button>`;
   const backBtn=AS.exIdx>0?`<button class="btn btn-ghost btn-full" onclick="goBackExercise()" style="margin:4px 16px 0;width:calc(100% - 32px);color:var(--text2);">← Zurück zu ${AS.exercises[AS.exIdx-1].name}</button>`:'';
+  const addBtn=`<button class="btn btn-ghost btn-full" onclick="openAddExerciseSheet()" style="margin:4px 16px 0;width:calc(100% - 32px);color:var(--accent);">+ Übung einfügen</button>`;
 
   body.innerHTML=`
     <div class="ex-dots">${dotsHTML}</div>
@@ -2333,9 +2374,146 @@ function renderSessionBody(){
           `<button class="btn btn-primary btn-full" onclick="renderLastSetDecision()">Wie weiter? →</button>`
         }
         ${AS.exIdx>0?`<button class="btn btn-ghost btn-full" onclick="goBackExercise()" style="margin-top:8px;color:var(--text2);">← Zurück zu ${AS.exercises[AS.exIdx-1].name}</button>`:''}
-      </div>`:`${skipBtn}${backBtn}`}`;
+        <button class="btn btn-ghost btn-full" onclick="openAddExerciseSheet()" style="margin-top:8px;color:var(--accent);">+ Übung einfügen</button>
+      </div>`:`${skipBtn}${backBtn}${addBtn}`}`;
 }
 
+
+
+// ═══ ÜBUNG WÄHREND DER SESSION EINFÜGEN ═══
+
+// Alle bekannten Übungsnamen — aus Plänen und bisherigen Sessions
+function getKnownExercises(){
+  const names=new Set();
+  try{
+    Object.keys(PHASE_PLANS).forEach(p=>{
+      const plan=getPlanForPhase(p);
+      Object.keys(plan).forEach(k=>{
+        (plan[k].exercises||[]).forEach(e=>{ if(e.name) names.add(e.name); });
+      });
+    });
+  }catch(e){}
+  try{
+    (getData().sessions||[]).forEach(s=>{
+      (s.exercises||[]).forEach(e=>{ if(e.name) names.add(e.name); });
+    });
+  }catch(e){}
+  try{ Object.keys(EX_META||{}).forEach(n=>{ if(n!=='default') names.add(n); }); }catch(e){}
+  return [...names].sort((a,b)=>a.localeCompare(b,'de'));
+}
+
+// Übernimmt bekannte Werte, wenn eine Übung aus der Liste gewählt wird
+function onPickKnownExercise(){
+  const sel=document.getElementById('addex-known');
+  const val=sel.value;
+  if(!val) return;
+  document.getElementById('addex-name').value=val;
+  // Vorlage aus den Phasenplänen suchen
+  let tpl=null;
+  try{
+    Object.keys(PHASE_PLANS).forEach(p=>{
+      const plan=getPlanForPhase(p);
+      Object.keys(plan).forEach(k=>{
+        (plan[k].exercises||[]).forEach(e=>{ if(!tpl && e.name===val) tpl=e; });
+      });
+    });
+  }catch(e){}
+  if(tpl){
+    if(tpl.sets) document.getElementById('addex-sets').value=tpl.sets;
+    if(tpl.reps) document.getElementById('addex-reps').value=tpl.reps;
+    if(tpl.unit) document.getElementById('addex-unit').value=tpl.unit;
+    document.getElementById('addex-uni').checked=!!tpl.isUnilateral;
+  }
+  // Letztes Gewicht aus der Historie
+  try{
+    const last=getLastSessionSets(val);
+    if(last && last.sets.length){
+      const ws=last.sets.filter(st=>st.weight);
+      if(ws.length) document.getElementById('addex-weight').value=ws[ws.length-1].weight;
+    } else if(tpl && tpl.weight){
+      document.getElementById('addex-weight').value=tpl.weight;
+    }
+  }catch(e){}
+}
+
+function openAddExerciseSheet(){
+  const overlay=document.createElement('div');
+  overlay.id='add-ex-overlay';
+  overlay.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:960;display:flex;align-items:flex-end;';
+  overlay.innerHTML=`<div style="background:var(--surface);border-radius:20px 20px 0 0;width:100%;padding:20px 20px calc(20px + env(safe-area-inset-bottom,0px));">
+    <div style="width:40px;height:4px;background:var(--surface3);border-radius:2px;margin:0 auto 16px;"></div>
+    <div style="font-size:17px;font-weight:700;margin-bottom:14px;">Übung einfügen</div>
+
+    <div class="field" style="margin-bottom:10px;">
+      <label>Aus bekannten Übungen</label>
+      <select id="addex-known" onchange="onPickKnownExercise()" style="font-size:16px;">
+        <option value="">— auswählen —</option>
+        ${getKnownExercises().map(n=>`<option value="${n.replace(/"/g,'&quot;')}">${n}</option>`).join('')}
+      </select>
+    </div>
+
+    <div class="field" style="margin-bottom:12px;">
+      <label>Name (oder eigene Übung)</label>
+      <input type="text" id="addex-name" placeholder="z.B. Reverse Fly Band" style="font-size:16px;">
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;">
+      <div class="field"><label>Sätze</label><input type="number" id="addex-sets" value="3" inputmode="numeric" style="font-size:16px;text-align:center;"></div>
+      <div class="field"><label>Wdh</label><input type="text" id="addex-reps" value="10–12" style="font-size:16px;text-align:center;"></div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;">
+      <div class="field"><label>Einheit</label>
+        <select id="addex-unit" style="font-size:16px;">
+          <option value="kg">kg</option>
+          <option value="kg/S">kg pro Seite</option>
+          <option value="band">Band</option>
+          <option value="reps">nur Wdh</option>
+          <option value="sek">Sekunden</option>
+        </select>
+      </div>
+      <div class="field"><label>Startgewicht</label><input type="number" id="addex-weight" placeholder="—" step="0.5" inputmode="decimal" style="font-size:16px;text-align:center;"></div>
+    </div>
+
+    <label style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text2);margin-bottom:16px;cursor:pointer;">
+      <input type="checkbox" id="addex-uni" style="width:18px;height:18px;"> einseitig (links/rechts)
+    </label>
+
+    <button class="btn btn-primary btn-full" onclick="confirmAddExercise('next')">Als nächste Übung einfügen</button>
+    <button class="btn btn-full" style="margin-top:8px;background:var(--surface2);color:var(--text);" onclick="confirmAddExercise('end')">Ans Ende der Session</button>
+    <button class="btn btn-ghost btn-full" style="margin-top:8px;" onclick="document.getElementById('add-ex-overlay').remove()">Abbrechen</button>
+  </div>`;
+  overlay.addEventListener('click',e=>{ if(e.target===overlay) overlay.remove(); });
+  document.body.appendChild(overlay);
+  setTimeout(()=>{const n=document.getElementById('addex-name'); if(n) n.focus();},150);
+}
+
+function confirmAddExercise(where){
+  const name=(document.getElementById('addex-name').value||'').trim();
+  if(!name){ showToast('Name eingeben'); return; }
+  const sets=parseInt(document.getElementById('addex-sets').value)||3;
+  const reps=(document.getElementById('addex-reps').value||'10–12').trim();
+  const unit=document.getElementById('addex-unit').value;
+  const wVal=document.getElementById('addex-weight').value;
+  const weight=(unit==='band'||unit==='reps'||unit==='sek')?null:(parseFloat(wVal)||null);
+  const isUni=document.getElementById('addex-uni').checked;
+
+  const newEx={
+    name, sets, reps, unit,
+    weight,
+    target:`${sets} × ${reps}`,
+    isUnilateral:isUni
+  };
+
+  const insertIdx = (where==='next') ? AS.exIdx+1 : AS.exercises.length;
+  AS.exercises.splice(insertIdx, 0, newEx);
+  // Bereits geloggte Sätze hinter der Einfügestelle nachrücken
+  AS.doneSets.forEach(st=>{ if(st.exIdx>=insertIdx) st.exIdx++; });
+
+  const o=document.getElementById('add-ex-overlay'); if(o) o.remove();
+  renderSessionBody();
+  showToast(where==='next' ? `${name} kommt als nächstes` : `${name} ans Ende gesetzt`);
+}
 
 // ═══ WARM-UP / COOL-DOWN SCREENS ═══
 
@@ -2584,7 +2762,7 @@ function addExtraCluster(){
 
 function finishClusterSet(){
   const totalReps=AS.clusterRepsLog.reduce((a,b)=>a+b,0);
-  AS.doneSets.push({exIdx:AS.exIdx,weight:null,reps:AS.clusterRepsLog.join('+')+'='+totalReps,rir:''});
+  AS.doneSets.push({exIdx:AS.exIdx,weight:null,band:AS._band||null,reps:AS.clusterRepsLog.join('+')+'='+totalReps,rir:''});
   AS.clusterCount=0;AS.clusterRepsLog=[];
   const settings=getSettings();
   const ex=AS.exercises[AS.exIdx];
@@ -2657,18 +2835,38 @@ function goBackFromCooldown(){
 
 function goBackExercise(){
   if(AS.exIdx<=0) return;
-  // Remove all doneSets for current exercise
-  AS.doneSets = AS.doneSets.filter(s=>s.exIdx!==AS.exIdx);
-  // Go back
+  // Nur unfertige Marker der aktuellen Übung entfernen (z.B. versehentliches Überspringen)
+  AS.doneSets = AS.doneSets.filter(s=>!(s.exIdx===AS.exIdx && s.skipped));
   AS.exIdx--;
+  // Ein evtl. gesetzter Skip-Marker der Zielübung wird entfernt, echte Sätze bleiben
+  AS.doneSets = AS.doneSets.filter(s=>!(s.exIdx===AS.exIdx && s.skipped));
   AS.clusterCount=0;
   AS.clusterRepsLog=[];
-  // Remove all doneSets for previous exercise too so user can redo
-  AS.doneSets = AS.doneSets.filter(s=>s.exIdx!==AS.exIdx);
+  AS._uniRightDone=false; AS._band=null; AS._markWarmup=false;
+  AS._uniLeftReps=0; AS._uniLeftWeight=null;
+  const kept = AS.doneSets.filter(s=>s.exIdx===AS.exIdx).length;
   renderSessionBody();
+  if(kept>0) showToast(`${kept} Satz${kept>1?'ze':''} bleiben erhalten`);
 }
 
 // ── SET DONE ──
+// Wechselt für die laufende Übung zwischen Gewicht und Band
+function toggleExerciseUnit(){
+  const ex=AS.exercises[AS.exIdx];
+  if(!ex) return;
+  if(ex.unit==='band'){
+    ex.unit = ex._prevUnit || 'kg';
+    AS._band = null;
+    showToast('Eingabe: Gewicht');
+  } else {
+    ex._prevUnit = ex.unit;
+    ex.unit = 'band';
+    AS._band = getLastBand(ex.name);
+    showToast('Eingabe: Band');
+  }
+  renderSessionBody();
+}
+
 function toggleWarmupFlag(){
   AS._markWarmup = !AS._markWarmup;
   const b=document.getElementById('wu-toggle');
@@ -3140,7 +3338,13 @@ function nextExercise(){
 }
 
 function skipExercise(){
-  AS.doneSets.push({exIdx:AS.exIdx,weight:null,reps:'—',rir:'',skipped:true});
+  const existing = AS.doneSets.filter(s=>s.exIdx===AS.exIdx && !s.skipped);
+  if(existing.length>0){
+    // Übung hat bereits Sätze — nicht als übersprungen markieren, nur weitergehen
+    showToast(`${existing.length} Satz${existing.length>1?'ze':''} behalten`);
+  } else {
+    AS.doneSets.push({exIdx:AS.exIdx,weight:null,reps:'—',rir:'',skipped:true});
+  }
   const settings=getSettings();
   if(AS.exIdx<AS.exercises.length-1){startTimer(settings.restBetweenEx,'Pause zwischen Übungen','between-ex');}
   else{AS.exIdx++;renderSessionBody();}
@@ -3371,6 +3575,7 @@ function editSession(id){
     <div style="width:40px;height:4px;background:var(--surface3);border-radius:2px;margin:0 auto 16px;"></div>
     <div style="font-size:17px;font-weight:700;margin-bottom:2px;">Session bearbeiten</div>
     <div style="font-size:12px;color:var(--text2);margin-bottom:16px;">${new Date(s.date).toLocaleDateString('de-DE',{weekday:'long',day:'numeric',month:'long'})}</div>
+    <datalist id="known-ex-list">${getKnownExercises().map(n=>`<option value="${n.replace(/"/g,'&quot;')}">`).join('')}</datalist>
     <div id="edit-body"></div>
     <button class="btn btn-full" style="margin-top:12px;background:var(--surface2);color:var(--text2);" onclick="addEditExercise(${id})">+ Übung hinzufügen</button>
     <button class="btn btn-primary btn-full" style="margin-top:10px;" onclick="saveEditedSession(${id})">Speichern</button>
@@ -3389,7 +3594,7 @@ function renderEditBody(id){
   _editDraft.forEach((ex,ei)=>{
     h+=`<div style="margin-bottom:16px;padding:12px;background:var(--surface2);border-radius:12px;">
       <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;">
-        <input type="text" value="${(ex.name||'').replace(/"/g,'&quot;')}" onchange="_editDraft[${ei}].name=this.value"
+        <input type="text" list="known-ex-list" value="${(ex.name||'').replace(/"/g,'&quot;')}" onchange="_editDraft[${ei}].name=this.value"
           style="flex:1;font-size:14px;font-weight:600;padding:7px 9px;border:1px solid var(--border);border-radius:8px;background:var(--surface);color:var(--text);">
         <button onclick="_editDraft.splice(${ei},1);renderEditBody(${id})"
           style="padding:7px 10px;border-radius:8px;border:1px solid var(--border2);background:none;color:var(--red);cursor:pointer;font-size:12px;">Weg</button>
