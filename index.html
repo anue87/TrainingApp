@@ -852,6 +852,7 @@ const EXERCISE_META = {
   'Preacher Curls': {'muscle': 'Bizeps', 'focus': 'Isolation', 'color': 'var(--amber)'},
   'Konzentrationscurls': {'muscle': 'Bizeps', 'focus': 'Isolation', 'color': 'var(--amber)'},
   'Chest Supp. Row': {'muscle': 'Rücken', 'focus': 'Isolation', 'color': 'var(--accent)'},
+  'Pendlay Row': {'muscle': 'Rücken', 'focus': 'Compound', 'color': 'var(--accent)'},
   'DB Floor Press': {'muscle': 'Brust', 'focus': 'Compound', 'color': 'var(--accent)'},
   'Waden einbeinig': {'muscle': 'Waden', 'focus': 'Exzentrik', 'color': 'var(--amber)'},
   'default': {'muscle': '', 'focus': '', 'color': '#AAAAAA'},
@@ -1020,9 +1021,9 @@ const PHASE_PLANS = {
   1: { // Block 2 — Lean & Strong (24.08.–11.10.2026)
     sessions: ['Pull','Lower','Push','Fullbody','Cardio','LeoMoves'],
     plan: {
-      'Pull':{day:'Montag',type:'upper',duration:'60 min',note:'Compounds: Wdh über die Sätze stabil halten, Satz beenden wenn eine Wdh grindet · Isolation ausreizen',exercises:[
+      'Pull':{day:'Montag',type:'upper',duration:'60 min',note:'Leise Variante für 5 Uhr · Compounds: Wdh über die Sätze stabil halten, Satz beenden wenn eine Wdh grindet · Isolation ausreizen',exercises:[
         {name:'Chin-ups',target:'3 Sets Cluster',sets:3,reps:'Cluster',unit:'reps',isCluster:true},
-        {name:'Pendlay Row',target:'4 × 8–10',weight:50,sets:4,reps:'8–10',unit:'kg'},
+        {name:'Chest Supp. Row',target:'4 × 8–10',weight:25,sets:4,reps:'8–10',unit:'kg/S'},
         {name:'Einarm. Rudern',target:'3 × 10–12',weight:32.5,sets:3,reps:'10–12',unit:'kg'},
         {name:'Facepulls',target:'3 × 15',weight:15,sets:3,reps:'15',unit:'kg'},
         {name:'Außenrotation liegend',target:'2 × 15',weight:null,sets:2,reps:'15',unit:'band',isUnilateral:true},
@@ -1047,11 +1048,12 @@ const PHASE_PLANS = {
         {name:'Facepulls',target:'2 × 15',weight:15,sets:2,reps:'15',unit:'kg'},
         {name:'Cable Crunches',target:'3 × 12–15',weight:25,sets:3,reps:'12–15',unit:'kg'},
       ]},
-      'Fullbody':{day:'Samstag',type:'lower',duration:'50 min',note:'Zweiter Wochenimpuls · bewusst leichter als die Haupttage',exercises:[
+      'Fullbody':{day:'Sonntag',type:'upper',duration:'55 min',note:'Zweiter Wochenimpuls · bewusst leichter als die Haupttage · Incline leicht halten (Schulter)',exercises:[
+        {name:'Chin-ups',target:'3 Sets Cluster',sets:3,reps:'Cluster',unit:'reps',isCluster:true},
+        {name:'Pendlay Row',target:'2 × 10–12',weight:50,sets:2,reps:'10–12',unit:'kg'},
+        {name:'Incline DB Press',target:'3 × 12–15',weight:20,sets:3,reps:'12–15',unit:'kg/S'},
+        {name:'DB Floor Press',target:'3 × 12–15',weight:22.5,sets:3,reps:'12–15',unit:'kg/S'},
         {name:'Back Squat',target:'3 × 12',weight:70,sets:3,reps:'12',unit:'kg'},
-        {name:'Chin-ups',target:'2 Sets Cluster',sets:2,reps:'Cluster',unit:'reps',isCluster:true},
-        {name:'Incline DB Press',target:'3 × 15',weight:17.5,sets:3,reps:'15',unit:'kg/S'},
-        {name:'Chest Supp. Row',target:'3 × 12',weight:22.5,sets:3,reps:'12',unit:'kg'},
         {name:'Konzentrationscurls',target:'2 × 12',weight:12.5,sets:2,reps:'12',unit:'kg/S',isUnilateral:true},
         {name:'Kabel Trizeps',target:'2 × 15',weight:15,sets:2,reps:'15',unit:'kg'},
         {name:'Hollow Hold',target:'3 × 40 sek',weight:null,sets:3,reps:'40',unit:'sek'},
@@ -1134,7 +1136,7 @@ const PHASE_PLANS = {
 const PHASE_META = {
   1:{num:1,label:'Block 2 — Lean & Strong',cls:'ph1',color:'#B06E3C',bg:'#FBF1E8',bgDark:'#2A1F16',colorDark:'#C88A52',border:'#B06E3C',
      period:'7 Wochen · bis 11.10.',weeks:7,
-     ziel:'KFA 21,5 → 19 % · 86 → 83,5 kg · Muskelmasse halten · Schulter ausheilen',
+     ziel:'KFA 21,7 → 19 % · 85,4 → 83,5 kg · MM halten · Squat 95×10 · Incline 32,5×10 · Chin-ups 22er-Cluster · Row 60×10 · RDL 90×10',
      training:'Pull Mo · Lower Mi · Push Do · Fullbody Sa · Gravel Di+Fr · Deload Wo 4',
      ernaehrung:'Krafttag –400 kcal · Radtag –500 · Ruhetag –700 · 175 g Protein',
      progression:'Doppelprogression: Satz 1+2 am oberen Ende → Last +5 %'},
@@ -1324,7 +1326,7 @@ function openPhaseSheet(){
     </div>`;
   }
 
-  overlay.innerHTML=`<div style="background:var(--surface);border-radius:20px;width:100%;max-height:90vh;overflow-y:auto;padding:20px 20px calc(env(safe-area-inset-bottom,0px)+20px);">
+  overlay.innerHTML=`<div class="kb-aware" style="background:var(--surface);border-radius:20px;width:100%;max-height:90vh;overflow-y:auto;padding:20px 20px calc(env(safe-area-inset-bottom,0px)+20px);">
     <div style="width:36px;height:4px;background:var(--border2);border-radius:2px;margin:0 auto 18px;"></div>
     <div style="font-size:18px;font-weight:600;margin-bottom:4px;">Phasenübersicht</div>
     <div style="font-size:13px;color:var(--text2);margin-bottom:18px;">Alle 4 Phasen · nur zur Information</div>
@@ -1350,7 +1352,7 @@ function openPhaseManage(){
 
   const meta=PHASE_META[ps.activePhase];
 
-  overlay.innerHTML=`<div style="background:var(--surface);border-radius:20px;width:100%;max-height:90vh;overflow-y:auto;padding:20px 20px calc(env(safe-area-inset-bottom,0px)+20px);">
+  overlay.innerHTML=`<div class="kb-aware" style="background:var(--surface);border-radius:20px;width:100%;max-height:90vh;overflow-y:auto;padding:20px 20px calc(env(safe-area-inset-bottom,0px)+20px);">
     <div style="width:36px;height:4px;background:var(--border2);border-radius:2px;margin:0 auto 18px;"></div>
     <div style="font-size:18px;font-weight:600;margin-bottom:4px;">Phase verwalten</div>
     <div style="font-size:13px;color:var(--text2);margin-bottom:18px;">Aktiv: <strong>Phase ${ps.activePhase} · ${meta.label}</strong> · ${ps.durationWeeks} Wochen geplant</div>
@@ -2440,7 +2442,7 @@ function openAddExerciseSheet(){
   const overlay=document.createElement('div');
   overlay.id='add-ex-overlay';
   overlay.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:960;display:flex;align-items:flex-end;';
-  overlay.innerHTML=`<div style="background:var(--surface);border-radius:20px 20px 0 0;width:100%;padding:20px 20px calc(20px + env(safe-area-inset-bottom,0px));">
+  overlay.innerHTML=`<div class="kb-aware" style="background:var(--surface);border-radius:20px 20px 0 0;width:100%;padding:20px 20px calc(20px + env(safe-area-inset-bottom,0px));">
     <div style="width:40px;height:4px;background:var(--surface3);border-radius:2px;margin:0 auto 16px;"></div>
     <div style="font-size:17px;font-weight:700;margin-bottom:14px;">Übung einfügen</div>
 
@@ -2589,7 +2591,7 @@ function warmupSetDone(){
   const _wEl=document.getElementById('inp-weight');
   const w=_wEl?_wEl.value:'';
   const r=document.getElementById('inp-reps').value;
-  AS.doneSets.push({exIdx:AS.exIdx,weight:parseFloat(w)||null,band:AS._band||null,reps:parseInt(r)||0,rir:'WU',isWarmup:true});
+  AS.doneSets.push({exIdx:AS.exIdx,weight:parseFloat(w)||null,band:(ex.unit==='band'?(AS._band||null):null),reps:parseInt(r)||0,rir:'WU',isWarmup:true});
   const phase=getWarmupPhase(AS.exIdx);
   AS.warmupSetsPhase[AS.exIdx]=phase+1;
   // Short pause: 30 sek nach 1 WU-Satz, 45 sek nach erstem von zwei
@@ -2762,7 +2764,7 @@ function addExtraCluster(){
 
 function finishClusterSet(){
   const totalReps=AS.clusterRepsLog.reduce((a,b)=>a+b,0);
-  AS.doneSets.push({exIdx:AS.exIdx,weight:null,band:AS._band||null,reps:AS.clusterRepsLog.join('+')+'='+totalReps,rir:''});
+  AS.doneSets.push({exIdx:AS.exIdx,weight:null,band:(ex.unit==='band'?(AS._band||null):null),reps:AS.clusterRepsLog.join('+')+'='+totalReps,rir:''});
   AS.clusterCount=0;AS.clusterRepsLog=[];
   const settings=getSettings();
   const ex=AS.exercises[AS.exIdx];
@@ -2903,7 +2905,7 @@ function setDone(){
   const leftReps=AS._uniRightDone?AS._uniLeftReps:null;
   const leftWeight=AS._uniRightDone?AS._uniLeftWeight:null;
   const _isWU = !!AS._markWarmup;
-  const _bandUsed = AS._band||null;
+  const _bandUsed = (ex.unit==='band') ? (AS._band||null) : null;
   AS._uniRightDone=false;
   AS._uniLeftReps=0;
   AS._uniLeftWeight=null;
@@ -3136,7 +3138,7 @@ function uniSideDone(){
     AS.doneSets.push({
       exIdx:AS.exIdx,
       weight:AS._uniLeft?.weight||null,
-      band:AS._band||null,
+      band:(ex.unit==='band'?(AS._band||null):null),
       reps:(AS._uniLeft?.reps||0)+'/'+r+' (L/R)',
       rir:rir,
       isUnilateral:true,
@@ -3262,6 +3264,7 @@ function renderTimer(label,type){
         <button class="timer-add-btn" onclick="addTimerTime(-15)">–15 sek</button>
       </div>
       <button onclick="backFromTimer()" style="width:100%;margin-top:8px;padding:10px;border-radius:10px;border:1px solid var(--border);background:none;color:var(--text2);font-size:13px;cursor:pointer;">← Letzten Satz wiederholen</button>
+      <button onclick="openAddExerciseSheet()" style="width:100%;margin-top:8px;padding:10px;border-radius:10px;border:1px solid var(--accent);background:none;color:var(--accent);font-size:13px;cursor:pointer;">+ Übung einfügen</button>
     </div>
     ${nextInfo}`;
   updateTimerDisplay();
@@ -3333,6 +3336,7 @@ function backFromTimer(){
 function nextExercise(){
   clearInterval(AS.timerInterval);
   AS.exIdx++;AS.setIdx=0;AS.clusterCount=0;AS.clusterRepsLog=[];
+  AS._band=null;AS._markWarmup=false;AS._uniRightDone=false;AS._uniLeftReps=0;AS._uniLeftWeight=null;
   renderSessionBody();
   document.getElementById('sess-body').scrollTo(0,0);
 }
@@ -3345,9 +3349,10 @@ function skipExercise(){
   } else {
     AS.doneSets.push({exIdx:AS.exIdx,weight:null,reps:'—',rir:'',skipped:true});
   }
+  AS._band=null;AS._markWarmup=false;
   const settings=getSettings();
   if(AS.exIdx<AS.exercises.length-1){startTimer(settings.restBetweenEx,'Pause zwischen Übungen','between-ex');}
-  else{AS.exIdx++;renderSessionBody();}
+  else{AS.exIdx++;AS._band=null;AS._markWarmup=false;renderSessionBody();}
 }
 
 // ── BEEP ──
@@ -3571,7 +3576,7 @@ function editSession(id){
   const overlay=document.createElement('div');
   overlay.id='sess-edit-overlay';
   overlay.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:700;display:flex;align-items:flex-end;padding:12px 10px 0;backdrop-filter:blur(4px);';
-  overlay.innerHTML=`<div style="background:var(--surface);border-radius:20px;width:100%;max-height:90vh;overflow-y:auto;padding:20px 20px calc(env(safe-area-inset-bottom,0px)+20px);">
+  overlay.innerHTML=`<div class="kb-aware" style="background:var(--surface);border-radius:20px;width:100%;max-height:90vh;overflow-y:auto;padding:20px 20px calc(env(safe-area-inset-bottom,0px)+20px);">
     <div style="width:40px;height:4px;background:var(--surface3);border-radius:2px;margin:0 auto 16px;"></div>
     <div style="font-size:17px;font-weight:700;margin-bottom:2px;">Session bearbeiten</div>
     <div style="font-size:12px;color:var(--text2);margin-bottom:16px;">${new Date(s.date).toLocaleDateString('de-DE',{weekday:'long',day:'numeric',month:'long'})}</div>
