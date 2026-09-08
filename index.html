@@ -374,10 +374,18 @@ const _AUDIO = {
     this.ctx.decodeAudioData(ab, buf=>callback(buf), ()=>{} );
   },
 
+  // iOS: 'ambient' erlaubt Mischen mit Musik anderer Apps statt sie zu unterbrechen
+  setAmbient(){
+    try{
+      if(navigator.audioSession) navigator.audioSession.type = 'ambient';
+    }catch(e){}
+  },
+
   init(){
     try{
+      this.setAmbient();
       if(!this.ctx){
-        this.ctx = new (window.AudioContext||window.webkitAudioContext)();
+        this.ctx = new (window.AudioContext||window.webkitAudioContext)({latencyHint:'playback'});
       }
       // Immer resume aufrufen — iOS suspendiert (oder 'interrupted') Context im Hintergrund
       if(this.ctx.state !== 'running'){
@@ -470,19 +478,26 @@ const _AUDIO = {
   }
 };
 
-// Beim ersten Touch: AudioContext erstellen + Puffer laden
-document.addEventListener('touchstart', ()=>_AUDIO.init(), {passive:true});
-document.addEventListener('click', ()=>_AUDIO.init(), {passive:true});
+// Beim ersten Touch: AudioContext erstellen + Puffer laden.
+// Danach NICHT mehr anfassen, sonst unterbricht iOS laufende Musik.
+function _audioFirstTouch(){
+  if(_AUDIO.ctx && _AUDIO.ctx.state === 'running') return;
+  _AUDIO.init();
+}
+document.addEventListener('touchstart', _audioFirstTouch, {passive:true});
+document.addEventListener('click', _audioFirstTouch, {passive:true});
 
 // iOS suspendiert den AudioContext oft im Hintergrund — bei JEDER sichtbaren Rückkehr
 // sofort und wiederholt versuchen zu resumen, damit der nächste Timer-Ton durchkommt
 document.addEventListener('visibilitychange', () => {
-  if(document.visibilityState === 'visible'){
+  if(document.visibilityState !== 'visible') return;
+  // Nur reaktivieren, wenn eine Session läuft — sonst würde iOS fremde Musik stoppen
+  const sessionRunning = !!(window.AS && AS.exercises && AS.exercises.length);
+  if(sessionRunning){
     _AUDIO.init();
-    // Mehrfach versuchen, da iOS das resume manchmal erst nach kurzer Verzögerung zulässt
     setTimeout(()=>_AUDIO.init(), 100);
-    setTimeout(()=>{ _AUDIO.init(); updateAudioBell(); }, 400);
   }
+  setTimeout(updateAudioBell, 400);
 });
 
 // ── AUDIO-STATUS & REAKTIVIERUNG ──
@@ -2588,10 +2603,11 @@ function renderCooldownScreen(){
 
 
 function warmupSetDone(){
+  const ex=AS.exercises[AS.exIdx];
   const _wEl=document.getElementById('inp-weight');
   const w=_wEl?_wEl.value:'';
   const r=document.getElementById('inp-reps').value;
-  AS.doneSets.push({exIdx:AS.exIdx,weight:parseFloat(w)||null,band:(ex.unit==='band'?(AS._band||null):null),reps:parseInt(r)||0,rir:'WU',isWarmup:true});
+  AS.doneSets.push({exIdx:AS.exIdx,weight:parseFloat(w)||null,band:(ex&&ex.unit==='band'?(AS._band||null):null),reps:parseInt(r)||0,rir:'WU',isWarmup:true});
   const phase=getWarmupPhase(AS.exIdx);
   AS.warmupSetsPhase[AS.exIdx]=phase+1;
   // Short pause: 30 sek nach 1 WU-Satz, 45 sek nach erstem von zwei
@@ -2763,11 +2779,11 @@ function addExtraCluster(){
 }
 
 function finishClusterSet(){
+  const ex=AS.exercises[AS.exIdx];
   const totalReps=AS.clusterRepsLog.reduce((a,b)=>a+b,0);
-  AS.doneSets.push({exIdx:AS.exIdx,weight:null,band:(ex.unit==='band'?(AS._band||null):null),reps:AS.clusterRepsLog.join('+')+'='+totalReps,rir:''});
+  AS.doneSets.push({exIdx:AS.exIdx,weight:null,band:(ex&&ex.unit==='band'?(AS._band||null):null),reps:AS.clusterRepsLog.join('+')+'='+totalReps,rir:''});
   AS.clusterCount=0;AS.clusterRepsLog=[];
   const settings=getSettings();
-  const ex=AS.exercises[AS.exIdx];
   const exSets=AS.doneSets.filter(s=>s.exIdx===AS.exIdx);
   if(exSets.length>=ex.sets){
     if(AS.exIdx<AS.exercises.length-1){
@@ -3122,6 +3138,7 @@ function addExtraSet(){
 
 
 function uniSideDone(){
+  const ex=AS.exercises[AS.exIdx];
   const _wEl=document.getElementById('inp-weight');
   const w=_wEl?_wEl.value:'';
   const r=document.getElementById('inp-reps').value;
@@ -3138,7 +3155,7 @@ function uniSideDone(){
     AS.doneSets.push({
       exIdx:AS.exIdx,
       weight:AS._uniLeft?.weight||null,
-      band:(ex.unit==='band'?(AS._band||null):null),
+      band:(ex&&ex.unit==='band'?(AS._band||null):null),
       reps:(AS._uniLeft?.reps||0)+'/'+r+' (L/R)',
       rir:rir,
       isUnilateral:true,
@@ -3146,7 +3163,6 @@ function uniSideDone(){
     AS._uniSide='links';
     AS._uniLeft=null;
     // Weiter wie setDone
-    const ex=AS.exercises[AS.exIdx];
     const workSets=AS.doneSets.filter(s=>s.exIdx===AS.exIdx&&!s.isWarmup);
     const settings=getSettings();
     if(workSets.length>=ex.sets){
