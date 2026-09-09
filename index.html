@@ -883,8 +883,9 @@ function getExMeta(name){
 
 function getLastSessionSets(exName){
   const data=getData();
+  // Deload-Sessions ausklammern — sonst zieht die Progression die Gewichte nach unten
   const sessions=[...data.sessions]
-    .filter(s=>s.type===AS.type&&s.exercises&&s.exercises.length>0)
+    .filter(s=>s.type===AS.type&&s.exercises&&s.exercises.length>0&&!s.isDeload)
     .sort((a,b)=>new Date(b.date)-new Date(a.date));
   for(const s of sessions){
     const ex=s.exercises.find(e=>
@@ -979,6 +980,12 @@ function getProgressionAdvice(ex){
 }
 
 function getProgressionHTML(ex){
+  if(AS && AS.deloadMode){
+    return `<div style="margin-top:8px;padding:8px 10px;background:var(--surface2);border-radius:8px;border-left:2px solid var(--text3);display:flex;align-items:center;gap:7px;">
+      <span style="color:var(--text3);font-weight:700;font-size:12px;">◆</span>
+      <span style="font-size:12px;color:var(--text2);">Deload — Last bewusst reduziert, RIR egal</span>
+    </div>`;
+  }
   const a=getProgressionAdvice(ex);
   if(!a) return '';
   const icon=a.type==='up'?'▲':a.type==='down'?'▼':'→';
@@ -2025,7 +2032,7 @@ function renderSessionButtons(){
     h+='<div class="g2" style="gap:10px;padding:0 16px;margin-bottom:12px;">';
     cardioSessions.forEach(s=>{
       const isLeo=s==='LeoMoves'||s==='Functional';
-      h+=`<button class="sess-quick-btn" onclick="quickStart('${s}')">
+      h+=`<button class="sess-quick-btn" onclick="askDeload('${s}')">
         <div class="sess-quick-btn-dot" style="background:${isLeo?'var(--amber)':'var(--blue)'};"></div>
         <div class="sess-quick-btn-label">${dn[s]||s}</div>
         <div class="sess-quick-btn-sub">${isLeo?'Aktive Erholung':'Cardio · HF 120–140'}</div>
@@ -2086,7 +2093,10 @@ const CIRCUMFERENCE = 2 * Math.PI * 65;
 function applyDeload(exercises){
   return exercises.map(ex=>{
     const e=Object.assign({},ex);
-    if(e.weight) e.weight=Math.round(e.weight*0.6*2)/2; // round to nearest 0.5
+    if(e.weight) e.weight=Math.round(e.weight*0.6*2)/2; // auf 0,5 gerundet
+    // Volumen mitreduzieren — bei Körpergewichtsübungen der einzige Hebel
+    if(e.sets && e.sets>2) e.sets = Math.max(2, Math.ceil(e.sets*0.7));
+    e.target = (e.sets||'') + ' × ' + (e.reps||'') + ' · Deload';
     return e;
   });
 }
@@ -2109,7 +2119,7 @@ function quickStart(type, deload){
   setTimeout(updateAudioBell, 50);
   const _ps=getPhaseSettings();
   const _custLabel=(getPlanForPhase(_ps.activePhase)[type]||{}).label;
-  document.getElementById('sess-title').textContent=(_custLabel||_dn[type]||type)+(deload?' · Deload':'');
+  document.getElementById('sess-title').textContent = (_custLabel||_dn[type]||type)+(deload?' · Deload':'') + (AS.deloadMode?' · Deload':'');
   clearInterval(AS.elapsedInterval);
   AS.elapsedInterval=setInterval(()=>{AS.elapsedSeconds++;updateElapsed();},1000);
   _AUDIO.init();
