@@ -360,7 +360,7 @@ label { font-size: 11px; color: var(--text2); font-weight: 600; margin-bottom: 6
 <body>
 <script>
 // ═══ AUDIO SYSTEM — iOS-sicher via Web Audio API + vorgerenderte Puffer ═══
-const BUILD_STAMP = '09.09.2026 · 04:46';
+const BUILD_STAMP = '13.09.2026 · 10:55';
 
 const _AUDIO = {
   ctx: null,
@@ -377,13 +377,21 @@ const _AUDIO = {
   },
 
   // iOS: 'ambient' erlaubt Mischen mit Musik anderer Apps statt sie zu unterbrechen
+  _ambientSet: false,
   setAmbient(){
+    if(this._ambientSet) return;
     try{
-      if(navigator.audioSession) navigator.audioSession.type = 'ambient';
+      if(navigator.audioSession){
+        navigator.audioSession.type = 'ambient';
+        this._ambientSet = true;
+      }
     }catch(e){}
   },
 
   init(){
+    // ZENTRALE SPERRE: Läuft der Kanal bereits, nichts anfassen.
+    // Jeder Zugriff auf audioSession/resume kann sonst fremde Musik stoppen.
+    if(this.ctx && this.ctx.state === 'running') return;
     try{
       this.setAmbient();
       if(!this.ctx){
@@ -495,9 +503,9 @@ document.addEventListener('visibilitychange', () => {
   if(document.visibilityState !== 'visible') return;
   // Nur reaktivieren, wenn eine Session läuft — sonst würde iOS fremde Musik stoppen
   const sessionRunning = !!(window.AS && AS.exercises && AS.exercises.length);
-  if(sessionRunning){
+  const needsAudio = !(_AUDIO.ctx && _AUDIO.ctx.state === 'running');
+  if(sessionRunning && needsAudio){
     _AUDIO.init();
-    setTimeout(()=>_AUDIO.init(), 100);
   }
   setTimeout(updateAudioBell, 400);
 });
@@ -546,7 +554,14 @@ function reactivateAudio(){
   // Sofortige Rückmeldung, damit der Tipp spürbar ist
   showToast('Töne werden gestartet…');
 
-  // WICHTIG: muss synchron in der Touch-Geste passieren
+  // WICHTIG: muss synchron in der Touch-Geste passieren.
+  // Läuft der Kanal schon, nur Testton — kein Eingriff in die Tonausgabe.
+  if(_AUDIO.ctx && _AUDIO.ctx.state === 'running'){
+    _AUDIO.tone(880, 140);
+    showToast('Töne aktiv');
+    updateAudioBell();
+    return;
+  }
   _AUDIO.init();
   _AUDIO.unlockPing();
   if(_AUDIO.ctx && _AUDIO.ctx.state !== 'running'){
@@ -596,7 +611,7 @@ function playSound(id){
 <div class="toast" id="toast"></div>
 
 <!-- ══ ACTIVE SESSION OVERLAY ══ -->
-<div class="session-overlay" id="session-overlay" ontouchstart="_AUDIO.init()">
+<div class="session-overlay" id="session-overlay">
   <div class="sess-topbar">
     <div>
       <div class="sess-topbar-title" id="sess-title">Upper B</div>
