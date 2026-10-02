@@ -502,7 +502,8 @@ document.addEventListener('click', _audioFirstTouch, {passive:true});
 document.addEventListener('visibilitychange', () => {
   if(document.visibilityState !== 'visible') return;
   // Nur reaktivieren, wenn eine Session läuft — sonst würde iOS fremde Musik stoppen
-  const sessionRunning = !!(window.AS && AS.exercises && AS.exercises.length);
+  const _ov = document.getElementById('session-overlay');
+  const sessionRunning = !!(_ov && _ov.classList.contains('open'));
   const needsAudio = !(_AUDIO.ctx && _AUDIO.ctx.state === 'running');
   if(sessionRunning && needsAudio){
     _AUDIO.init();
@@ -912,16 +913,19 @@ const EXERCISE_META = {
   'Hip Thrust': {'muscle': 'Gesäß', 'focus': 'Compound', 'color': 'var(--accent)'},
   'Preacher Curls': {'muscle': 'Bizeps', 'focus': 'Isolation', 'color': 'var(--amber)'},
   'Konzentrationscurls': {'muscle': 'Bizeps', 'focus': 'Isolation', 'color': 'var(--amber)'},
-  'Chest Supp. Row': {'muscle': 'Rücken', 'focus': 'Isolation', 'color': 'var(--accent)'},
-  'Pendlay Row': {'muscle': 'Rücken', 'focus': 'Compound', 'color': 'var(--accent)'},
+  'Incline DB Press': {'muscle': 'Brust', 'focus': 'Compound', 'color': 'var(--accent)'},
   'DB Floor Press': {'muscle': 'Brust', 'focus': 'Compound', 'color': 'var(--accent)'},
   'Waden einbeinig': {'muscle': 'Waden', 'focus': 'Exzentrik', 'color': 'var(--amber)'},
   'default': {'muscle': '', 'focus': '', 'color': '#AAAAAA'},
 };
 
 function getExMeta(name){
+  const n=(name||'').toLowerCase();
   for(const[k,v] of Object.entries(EXERCISE_META)){
-    if(k!=='default' && name.toLowerCase().includes(k.toLowerCase().split(' ')[0])) return v;
+    if(k!=='default' && n===k.toLowerCase()) return v;
+  }
+  for(const[k,v] of Object.entries(EXERCISE_META)){
+    if(k!=='default' && n.startsWith(k.toLowerCase().split(' ')[0])) return v;
   }
   return EXERCISE_META['default'];
 }
@@ -1268,8 +1272,9 @@ function migratePlanVersion(){
 
 function getPhaseSettings(){
   const today=new Date().toISOString().split('T')[0];
-  const def={activePhase:1,startDate:today,durationWeeks:10,isManual:false};
-  const parsed=DB.get('phaseSettings')||def;
+  const stored=DB.get('phaseSettings');
+  const parsed=stored||{activePhase:1,startDate:today,durationWeeks:PHASE_META[1].weeks,isManual:false,planVersion:PLAN_VERSION};
+  if(!stored) DB.set('phaseSettings',parsed);
   if(!parsed.isManual){
     const start=new Date(parsed.startDate);
     const weeksDone=Math.floor((new Date()-start)/(7*24*60*60*1000));
@@ -1413,6 +1418,7 @@ function openPhaseSheet(){
 }
 
 function openPhaseManage(){
+  _tmpWeeks=null;
   const ps=getPhaseSettings();
   const overlay=document.createElement('div');
   overlay.id='phase-manage-overlay';
@@ -1706,6 +1712,7 @@ function startTimer(seconds, label, type){
   AS.timerRemaining = seconds;
   AS.timerTotal = seconds;
   AS.timerType = type;
+  AS._lastTick = null;
   renderTimer(label, type);
   AS.timerInterval = setInterval(() => {
     if(!document.getElementById('timer-sec')){
@@ -1978,6 +1985,10 @@ const DB = {
   }
 };
 
+// Lokales Datum YYYY-MM-DD (toISOString liefert UTC → zwischen 0 und 2 Uhr der Vortag)
+function localDateStr(d=new Date()){
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+}
 function getData(){return DB.get('trainingData')||{sessions:[],bodyStats:[]}}
 function saveData(d){DB.set('trainingData',d)}
 function getSettings(){return DB.get('trainingSettings')||{restBetweenSets:90,restBetweenEx:120}}
@@ -2093,7 +2104,7 @@ function renderSessionButtons(){
 
 function renderWeekStats(){
   const data=getData();const now=new Date();
-  const sw=new Date(now);sw.setDate(now.getDate()-now.getDay()+1);sw.setHours(0,0,0,0);
+  const sw=new Date(now);sw.setDate(now.getDate()-((now.getDay()+6)%7));sw.setHours(0,0,0,0);
   const ws=data.sessions.filter(s=>new Date(s.date)>=sw);
   document.getElementById('stat-sessions').textContent=ws.length;
   let vol=0,sets=0;
@@ -2166,9 +2177,10 @@ function quickStart(type, deload){
   setTimeout(updateAudioBell, 50);
   const _ps=getPhaseSettings();
   const _custLabel=(getPlanForPhase(_ps.activePhase)[type]||{}).label;
-  document.getElementById('sess-title').textContent = (_custLabel||_dn[type]||type)+(deload?' · Deload':'') + (AS.deloadMode?' · Deload':'');
+  document.getElementById('sess-title').textContent = (_custLabel||_dn[type]||type)+(deload?' · Deload':'');
   clearInterval(AS.elapsedInterval);
-  AS.elapsedInterval=setInterval(()=>{AS.elapsedSeconds++;updateElapsed();},1000);
+  AS._startMs=Date.now();
+  AS.elapsedInterval=setInterval(()=>{AS.elapsedSeconds=Math.floor((Date.now()-AS._startMs)/1000);updateElapsed();},1000);
   _AUDIO.init();
   WakeLock.request();
   document.getElementById('session-overlay').classList.add('open');
@@ -2236,7 +2248,7 @@ function renderSessionBody(){
     if(!AS.warmupDone){renderWarmupScreen();return;}
     if(AS.exIdx===0){renderCardioScreen();return;}
     if(!AS.cooldownShown){renderCooldownScreen();return;}
-    renderSessionFinish();return;
+    finishSession();return;
   }
   // Show warm-up screen before first exercise
   if(!AS.warmupDone && AS.exIdx===0){
@@ -2246,7 +2258,7 @@ function renderSessionBody(){
   if(AS.exIdx>=AS.exercises.length){
     // Show cool-down before finish
     if(!AS.cooldownShown){renderCooldownScreen();return;}
-    renderSessionFinish();return;
+    finishSession();return;
   }
   const ex=AS.exercises[AS.exIdx];
   const _sess=getActivePlan()[AS.type]||{type:'upper'};
@@ -2472,7 +2484,7 @@ function getKnownExercises(){
       (s.exercises||[]).forEach(e=>{ if(e.name) names.add(e.name); });
     });
   }catch(e){}
-  try{ Object.keys(EX_META||{}).forEach(n=>{ if(n!=='default') names.add(n); }); }catch(e){}
+  try{ Object.keys(EXERCISE_META).forEach(n=>{ if(n!=='default') names.add(n); }); }catch(e){}
   return [...names].sort((a,b)=>a.localeCompare(b,'de'));
 }
 
@@ -2645,13 +2657,13 @@ function renderCooldownScreen(){
             <div style="width:22px;height:22px;border-radius:50%;background:var(--blue-pale);color:var(--blue);font-size:11px;font-weight:600;display:flex;align-items:center;justify-content:center;flex-shrink:0;">${i+1}</div>
             <div style="font-size:13px;color:var(--text);line-height:1.5;padding-top:2px;">${step}</div>
           </div>`).join('')}
-        <button class="btn btn-primary btn-full" style="margin-top:14px;" onclick="renderSessionFinish()">
+        <button class="btn btn-primary btn-full" style="margin-top:14px;" onclick="finishSession()">
           Cool-down abgeschlossen → Session speichern
         </button>
         <button class="btn btn-ghost btn-full" style="margin-top:8px;" onclick="goBackFromCooldown()">
           ← Zurück zur letzten Übung
         </button>
-        <button class="btn btn-ghost btn-full" style="margin-top:8px;color:var(--text3);" onclick="renderSessionFinish()">
+        <button class="btn btn-ghost btn-full" style="margin-top:8px;color:var(--text3);" onclick="finishSession()">
           Überspringen
         </button>
       </div>
@@ -2683,7 +2695,7 @@ function cardioToCooldown(){
     hr: document.getElementById('cardio-hr')?.value||null,
     cardioType: document.getElementById('cardio-type')?.value||null,
     notes: document.getElementById('cardio-notes')?.value||'',
-    date: document.getElementById('cardio-date')?.value||new Date().toISOString().split('T')[0],
+    date: document.getElementById('cardio-date')?.value||localDateStr(),
     time: document.getElementById('cardio-time')?.value||'',
   };
   AS.exIdx=1; // Flag: Eingabe gemacht
@@ -2762,7 +2774,7 @@ function renderCardioScreen(){
   const _today=new Date();
   const _dateEl=document.getElementById('cardio-date');
   const _timeEl=document.getElementById('cardio-time');
-  if(_dateEl) _dateEl.value=_today.toISOString().split('T')[0];
+  if(_dateEl) _dateEl.value=localDateStr(_today);
   if(_timeEl) _timeEl.value=_today.toTimeString().slice(0,5);
 }
 
@@ -2865,29 +2877,42 @@ function getLastBand(exName){
   return 'schwarz';
 }
 
+// Letzte passende Sätze einer Übung (gleicher Session-Typ, ohne Deload).
+// Erst exakter Name; nur wenn nirgends vorhanden, Fallback auf das erste Wort
+// (sonst trifft z.B. "DB Floor Press" auf "Incline DB Press").
+function findLastExerciseSets(exName, pred){
+  const sessions=[...getData().sessions]
+    .filter(s=>s.type===AS.type&&!s.isDeload&&s.exercises)
+    .sort((a,b)=>new Date(b.date)-new Date(a.date));
+  const n=exName.toLowerCase();
+  const first=n.split(' ')[0];
+  const matchers=[e=>(e.name||'').toLowerCase()===n, e=>(e.name||'').toLowerCase().includes(first)];
+  for(const m of matchers){
+    for(const s of sessions){
+      const ex=s.exercises.find(m);
+      if(!ex) continue;
+      const ws=(ex.sets||[]).filter(pred);
+      if(ws.length>0) return ws;
+    }
+  }
+  return null;
+}
+
 function getLastWeight(exName, fallbackWeight){
   const exSetsNow=AS.doneSets.filter(s=>s.exIdx===AS.exIdx&&!s.isWarmup);
   if(exSetsNow.length>0){const last=exSetsNow[exSetsNow.length-1];if(last.weight)return last.weight;}
-  const data=getData();
-  const sessions=[...data.sessions].filter(s=>s.type===AS.type).sort((a,b)=>new Date(b.date)-new Date(a.date));
-  for(const s of sessions){
-    if(!s.exercises)continue;
-    const ex=s.exercises.find(e=>e.name===exName||e.name.toLowerCase().includes(exName.toLowerCase().split(' ')[0]));
-    if(ex){const ws=ex.sets.filter(st=>!st.isWarmup&&st.weight);if(ws.length>0)return ws[ws.length-1].weight;}
-  }
+  // Deload: reduziertes Plangewicht vorschlagen statt letzter Normallast
+  if(AS.deloadMode && fallbackWeight) return fallbackWeight;
+  const hit=findLastExerciseSets(exName, st=>!st.isWarmup&&st.weight);
+  if(hit) return hit[hit.length-1].weight;
   return fallbackWeight||null;
 }
 
 function getLastReps(exName, fallbackReps){
   const exSetsNow=AS.doneSets.filter(s=>s.exIdx===AS.exIdx&&!s.isWarmup);
   if(exSetsNow.length>0){const last=exSetsNow[exSetsNow.length-1];if(last.reps)return last.reps;}
-  const data=getData();
-  const sessions=[...data.sessions].filter(s=>s.type===AS.type).sort((a,b)=>new Date(b.date)-new Date(a.date));
-  for(const s of sessions){
-    if(!s.exercises)continue;
-    const ex=s.exercises.find(e=>e.name===exName||e.name.toLowerCase().includes(exName.toLowerCase().split(' ')[0]));
-    if(ex){const ws=ex.sets.filter(st=>!st.isWarmup&&st.reps);if(ws.length>0)return ws[ws.length-1].reps;}
-  }
+  const hit=findLastExerciseSets(exName, st=>!st.isWarmup&&st.reps);
+  if(hit) return hit[hit.length-1].reps;
   return fallbackReps||null;
 }
 
@@ -3024,7 +3049,7 @@ function renderLastSetDecision(){
               <div style="font-size:14px;font-weight:600;">+ Weitere Übung</div>
               <div style="font-size:11px;color:var(--text2);margin-top:2px;">Noch Energie? Übung aus dem Plan wählen</div>
             </button>
-            <button class="btn btn-primary btn-full" style="text-align:left;padding:14px 16px;" onclick="finishSession()">
+            <button class="btn btn-primary btn-full" style="text-align:left;padding:14px 16px;" onclick="goToCooldown()">
               <div style="font-size:14px;font-weight:600;">Session abschließen ✓</div>
               <div style="font-size:11px;opacity:.8;margin-top:2px;">Zur Cool-down & Zusammenfassung</div>
             </button>` :
@@ -3360,13 +3385,15 @@ function updateTimerDisplay(){
       ring.style.stroke='var(--red)';
     }
     // Countdown-Ton bei 3, 2, 1
-    if(AS.timerRemaining===3||AS.timerRemaining===2||AS.timerRemaining===1){
+    if((AS.timerRemaining===3||AS.timerRemaining===2||AS.timerRemaining===1) && AS._lastTick!==AS.timerRemaining){
+      AS._lastTick=AS.timerRemaining;
       playCountdownTick(AS.timerRemaining);
     }
   }catch(e){}
 }
 
 function timerDone(type){
+  TIMER_TARGET_MS=null;
   if(navigator.vibrate) navigator.vibrate([200,100,200,100,200]);
   playBeep();
   // Nach Vorbereitungs-Countdown → Hold-Timer starten
@@ -3389,6 +3416,7 @@ function skipTimer(){clearInterval(AS.timerInterval);timerDone(AS.timerType);}
 
 function backFromTimer(){
   clearInterval(AS.timerInterval);
+  TIMER_TARGET_MS=null;
   // Find and remove the last set for current exercise
   for(let i=AS.doneSets.length-1;i>=0;i--){
     if(AS.doneSets[i].exIdx===AS.exIdx){
@@ -3458,7 +3486,7 @@ function finishSession(){
     const data=getData();
     data.sessions.push({
       id:Date.now(),type:AS.type,
-      date:cd.date||new Date().toISOString().split('T')[0],
+      date:cd.date||localDateStr(),
       time:cd.time||'',notes:cd.notes||'',exercises:[],
       durationMin:parseInt(cd.duration)||Math.floor(AS.elapsedSeconds/60),
       isDeload:AS.deloadMode,
@@ -3483,7 +3511,7 @@ function finishSession(){
   WakeLock.release();TIMER_TARGET_MS=null;
   const data=getData();
   const _newId=Date.now();
-  data.sessions.push({id:_newId,type:AS.type,date:new Date().toISOString().split('T')[0],notes,exercises,durationMin:Math.floor(AS.elapsedSeconds/60),isDeload:AS.deloadMode});
+  data.sessions.push({id:_newId,type:AS.type,date:localDateStr(),notes,exercises,durationMin:Math.floor(AS.elapsedSeconds/60),isDeload:AS.deloadMode});
   saveData(data);
   document.getElementById('session-overlay').classList.remove('open');
   showToast('Session gespeichert ✓');
@@ -3843,7 +3871,7 @@ function renderProgress(exName){
   const data=getData();const points=[];
   data.sessions.forEach(s=>{
     if(!s.exercises)return;
-    const ex=s.exercises.find(e=>e.name.toLowerCase().includes(exName.toLowerCase().split(' ')[0].toLowerCase()));
+    const ex=s.exercises.find(e=>(e.name||'').toLowerCase().startsWith(exName.toLowerCase()));
     if(!ex)return;
     const maxWeight=Math.max(...ex.sets.map(st=>typeof st.weight==='number'?st.weight:0));
     if(maxWeight>0)points.push({date:s.date,weight:maxWeight});
@@ -3879,7 +3907,7 @@ function renderPhaseGoals(){
   const el=document.getElementById('phase-goals');
   el.innerHTML=goals.map(g=>{
     let current=0;
-    data.sessions.forEach(s=>{s.exercises&&s.exercises.forEach(ex=>{if(ex.name.toLowerCase().includes(g.label.toLowerCase().split(' ')[0])){const best=Math.max(...ex.sets.map(st=>typeof st.weight==='number'?st.weight:0));if(best>current)current=best;}});});
+    data.sessions.forEach(s=>{s.exercises&&s.exercises.forEach(ex=>{if((ex.name||'').toLowerCase().startsWith(g.label.toLowerCase())){const best=Math.max(...ex.sets.map(st=>typeof st.weight==='number'?st.weight:0));if(best>current)current=best;}});});
     const pct=current>0?Math.min(100,(current/g.target)*100):0;
     return`<div style="margin-bottom:12px;"><div style="display:flex;justify-content:space-between;margin-bottom:4px;"><span style="font-size:13px;font-weight:500;">${g.label}</span><span style="font-size:12px;color:var(--text2);font-family:var(--mono);">${current||'—'} / ${g.target} ${g.unit}</span></div><div class="progress-bar"><div class="progress-fill" style="width:${pct}%;background:${pct>=100?'var(--amber)':'var(--teal)'};"></div></div></div>`;
   }).join('');
@@ -4064,6 +4092,7 @@ function addExercise(phaseNum, sessionKey){
 }
 
 function _showExSheet(phaseNum, sessionKey, exIdx, ex){
+  _clusterOn = null; _uniOn = null;
   const overlay = document.createElement('div');
   overlay.id = 'ex-editor-overlay';
   overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:900;display:flex;align-items:flex-end;padding:12px 10px 0;';
@@ -4358,6 +4387,7 @@ function importData(){
     reader.onload=async ev=>{
       try{
         const json=JSON.parse(ev.target.result);
+        if(!json||!json.trainingData||!Array.isArray(json.trainingData.sessions)) throw new Error('invalid');
         await DB.import(json);
         showToast('Daten importiert ✓');
         renderHeutePage();renderFullLog();
