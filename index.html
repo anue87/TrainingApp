@@ -716,14 +716,7 @@ function playSound(id){
 <!-- ══ PAGE: LOG ══ -->
 <div class="page" id="page-log">
   <div class="page-header"><div class="page-title">Log</div></div>
-  <div class="toggle-row" id="filter-row">
-    <button class="toggle-btn on" onclick="filterLog('all',this)">Alle</button>
-    <button class="toggle-btn" onclick="filterLog('Upper A',this)">Upper A</button>
-    <button class="toggle-btn" onclick="filterLog('Upper B',this)">Upper B</button>
-    <button class="toggle-btn" onclick="filterLog('Lower A',this)">Lower A</button>
-    <button class="toggle-btn" onclick="filterLog('Lower B',this)">Lower B</button>
-    <button class="toggle-btn" onclick="filterLog('Cardio',this)">Cardio</button>
-  </div>
+  <div class="toggle-row" id="filter-row"></div>
   <div id="full-log"></div>
   <div style="height:16px;"></div>
 </div>
@@ -1209,7 +1202,7 @@ const PHASE_META = {
   1:{num:1,label:'Block 2 — Lean & Strong',cls:'ph1',color:'#B06E3C',bg:'#FBF1E8',bgDark:'#2A1F16',colorDark:'#C88A52',border:'#B06E3C',
      period:'7 Wochen · bis 11.10.',weeks:7,
      ziel:'KFA 21,7 → 19 % · 85,4 → 83,5 kg · MM halten · Squat 95×10 · Incline 32,5×10 · Chin-ups 22er-Cluster · Row 60×10 · RDL 90×10',
-     training:'Pull Mo · Lower Mi · Push Do · Fullbody Sa · Gravel Di+Fr · Deload Wo 4',
+     training:'Pull Mo · Lower Mi · Push Do · Fullbody So · Gravel Di+Fr · Deload Wo 4',
      ernaehrung:'Krafttag –400 kcal · Radtag –500 · Ruhetag –700 · 175 g Protein',
      progression:'Doppelprogression: Satz 1+2 am oberen Ende → Last +5 %'},
   2:{num:2,label:'Kraft-Peak',cls:'ph2',color:'#6B5B8A',bg:'#F2EFF6',bgDark:'#221E2A',colorDark:'#8B7BA8',border:'#6B5B8A',
@@ -1227,7 +1220,7 @@ const PHASE_META = {
   4:{num:4,label:'Recovery',cls:'ph4',color:'#4A7A9B',bg:'#EFF4F7',bgDark:'#1A2229',colorDark:'#6E9BB8',border:'#4A7A9B',
      period:'4 Wochen',weeks:4,
      ziel:'Mentaler Reset · Nervensystem erholen',
-     training:'LeoMoves täglich · Cardio 2×/Wo',
+     training:'Funktional täglich · Cardio 2×/Wo',
      ernaehrung:'Erhaltungskalorisch',
      progression:'Keine — aktive Erholung'},
 };
@@ -1533,7 +1526,7 @@ const SESSION_WU = {
       '20 Schulterrotationen mit Stab',
       '10 Scap Push-ups an Ringen',
       '10 Lunge Reach pro Seite',
-      '1 Aufwärmsatz Bankdrücken 40%',
+      '1 Aufwärmsatz der ersten Übung (~40 %)',
     ],
     cooldown: [
       '60 sek Brustdehnung am Türrahmen',
@@ -1550,7 +1543,7 @@ const SESSION_WU = {
       '10 Leg Swings seitlich',
       '10 Bodyweight Squat (tief, langsam)',
       '10 RDL ohne Gewicht',
-      '1 Aufwärmsatz Squat 40%',
+      '1 Aufwärmsatz der ersten Übung (~40 %)',
     ],
     cooldown: [
       '90 sek Hüftbeuger-Dehnung im Ausfallschritt (pro Seite)',
@@ -1572,7 +1565,7 @@ const SESSION_WU = {
     ]
   },
   leo: {
-    warmup: ['LeoMoves — kein separates Warm-up nötig'],
+    warmup: ['Funktional — kein separates Warm-up nötig'],
     cooldown: ['Freie Dehnung nach Gefühl, mind. 5 min']
   }
 };
@@ -1713,6 +1706,7 @@ function startTimer(seconds, label, type){
   AS.timerTotal = seconds;
   AS.timerType = type;
   AS._lastTick = null;
+  persistAS();
   renderTimer(label, type);
   AS.timerInterval = setInterval(() => {
     if(!document.getElementById('timer-sec')){
@@ -1871,6 +1865,7 @@ const DB = {
     trainingSettings: {restBetweenSets:90, restBetweenEx:120},
     phaseSettings: null,
     anthropicApiKey: null,
+    activeSession: null,
     appTheme: 'light',
   },
   ready: false,
@@ -1899,7 +1894,7 @@ const DB = {
   },
 
   async _loadAll(){
-    const keys = ['trainingData','trainingSettings','phaseSettings','anthropicApiKey','appTheme'];
+    const keys = ['trainingData','trainingSettings','phaseSettings','anthropicApiKey','appTheme','activeSession'];
     for(const key of keys){
       const val = await this._idbGet(key);
       if(val !== null) this.cache[key] = val;
@@ -1989,6 +1984,51 @@ const DB = {
 function localDateStr(d=new Date()){
   return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
 }
+// HTML-Sonderzeichen entschärfen (Namen/Notizen stammen aus Eingaben oder Importen)
+function esc(v){return String(v==null?'':v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
+// Anzeigename einer Session: eigener Name > Übersetzung des internen Schlüssels > Schlüssel
+function sessDisplayName(key){
+  const dn={'LeoMoves':'Funktional','Functional':'Funktional','Zone 2':'Cardio','Zone 2b':'Cardio 2'};
+  let label=null;
+  try{ label=(getActivePlan()[key]||{}).label; }catch(e){}
+  return label||dn[key]||key;
+}
+function isCardioSessionType(t){
+  return t==='zone2'||t==='leo'||t==='LeoMoves'||t==='Functional'||(!!t&&(t.startsWith('Zone')||t.startsWith('Cardio')));
+}
+
+// ═══ LAUFENDE SESSION SICHERN ═══
+// iOS beendet die Seite im Hintergrund ohne Vorwarnung — Stand laufend ablegen
+function sessionIsOpen(){
+  const ov=document.getElementById('session-overlay');
+  return !!(ov&&ov.classList.contains('open'));
+}
+function persistAS(){
+  if(!sessionIsOpen()) return;
+  const snap=Object.assign({},AS,{timerInterval:null,elapsedInterval:null});
+  snap._savedAt=Date.now();
+  snap._title=document.getElementById('sess-title').textContent;
+  DB.set('activeSession',snap);
+}
+function clearPersistedAS(){ if(DB.get('activeSession')) DB.set('activeSession',null); }
+function restoreAS(){
+  const snap=DB.get('activeSession');
+  if(!snap||!snap.type) return;
+  // Älter als 12 h: nicht mehr dieselbe Trainingseinheit
+  if(Date.now()-(snap._savedAt||0)>12*60*60*1000){ clearPersistedAS(); return; }
+  Object.assign(AS,snap,{timerInterval:null,elapsedInterval:null,timerType:null,_holdPending:false});
+  if(!AS._startMs) AS._startMs=Date.now()-(AS.elapsedSeconds||0)*1000;
+  document.getElementById('sess-title').textContent=snap._title||AS.type;
+  clearInterval(AS.elapsedInterval);
+  AS.elapsedInterval=setInterval(()=>{AS.elapsedSeconds=Math.floor((Date.now()-AS._startMs)/1000);updateElapsed();if(AS.elapsedSeconds%5===0)persistAS();},1000);
+  WakeLock.request();
+  document.getElementById('session-overlay').classList.add('open');
+  renderSessionBody();
+  showToast('Laufende Session wiederhergestellt');
+}
+document.addEventListener('visibilitychange',()=>{ if(document.visibilityState==='hidden') persistAS(); });
+window.addEventListener('pagehide',()=>persistAS());
+
 function getData(){return DB.get('trainingData')||{sessions:[],bodyStats:[]}}
 function saveData(d){DB.set('trainingData',d)}
 function getSettings(){return DB.get('trainingSettings')||{restBetweenSets:90,restBetweenEx:120}}
@@ -2043,7 +2083,7 @@ function renderHeutePage(){
 
   // Total Sessions in dieser Phase
   const phaseStart=new Date(ps.startDate);
-  const totalDone=data.sessions.filter(s=>new Date(s.date)>=phaseStart&&!s.type.startsWith('Zone')&&s.type!=='LeoMoves').length;
+  const totalDone=data.sessions.filter(s=>new Date(s.date)>=phaseStart&&!isCardioSessionType(s.type)).length;
 
   // DOM updaten
   const pill=document.getElementById('current-phase-pill');
@@ -2070,7 +2110,7 @@ function renderHeutePage(){
 function renderSessionButtons(){
   const ps=getPhaseSettings();
   const sessions=PHASE_PLANS[ps.activePhase].sessions;
-  const dn={'Cardio':'Cardio','LeoMoves':'Functional','Cardio 2':'Cardio 2','Zone 2':'Cardio','Zone 2b':'Cardio 2'};
+  const dn={'Cardio':'Cardio','LeoMoves':'Funktional','Cardio 2':'Cardio 2','Zone 2':'Cardio','Zone 2b':'Cardio 2'};
   const dots={1:'var(--accent)',2:'var(--indigo)',3:'var(--amber)',4:'var(--blue)'};
   const dotColor=dots[ps.activePhase]||'var(--accent)';
   const isCardioSess=s=>s.startsWith('Zone')||s.startsWith('Cardio')||s==='LeoMoves'||s==='Functional';
@@ -2081,7 +2121,7 @@ function renderSessionButtons(){
     const plan=getPlanForPhase(ps.activePhase)[s]||{};
     h+=`<button class="sess-quick-btn" onclick="askDeload('${s}')">
       <div class="sess-quick-btn-dot" style="background:${dotColor};"></div>
-      <div class="sess-quick-btn-label">${s}</div>
+      <div class="sess-quick-btn-label">${esc(plan.label||s)}</div>
       <div class="sess-quick-btn-sub">${plan.day||''} · ${plan.duration||''}</div>
     </button>`;
   });
@@ -2173,18 +2213,19 @@ function quickStart(type, deload){
   AS.warmupSetsPhase={};AS._uniSide='links';AS._uniLeft=null;
   AS._uniRightDone=false;AS._uniLeftReps=0;AS._uniLeftWeight=null;
   AS._holdSek=30;AS._holdPending=false;AS._cardioData=null;AS._band=null;AS._markWarmup=false;
-  const _dn={'Zone 2':'Cardio','Cardio':'Cardio','LeoMoves':'Functional','Functional':'Functional'};
+  const _dn={'Zone 2':'Cardio','Cardio':'Cardio','LeoMoves':'Funktional','Functional':'Funktional'};
   setTimeout(updateAudioBell, 50);
   const _ps=getPhaseSettings();
   const _custLabel=(getPlanForPhase(_ps.activePhase)[type]||{}).label;
   document.getElementById('sess-title').textContent = (_custLabel||_dn[type]||type)+(deload?' · Deload':'');
   clearInterval(AS.elapsedInterval);
   AS._startMs=Date.now();
-  AS.elapsedInterval=setInterval(()=>{AS.elapsedSeconds=Math.floor((Date.now()-AS._startMs)/1000);updateElapsed();},1000);
+  AS.elapsedInterval=setInterval(()=>{AS.elapsedSeconds=Math.floor((Date.now()-AS._startMs)/1000);updateElapsed();if(AS.elapsedSeconds%5===0)persistAS();},1000);
   _AUDIO.init();
   WakeLock.request();
   document.getElementById('session-overlay').classList.add('open');
   renderSessionBody();
+  persistAS();
 }
 
 function quickStartDeload(type){ quickStart(type, true); }
@@ -2194,7 +2235,7 @@ function askDeload(type){
   overlay.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:900;display:flex;align-items:flex-end;padding:12px 10px 0;';
   overlay.innerHTML=`<div style="background:var(--surface);border-radius:20px;width:100%;padding:20px 20px calc(env(safe-area-inset-bottom,0px)+20px);">
     <div style="width:36px;height:4px;background:var(--border2);border-radius:2px;margin:0 auto 18px;"></div>
-    <div style="font-size:18px;font-weight:600;margin-bottom:4px;">${type}</div>
+    <div style="font-size:18px;font-weight:600;margin-bottom:4px;">${esc(sessDisplayName(type))}</div>
     <div style="font-size:13px;color:var(--text2);margin-bottom:20px;">Normale Session oder Deload?</div>
     <div style="display:flex;flex-direction:column;gap:10px;">
       <button class="btn btn-primary btn-full" id="ask-normal" style="text-align:left;padding:14px 16px;">
@@ -2228,7 +2269,7 @@ function toggleDeload(){
     if(exSets.length>=ex.sets) return ex; // already done, keep
     return adjusted[i]||ex;
   });
-  const _dn2={'Zone 2':'Cardio','LeoMoves':'Functional'};
+  const _dn2={'Zone 2':'Cardio','LeoMoves':'Funktional'};
   document.getElementById('sess-title').textContent=(_dn2[AS.type]||AS.type)+(AS.deloadMode?' · Deload':'');
   showToast(AS.deloadMode?'Deload-Modus an (60%)':'Deload-Modus aus');
   renderSessionBody();
@@ -2241,7 +2282,7 @@ function updateElapsed(){
 }
 
 function renderSessionBody(){
-  // Cardio/Leo: eigener Flow mit Warmup → Eingabe → Cooldown
+  // Cardio/Funktional: eigener Flow mit Warmup → Eingabe → Cooldown
   const plan=getActivePlan();
   const sess=plan[AS.type]||{type:'upper'};
   if(sess.type==='zone2'||sess.type==='leo'){
@@ -2321,7 +2362,7 @@ function renderSessionBody(){
     const partialSum=AS.clusterRepsLog.length>0?` · bisherige Reps: ${AS.clusterRepsLog.join('+')}=${AS.clusterRepsLog.reduce((a,b)=>a+b,0)}`:'';
     inputArea=`
       <div class="cluster-area" id="cluster-area">
-        <div class="cluster-title">Cluster-Set ${exSets.length+1} von ${ex.sets} · ${clusterLabel}${partialSum}</div>
+        <div class="cluster-title">Cluster-Set ${exWorkSets.length+1} von ${ex.sets} · ${clusterLabel}${partialSum}</div>
         <div class="cluster-progress">${clusterDots}</div>
         ${ex.unit==='band'
           ? `<div style="margin-bottom:12px;">
@@ -2341,12 +2382,12 @@ function renderSessionBody(){
           <button class="btn btn-amber" style="flex:1;" onclick="clusterDone()">✓ Cluster beendet → 20 sek Pause</button>
         </div>
       </div>`;
-  } else if(ex.isUnilateral){
+  } else if(uniActive(ex)){
     // Unilateral (z.B. Bulgarian SS): Links → 20sek → Rechts
     const _uniSide=AS._uniSide||'links';
     inputArea=`
       <div class="set-input-area" id="set-input-area" style="background:${_uniSide==='links'?'var(--green-pale)':'var(--blue-pale)'};">
-        <div style="font-size:13px;color:var(--text2);margin-bottom:6px;font-weight:500;">${satzLabel}</div>
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:13px;color:var(--text2);margin-bottom:6px;font-weight:500;"><span>${satzLabel}</span>${uniToggleBtnHTML(ex)}</div>
         <div style="font-size:16px;font-weight:700;margin-bottom:10px;color:${_uniSide==='links'?'var(--green)':'var(--blue)'};">${_uniSide==='links'?'← Links':'→ Rechts'}</div>
         <div class="g3">
           ${ex.unit==='band'
@@ -2360,9 +2401,9 @@ function renderSessionBody(){
                  <label style="display:flex;justify-content:space-between;align-items:center;">${ex.unit}
                    <button type="button" onclick="toggleExerciseUnit()" style="background:none;border:none;color:var(--accent);font-size:11px;cursor:pointer;padding:2px 4px;">→ Band</button>
                  </label>
-                 <input type="number" id="inp-weight" placeholder="${ex.weight||'—'}" value="${getLastWeight(ex.name,ex.weight)||''}" step="0.5" inputmode="decimal" style="text-align:center;font-size:16px;" onfocus="this.select()">
+                 <input type="number" id="inp-weight" placeholder="${ex.weight||'—'}" value="${(_uniSide==='rechts'&&AS._uniLeft&&AS._uniLeft.weight)||getLastWeight(ex.name,ex.weight)||''}" step="0.5" inputmode="decimal" style="text-align:center;font-size:16px;" onfocus="this.select()">
                </div>`}
-          <div><label>Wdh</label><input type="number" id="inp-reps" placeholder="Wdh" value="${getLastReps(ex.name,'')||''}" inputmode="numeric" style="text-align:center;font-size:16px;" onfocus="this.select()"></div>
+          <div><label>Wdh</label><input type="number" id="inp-reps" placeholder="Wdh" value="${uniRepsPrefill(ex.name,_uniSide)}" inputmode="numeric" style="text-align:center;font-size:16px;" onfocus="this.select()"></div>
           <div><label>RIR</label><input type="number" id="inp-rir" placeholder="0" min="0" max="5" inputmode="numeric" style="text-align:center;font-size:16px;" onfocus="this.select()"></div>
         </div>
         <button class="btn btn-primary btn-full" style="margin-top:10px;background:${_uniSide==='links'?'var(--green)':'var(--blue)'};" onclick="uniSideDone()">✓ ${_uniSide==='links'?'Links':'Rechts'} beendet${_uniSide==='links'?' → 20 sek → Rechts':''}</button>
@@ -2399,7 +2440,7 @@ function renderSessionBody(){
   } else {
     inputArea=`
       <div class="set-input-area" id="set-input-area">
-        <div style="font-size:13px;color:var(--text2);margin-bottom:10px;font-weight:500;">${satzLabel}</div>
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:13px;color:var(--text2);margin-bottom:10px;font-weight:500;"><span>${satzLabel}${ex.isUnilateral?' · je Seite':''}</span>${uniToggleBtnHTML(ex)}</div>
         <div class="g3">
           ${ex.unit==='band'
             ? `<div style="grid-column:1/-1;">
@@ -2414,7 +2455,7 @@ function renderSessionBody(){
                  </label>
                  <input type="number" id="inp-weight" placeholder="${ex.weight||'—'}" value="${getLastWeight(ex.name,ex.weight)||''}" step="0.5" inputmode="decimal" style="text-align:center;font-size:16px;" onfocus="this.select()">
                </div>`}
-          <div><label>Wdh</label><input type="number" id="inp-reps" placeholder="Wdh" value="${getLastReps(ex.name,'')||''}" inputmode="numeric" style="text-align:center;font-size:16px;" onfocus="this.select()"></div>
+          <div><label>Wdh</label><input type="number" id="inp-reps" placeholder="Wdh" value="${uniRepsPrefill(ex.name,'links')}" inputmode="numeric" style="text-align:center;font-size:16px;" onfocus="this.select()"></div>
           <div><label>RIR</label><input type="number" id="inp-rir" placeholder="0" min="0" max="5" inputmode="numeric" style="text-align:center;font-size:16px;" onfocus="this.select()"></div>
         </div>
         <div style="display:flex;align-items:center;gap:8px;margin-top:10px;">
@@ -2423,7 +2464,7 @@ function renderSessionBody(){
             border:1.5px solid ${AS._markWarmup?'var(--accent)':'var(--border2)'};
             background:${AS._markWarmup?'var(--accent)':'var(--surface2)'};
             color:${AS._markWarmup?'var(--on-accent)':'var(--text2)'};">WU</button>
-          <button class="btn btn-primary" style="flex:1;" onclick="setDone()">${ex.isUnilateral&&!AS._uniRightDone?'✓ Links beendet → 20sek → Rechts':'✓ Satz beendet'}</button>
+          <button class="btn btn-primary" style="flex:1;" onclick="setDone()">✓ Satz beendet</button>
         </div>
       </div>`;
   }
@@ -2615,7 +2656,7 @@ function renderWarmupScreen(){
     <div style="margin:0 16px 12px;background:var(--bg2);border:1px solid var(--border);border-radius:16px;overflow:hidden;">
       <div style="padding:14px 16px;border-bottom:1px solid var(--border);background:var(--green-pale);">
         <div style="font-size:11px;font-weight:600;color:var(--teal);text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px;">Warm-up · ~7–10 min</div>
-        <div style="font-size:17px;font-weight:600;">${AS.type}</div>
+        <div style="font-size:17px;font-weight:600;">${esc(sessDisplayName(AS.type))}</div>
       </div>
       <div style="padding:14px 16px;">
         ${wu.warmup.map((step,i)=>`
@@ -2702,14 +2743,14 @@ function cardioToCooldown(){
   renderSessionBody(); // → geht zu Cooldown
 }
 
-// ═══ CARDIO / FUNCTIONAL SCREEN ═══
+// ═══ CARDIO / FUNKTIONAL SCREEN ═══
 function renderCardioScreen(){
   const body=document.getElementById('sess-body');
   const plan=getActivePlan();
   const sess=plan[AS.type]||{};
   const isLeo=sess.type==='leo';
-  const _cc=document.getElementById('sess-ex-counter');if(_cc)_cc.textContent=isLeo?'Functional':'Cardio';
-  const dn={'Cardio':'Cardio','LeoMoves':'Functional','Cardio 2':'Cardio 2','Zone 2':'Cardio','Zone 2b':'Cardio 2'};
+  const _cc=document.getElementById('sess-ex-counter');if(_cc)_cc.textContent=isLeo?'Funktional':'Cardio';
+  const dn={'Cardio':'Cardio','LeoMoves':'Funktional','Cardio 2':'Cardio 2','Zone 2':'Cardio','Zone 2b':'Cardio 2'};
   const displayName=dn[AS.type]||AS.type;
   const color=isLeo?'var(--amber)':'var(--blue)';
   const pale=isLeo?'var(--amber-pale)':'var(--blue-pale)';
@@ -2718,7 +2759,7 @@ function renderCardioScreen(){
     <div style="margin:16px 16px 12px;background:var(--surface);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow);">
       <div style="padding:16px;border-bottom:1px solid var(--border);background:${pale};">
         <div style="font-size:11px;font-weight:700;color:${color};text-transform:uppercase;letter-spacing:.07em;margin-bottom:4px;">${displayName}</div>
-        <div style="font-size:20px;font-weight:700;">${isLeo?'Functional Training':'Cardio Session'}</div>
+        <div style="font-size:20px;font-weight:700;">${isLeo?'Funktionales Training':'Cardio Session'}</div>
       </div>
       <div style="padding:16px;">
         ${!isLeo?`
@@ -2776,6 +2817,13 @@ function renderCardioScreen(){
   const _timeEl=document.getElementById('cardio-time');
   if(_dateEl) _dateEl.value=localDateStr(_today);
   if(_timeEl) _timeEl.value=_today.toTimeString().slice(0,5);
+  // Nach „Zurück" aus dem Cool-down: bereits eingegebene Werte wieder einsetzen
+  const _cd=AS._cardioData;
+  if(_cd){
+    const _set=(id,v)=>{const e=document.getElementById(id); if(e&&v!=null&&v!=='') e.value=v;};
+    _set('cardio-distance',_cd.distance);_set('cardio-duration',_cd.duration);_set('cardio-hr',_cd.hr);
+    _set('cardio-type',_cd.cardioType);_set('cardio-notes',_cd.notes);_set('cardio-date',_cd.date);_set('cardio-time',_cd.time);
+  }
 }
 
 function _legacySaveCardioSession_unused(){
@@ -2853,7 +2901,7 @@ function finishClusterSet(){
   AS.doneSets.push({exIdx:AS.exIdx,weight:null,band:(ex&&ex.unit==='band'?(AS._band||null):null),reps:AS.clusterRepsLog.join('+')+'='+totalReps,rir:''});
   AS.clusterCount=0;AS.clusterRepsLog=[];
   const settings=getSettings();
-  const exSets=AS.doneSets.filter(s=>s.exIdx===AS.exIdx);
+  const exSets=AS.doneSets.filter(s=>s.exIdx===AS.exIdx&&!s.isWarmup);
   if(exSets.length>=ex.sets){
     if(AS.exIdx<AS.exercises.length-1){
       startTimer(settings.restBetweenEx,'Pause zwischen Übungen','between-ex');
@@ -2926,9 +2974,15 @@ function deleteSet(globalIdx){
 
 function goBackFromCooldown(){
   AS.cooldownShown=false;
+  if(AS.exercises.length===0){
+    // Cardio/Funktional: zurück zur Eingabe, Werte bleiben erhalten
+    AS.exIdx=0;
+    renderSessionBody();
+    return;
+  }
   AS.exIdx=AS.exercises.length-1;
-  // Remove all doneSets for last exercise so user can redo it
-  AS.doneSets=AS.doneSets.filter(s=>s.exIdx!==AS.exIdx);
+  // Echte Sätze bleiben erhalten, nur ein Skip-Marker wird entfernt
+  AS.doneSets=AS.doneSets.filter(s=>!(s.exIdx===AS.exIdx&&s.skipped));
   AS.clusterCount=0;AS.clusterRepsLog=[];
   renderSessionBody();
 }
@@ -2990,26 +3044,12 @@ function setDone(){
   if(!r){showToast('Wiederholungen eingeben!');return;}
   const ex=AS.exercises[AS.exIdx];
 
-  // Unilateral: nach Links-Eingabe → 20sek → Rechts
-  if(ex.isUnilateral && !AS._uniRightDone){
-    AS._uniLeftReps=parseInt(r)||0;
-    AS._uniLeftWeight=parseFloat(w)||null;
-    AS._uniRightDone=true;
-    startTimer(20,'Seite wechseln — Rechts','set');
-    return;
-  }
-
-  // Normaler Satz oder Rechts-Seite bei Unilateral
-  const leftReps=AS._uniRightDone?AS._uniLeftReps:null;
-  const leftWeight=AS._uniRightDone?AS._uniLeftWeight:null;
+  // Links/Rechts mit Seitenwechsel läuft über uniSideDone()
   const _isWU = !!AS._markWarmup;
   const _bandUsed = (ex.unit==='band') ? (AS._band||null) : null;
-  AS._uniRightDone=false;
-  AS._uniLeftReps=0;
-  AS._uniLeftWeight=null;
 
-  const repsToLog=ex.isUnilateral?leftReps+'/'+r:parseInt(r)||0;
-  AS.doneSets.push({exIdx:AS.exIdx,weight:parseFloat(w)||leftWeight||null,band:_bandUsed,reps:repsToLog,rir:_isWU?'WU':rir,isWarmup:_isWU});
+  const repsToLog=parseInt(r)||0;
+  AS.doneSets.push({exIdx:AS.exIdx,weight:parseFloat(w)||null,band:_bandUsed,reps:repsToLog,rir:_isWU?'WU':rir,isWarmup:_isWU});
   AS._markWarmup=false;
 
   const exSets=AS.doneSets.filter(s=>s.exIdx===AS.exIdx);
@@ -3024,6 +3064,7 @@ function setDone(){
 
 function renderLastSetDecision(){
   clearInterval(AS.timerInterval);
+  persistAS();
   const ex=AS.exercises[AS.exIdx];
   const exSets=AS.doneSets.filter(s=>s.exIdx===AS.exIdx&&!s.isWarmup);
   const body=document.getElementById('sess-body');
@@ -3219,6 +3260,40 @@ function addExtraSet(){
 
 
 
+// Wdh-Vorschlag je Seite: gespeichert wird "10/9 (L/R)" — für das Zahlenfeld zerlegen
+function uniRepsPrefill(exName, side){
+  if(side==='rechts'&&AS._uniLeft&&AS._uniLeft.reps) return AS._uniLeft.reps;
+  const v=getLastReps(exName,'');
+  if(v==null||v==='') return '';
+  const parts=String(v).split('/');
+  const n=parseInt(side==='rechts'&&parts.length>1?parts[1]:parts[0]);
+  return isNaN(n)?'':n;
+}
+
+// Links/Rechts-Wechsel je Übung an/aus (bleibt gespeichert, bis wieder umgeschaltet)
+function uniActive(ex){
+  return !!(ex&&ex.isUnilateral&&!((getSettings().uniOff||{})[ex.name]));
+}
+function toggleUniMode(){
+  const ex=AS.exercises[AS.exIdx];
+  if(!ex||!ex.isUnilateral) return;
+  const st=getSettings();
+  st.uniOff=Object.assign({},st.uniOff);
+  if(st.uniOff[ex.name]) delete st.uniOff[ex.name]; else st.uniOff[ex.name]=true;
+  saveSettings(st);
+  // angefangene linke Seite verwerfen
+  AS._uniSide='links';AS._uniLeft=null;
+  AS._uniRightDone=false;AS._uniLeftReps=0;AS._uniLeftWeight=null;
+  showToast(st.uniOff[ex.name]?'Links/Rechts-Wechsel aus':'Links/Rechts-Wechsel an');
+  renderSessionBody();
+}
+function uniToggleBtnHTML(ex){
+  if(!ex.isUnilateral) return '';
+  const on=uniActive(ex);
+  return `<button type="button" onclick="toggleUniMode()" style="flex-shrink:0;padding:3px 9px;border-radius:20px;cursor:pointer;font-family:var(--font);font-size:11px;font-weight:600;
+    border:1px solid ${on?'var(--green)':'var(--border2)'};background:${on?'var(--green-pale)':'var(--surface2)'};color:${on?'var(--green)':'var(--text3)'};">L/R ${on?'an':'aus'}</button>`;
+}
+
 function uniSideDone(){
   const ex=AS.exercises[AS.exIdx];
   const _wEl=document.getElementById('inp-weight');
@@ -3234,11 +3309,15 @@ function uniSideDone(){
     startTimer(20,'Seite wechseln → Rechts','cluster');
   } else {
     // Beide Seiten fertig → als einen Satz loggen
+    const _wL=AS._uniLeft?.weight||null;
+    const _wR=parseFloat(w)||null;
+    // Weicht die rechte Seite ab, steht ihr Gewicht mit im Satz
+    const _diff=_wL&&_wR&&_wL!==_wR;
     AS.doneSets.push({
       exIdx:AS.exIdx,
-      weight:AS._uniLeft?.weight||null,
+      weight:_wL||_wR,
       band:(ex&&ex.unit==='band'?(AS._band||null):null),
-      reps:(AS._uniLeft?.reps||0)+'/'+r+' (L/R)',
+      reps:(AS._uniLeft?.reps||0)+'/'+r+(_diff?' (L/R · R '+_wR+'kg)':' (L/R)'),
       rir:rir,
       isUnilateral:true,
     });
@@ -3477,6 +3556,7 @@ function confirmEndSession(){
 
 function finishSession(){
   clearInterval(AS.timerInterval);clearInterval(AS.elapsedInterval);
+  clearPersistedAS();
   const notes=AS.sessionNotes||'';
   const plan=getActivePlan();
   const sess=plan[AS.type]||{type:'upper'};
@@ -3611,7 +3691,7 @@ Halte die Antwort kompakt — maximal 250 Wörter. Keine langen Einleitungen.`;
     }
     const text=json.content[0].text;
     // Markdown bold zu HTML
-    const html=text
+    const html=esc(text)
       .replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>')
       .replace(/\n\n/g,'</p><p style="margin:0 0 10px;">')
       .replace(/\n/g,'<br>');
@@ -3625,12 +3705,12 @@ Halte die Antwort kompakt — maximal 250 Wörter. Keine langen Einleitungen.`;
 function renderLogEntryHTML(s){
   const d=new Date(s.date);
   const dateStr=d.toLocaleDateString('de-DE',{weekday:'short',day:'numeric',month:'short'})+(s.time?' · '+s.time:'');
-  const _logNames={'LeoMoves':'Functional','Zone 2':'Cardio','Zone 2b':'Cardio 2'};
+  const _logNames={'LeoMoves':'Funktional','Zone 2':'Cardio','Zone 2b':'Cardio 2'};
   const displayType=_logNames[s.type]||s.type;
   const colors={'Upper A':'var(--indigo)','Upper B':'var(--indigo)','Lower A':'var(--amber)','Lower B':'var(--amber)','Zone 2':'var(--blue)','Cardio':'var(--blue)','Cardio 2':'var(--blue)','LeoMoves':'var(--text2)','Functional':'var(--text2)'};
   const color=colors[s.type]||'#5F5E5A';
   let exHTML='';
-  const _dn2={'Zone 2':'Cardio','LeoMoves':'Functional','Zone 2b':'Cardio 2'};
+  const _dn2={'Zone 2':'Cardio','LeoMoves':'Funktional','Zone 2b':'Cardio 2'};
   const isCardioType=s.type==='zone2'||s.type==='leo'||s.type==='Cardio'||s.type==='Cardio 2'||s.type==='LeoMoves'||s.type==='Functional';
   if(isCardioType){
     const c=s.cardio||{};
@@ -3644,28 +3724,39 @@ function renderLogEntryHTML(s){
   else if(s.exercises&&s.exercises.length>0){
     exHTML='<div class="log-entry-body">'+s.exercises.slice(0,4).map(ex=>{
       const best=ex.sets.reduce((m,st)=>typeof st.weight==='number'&&st.weight>(m||0)?st.weight:m,0);
-      return`<div class="log-set-row"><span class="log-set-num">${ex.sets.length}×</span><span class="log-set-val">${ex.name}</span><span style="margin-left:auto;color:var(--text2);">${best?best+'kg':''}</span></div>`;
+      return`<div class="log-set-row"><span class="log-set-num">${ex.sets.length}×</span><span class="log-set-val">${esc(ex.name)}</span><span style="margin-left:auto;color:var(--text2);">${best?best+'kg':''}</span></div>`;
     }).join('')+(s.exercises.length>4?`<div class="log-set-row" style="color:var(--text3);">+${s.exercises.length-4} weitere</div>`:'')+`</div>`;
   }
   return`<div class="log-entry fade-in" onclick="showSessionDetail(${s.id})">
     <div class="log-entry-head">
       <div><div style="font-size:15px;font-weight:600;">${displayType}</div><div style="font-size:12px;color:var(--text2);margin-top:2px;">${dateStr}${s.durationMin?' · '+s.durationMin+' min':''}</div></div>
       <div style="background:${color}18;color:${color};font-size:11px;padding:4px 10px;border-radius:6px;font-family:var(--mono);">${s.isDeload?'DELOAD · ':''}${s.exercises&&s.exercises.length>0?s.exercises.length+' Übungen':displayType}</div>
-    </div>${exHTML}${s.notes?`<div style="padding:8px 14px;font-size:12px;color:var(--text3);border-top:1px solid var(--border);">${s.notes}</div>`:''}</div>`;
+    </div>${exHTML}${s.notes?`<div style="padding:8px 14px;font-size:12px;color:var(--text3);border-top:1px solid var(--border);">${esc(s.notes)}</div>`:''}</div>`;
+}
+
+let _logFilter='all';
+// Filterknöpfe aus dem aktiven Plan + allen tatsächlich geloggten Session-Typen
+function renderLogFilters(){
+  const el=document.getElementById('filter-row'); if(!el) return;
+  const names={'LeoMoves':'Funktional','Functional':'Funktional','Zone 2':'Cardio','Zone 2b':'Cardio 2'};
+  const plan=getActivePlan();
+  const types=[...getActiveSessions()];
+  getData().sessions.forEach(x=>{ if(x.type&&!types.includes(x.type)) types.push(x.type); });
+  if(_logFilter!=='all'&&!types.includes(_logFilter)) _logFilter='all';
+  el.innerHTML=['all',...types].map(t=>`<button class="toggle-btn ${t===_logFilter?'on':''}" data-f="${esc(t)}" onclick="filterLog(this.dataset.f)">${t==='all'?'Alle':esc((plan[t]&&plan[t].label)||names[t]||t)}</button>`).join('');
 }
 
 function renderFullLog(filter){
+  if(filter) _logFilter=filter;
+  renderLogFilters();
   const data=getData();
   let sessions=[...data.sessions].sort((a,b)=>new Date(b.date)-new Date(a.date));
-  if(filter&&filter!=='all')sessions=sessions.filter(s=>s.type===filter);
+  if(_logFilter!=='all')sessions=sessions.filter(s=>s.type===_logFilter);
   const el=document.getElementById('full-log');
   el.innerHTML=sessions.length===0?'<div style="padding:20px;text-align:center;color:var(--text3);">Noch keine Sessions</div>':sessions.map(s=>renderLogEntryHTML(s)).join('');
 }
 
-function filterLog(filter,btn){
-  document.querySelectorAll('#filter-row .toggle-btn').forEach(b=>b.classList.remove('on'));
-  btn.classList.add('on');renderFullLog(filter);
-}
+function filterLog(filter){ renderFullLog(filter); }
 
 
 // ═══ SESSION NACHTRÄGLICH BEARBEITEN ═══
@@ -3682,8 +3773,14 @@ function editSession(id){
     <div style="font-size:17px;font-weight:700;margin-bottom:2px;">Session bearbeiten</div>
     <div style="font-size:12px;color:var(--text2);margin-bottom:16px;">${new Date(s.date).toLocaleDateString('de-DE',{weekday:'long',day:'numeric',month:'long'})}</div>
     <datalist id="known-ex-list">${getKnownExercises().map(n=>`<option value="${n.replace(/"/g,'&quot;')}">`).join('')}</datalist>
+    <div class="field" style="margin-bottom:12px;"><label>Datum</label><input type="date" id="edit-date" value="${esc(String(s.date||'').slice(0,10))}"></div>
+    ${isCardioSessionType(s.type)?`<div class="g3" style="margin-bottom:12px;">
+      <div class="field"><label>Min</label><input type="number" id="edit-dur" value="${s.durationMin||''}" inputmode="numeric" style="text-align:center;"></div>
+      <div class="field"><label>km</label><input type="number" id="edit-dist" value="${(s.cardio&&s.cardio.distance)||''}" step="0.1" inputmode="decimal" style="text-align:center;"></div>
+      <div class="field"><label>Ø Puls</label><input type="number" id="edit-hr" value="${(s.cardio&&s.cardio.hr)||''}" inputmode="numeric" style="text-align:center;"></div>
+    </div>`:''}
     <div id="edit-body"></div>
-    <button class="btn btn-full" style="margin-top:12px;background:var(--surface2);color:var(--text2);" onclick="addEditExercise(${id})">+ Übung hinzufügen</button>
+    ${isCardioSessionType(s.type)?'':`<button class="btn btn-full" style="margin-top:12px;background:var(--surface2);color:var(--text2);" onclick="addEditExercise(${id})">+ Übung hinzufügen</button>`}
     <button class="btn btn-primary btn-full" style="margin-top:10px;" onclick="saveEditedSession(${id})">Speichern</button>
     <button class="btn btn-ghost btn-full" style="margin-top:8px;" onclick="document.getElementById('sess-edit-overlay').remove()">Abbrechen</button>
   </div>`;
@@ -3729,7 +3826,7 @@ function renderEditBody(id){
       style="width:100%;margin-top:4px;padding:7px;border-radius:8px;border:1px dashed var(--border2);background:none;color:var(--text2);cursor:pointer;font-size:12px;">+ Satz</button>
     </div>`;
   });
-  if(_editDraft.length===0) h='<div style="padding:16px;text-align:center;color:var(--text2);font-size:13px;">Keine Übungen — unten hinzufügen</div>';
+  if(_editDraft.length===0) h=document.getElementById('edit-dur')?'':'<div style="padding:16px;text-align:center;color:var(--text2);font-size:13px;">Keine Übungen — unten hinzufügen</div>';
   body.innerHTML=h;
 }
 
@@ -3761,6 +3858,16 @@ function saveEditedSession(id){
     ex.workSets=ex.sets.filter(st=>!st.isWarmup).map(st=>({weight:st.weight,band:st.band||null,reps:st.reps,rir:st.rir}));
   });
   s.exercises=cleaned;
+  const _d=document.getElementById('edit-date');
+  if(_d&&/^\d{4}-\d{2}-\d{2}$/.test(_d.value)) s.date=_d.value;
+  const _dur=document.getElementById('edit-dur');
+  if(_dur){
+    s.durationMin=parseInt(_dur.value)||s.durationMin||0;
+    s.cardio=Object.assign({},s.cardio,{
+      distance:parseFloat(document.getElementById('edit-dist').value)||null,
+      hr:parseInt(document.getElementById('edit-hr').value)||null,
+    });
+  }
   saveData(data);
   const o=document.getElementById('sess-edit-overlay'); if(o) o.remove();
   renderFullLog();
@@ -3770,7 +3877,7 @@ function saveEditedSession(id){
 
 function showSessionDetail(id){
   const data=getData();const s=data.sessions.find(x=>x.id==id);if(!s)return;
-  const _logNames={'LeoMoves':'Functional','Zone 2':'Cardio','Zone 2b':'Cardio 2'};
+  const _logNames={'LeoMoves':'Funktional','Zone 2':'Cardio','Zone 2b':'Cardio 2'};
   const displayType=_logNames[s.type]||s.type;
   const d=new Date(s.date).toLocaleDateString('de-DE',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
   const colors={'Upper A':'var(--indigo)','Upper B':'var(--indigo)','Lower A':'var(--amber)','Lower B':'var(--amber)','Zone 2':'var(--blue)','Cardio':'var(--blue)','LeoMoves':'var(--text2)','Functional':'var(--text2)'};
@@ -3808,14 +3915,14 @@ function showSessionDetail(id){
     s.exercises.forEach(ex=>{
       const workSets=ex.sets.filter(st=>!st.isWarmup);
       const wuSets=ex.sets.filter(st=>st.isWarmup);
-      html+=`<div style="margin-bottom:14px;"><div style="font-size:14px;font-weight:600;margin-bottom:6px;">${ex.name}</div>`;
+      html+=`<div style="margin-bottom:14px;"><div style="font-size:14px;font-weight:600;margin-bottom:6px;">${esc(ex.name)}</div>`;
       wuSets.forEach(set=>{html+=`<div class="log-set-row" style="opacity:.5;"><span class="log-set-num">WU</span><span class="log-set-val">${set.band?(bandByKey(set.band)?.label||set.band)+' · ':(set.weight?set.weight+'kg · ':'')}${set.reps} Wdh</span></div>`;});
       workSets.forEach((set,i)=>{html+=`<div class="log-set-row"><span class="log-set-num">${i+1}</span><span class="log-set-val">${set.band?(bandByKey(set.band)?.label||set.band)+' · ':(set.weight?set.weight+'kg · ':'')}${set.reps} ${ex.unit==='sek'?'sek':'Wdh'}</span><span style="margin-left:auto;color:var(--text3);font-size:11px;">${set.rir&&set.rir!=='WU'?set.rir+' RIR':''}</span></div>`;});
       html+=`</div>`;
     });
   }
 
-  if(s.notes) html+=`<div style="padding:12px;background:var(--surface2);border-radius:10px;font-size:13px;color:var(--text2);margin-bottom:16px;">${s.notes}</div>`;
+  if(s.notes) html+=`<div style="padding:12px;background:var(--surface2);border-radius:10px;font-size:13px;color:var(--text2);margin-bottom:16px;">${esc(s.notes)}</div>`;
 
   const isCardioDetail=s.type==='zone2'||s.type==='leo'||['Cardio','Cardio 2','LeoMoves','Functional'].includes(s.type);
   if(!isCardioDetail&&s.exercises&&s.exercises.length>0){
@@ -3858,7 +3965,7 @@ function deleteSession(id){
     document.querySelectorAll('[style*="z-index:600"],[style*="z-index:950"],[style*="z-index: 600"],[style*="z-index: 950"]').forEach(e=>e.remove());
     overlay.remove();
     showToast('Session gelöscht');
-    showPage('page-heute');
+    renderHeutePage();
     renderFullLog();
   });
   document.getElementById('del-confirm-no').addEventListener('click',()=>overlay.remove());
@@ -3954,7 +4061,7 @@ function renderPlanSessions(phaseNum){
   const el = document.getElementById('plan-days');
   const plan = getPlanForPhase(phaseNum);
   const sessions = PHASE_PLANS[phaseNum].sessions;
-  const dn = {'Zone 2':'Cardio','LeoMoves':'Functional','Zone 2b':'Cardio 2'};
+  const dn = {'Zone 2':'Cardio','LeoMoves':'Funktional','Zone 2b':'Cardio 2'};
   const typeColors = {upper:'var(--purple)',lower:'var(--amber)',zone2:'var(--blue)',leo:'var(--text3)'};
   const ps = getPhaseSettings();
   const isCustomized = (key) => ps.customPlans && ps.customPlans[phaseNum] && ps.customPlans[phaseNum][key];
@@ -3979,7 +4086,7 @@ function renderPlanSessions(phaseNum){
         <button onclick="deleteExercise(${phaseNum},'${key}',${i})" style="background:none;border:none;color:var(--text3);font-size:18px;cursor:pointer;padding:4px;line-height:1;flex-shrink:0;">✕</button>
       </div>`;
     }).join('')
-    : `<div style="padding:10px 0;font-size:13px;color:var(--text3);">${key.startsWith('Zone')?'HF 120–140 bpm · Nasenatemtest':'Aktive Erholung'}</div>`;
+    : `<div style="padding:10px 0;font-size:13px;color:var(--text3);">${p.type==='zone2'?esc(p.note||'HF 120–140 bpm'):'Aktive Erholung'}</div>`;
 
     const wu=getWarmup(p.type);
     const wuLine=wu.warmup.slice(0,3).join(' · ');
@@ -4018,7 +4125,7 @@ function openSessionMetaEditor(phaseNum, key){
   const plan=getPlanForPhase(phaseNum);
   const p=plan[key];
   if(!p) return;
-  const dn={'Zone 2':'Cardio','LeoMoves':'Functional','Zone 2b':'Cardio 2'};
+  const dn={'Zone 2':'Cardio','LeoMoves':'Funktional','Zone 2b':'Cardio 2'};
   const currentName=p.label||dn[key]||key;
 
   const overlay=document.createElement('div');
@@ -4026,7 +4133,7 @@ function openSessionMetaEditor(phaseNum, key){
   overlay.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:900;display:flex;align-items:flex-end;';
   overlay.innerHTML=`<div style="background:var(--surface);border-radius:20px 20px 0 0;width:100%;padding:20px 20px calc(20px + var(--safe-bottom));max-height:80vh;overflow-y:auto;">
     <div style="font-size:17px;font-weight:700;margin-bottom:4px;">Session anpassen</div>
-    <div style="font-size:12px;color:var(--text2);margin-bottom:16px;">Nur Anzeige — die Trainingsdaten bleiben unter „${key}“ gespeichert.</div>
+    <div style="font-size:12px;color:var(--text2);margin-bottom:16px;">Nur Anzeige — die Trainingsdaten bleiben der Session zugeordnet.</div>
 
     <div class="field" style="margin-bottom:14px;">
       <label>Name</label>
@@ -4063,7 +4170,7 @@ function saveSessionMeta(phaseNum, key){
   const day=document.getElementById('sm-day').value;
   const duration=document.getElementById('sm-duration').value.trim();
   const meta={day:day, duration:duration||'—'};
-  const dn={'Zone 2':'Cardio','LeoMoves':'Functional','Zone 2b':'Cardio 2'};
+  const dn={'Zone 2':'Cardio','LeoMoves':'Funktional','Zone 2b':'Cardio 2'};
   meta.label = (name && name!==(dn[key]||key)) ? name : null;
   saveCustomSessionMeta(phaseNum, key, meta);
   closeSessionMetaEditor();
@@ -4103,7 +4210,7 @@ function _showExSheet(phaseNum, sessionKey, exIdx, ex){
     <div style="font-size:17px;font-weight:600;margin-bottom:16px;">${isNew?'Übung hinzufügen':'Übung bearbeiten'}</div>
 
     <div class="field"><label>Name</label>
-      <input type="text" id="ee-name" value="${ex.name}" placeholder="z.B. Flat Bankdrücken" onfocus="this.select()">
+      <input type="text" id="ee-name" value="${esc(ex.name)}" placeholder="z.B. Flat Bankdrücken" onfocus="this.select()">
     </div>
 
     <div class="g2" style="gap:10px;">
@@ -4111,7 +4218,7 @@ function _showExSheet(phaseNum, sessionKey, exIdx, ex){
         <input type="number" id="ee-sets" value="${ex.sets||3}" min="1" max="10" inputmode="numeric" style="text-align:center;" onfocus="this.select()">
       </div>
       <div class="field"><label>Wdh / Range</label>
-        <input type="text" id="ee-reps" value="${ex.reps||'10'}" placeholder="z.B. 6–8 oder Cluster" onfocus="this.select()">
+        <input type="text" id="ee-reps" value="${esc(ex.reps||'10')}" placeholder="z.B. 6–8 oder Cluster" onfocus="this.select()">
       </div>
     </div>
 
@@ -4236,7 +4343,7 @@ function resetSession(phaseNum, sessionKey){
   overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:950;display:flex;align-items:center;justify-content:center;padding:24px;';
   overlay.innerHTML = `<div style="background:var(--bg2);border:1px solid var(--border);border-radius:20px;padding:24px;width:100%;max-width:300px;text-align:center;">
     <div style="font-size:17px;font-weight:600;margin-bottom:8px;">Session zurücksetzen?</div>
-    <div style="font-size:13px;color:var(--text2);margin-bottom:20px;">Alle Anpassungen für "${sessionKey}" werden gelöscht. Der Original-Plan wird wiederhergestellt.</div>
+    <div style="font-size:13px;color:var(--text2);margin-bottom:20px;">Alle Anpassungen für "${esc(sessDisplayName(sessionKey))}" werden gelöscht. Der Original-Plan wird wiederhergestellt.</div>
     <div style="display:flex;flex-direction:column;gap:10px;">
       <button class="btn btn-danger btn-full" id="reset-yes">Ja, zurücksetzen</button>
       <button class="btn btn-ghost btn-full" id="reset-no">Abbrechen</button>
@@ -4323,7 +4430,7 @@ const METRO = {
   stop(){
     this.running = false;
     clearInterval(this.interval);
-    WakeLock.release();
+    if(!sessionIsOpen()) WakeLock.release();
     const bar = document.getElementById('metro-bar');
     if(bar) bar.style.width = '0%';
     const status = document.getElementById('metro-status');
@@ -4349,7 +4456,7 @@ function loadTimerSettings(){
   document.getElementById('set-api-key').value=key?'sk-ant-***gespeichert***':'';
 }
 function saveTimerSettings(){
-  const s={restBetweenSets:parseInt(document.getElementById('set-rest').value)||90,restBetweenEx:parseInt(document.getElementById('set-rest-ex').value)||120};
+  const s=Object.assign({},getSettings(),{restBetweenSets:parseInt(document.getElementById('set-rest').value)||90,restBetweenEx:parseInt(document.getElementById('set-rest-ex').value)||120});
   saveSettings(s);showToast('Timer gespeichert ✓');
 }
 function saveApiKey(){
@@ -4442,6 +4549,7 @@ document.addEventListener('DOMContentLoaded', async ()=>{
   migratePlanVersion();
   applyTheme(DB.get('appTheme')||'light');
   renderHeutePage();renderFullLog();renderPlanPage();loadTimerSettings();
+  restoreAS();
 });
 </script>
 </body>
