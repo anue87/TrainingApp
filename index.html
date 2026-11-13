@@ -6,10 +6,10 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Log.seT">
-<meta name="theme-color" content="#0a0a0a">
+<meta name="theme-color" content="#F4F1EC">
 <title>Log.seT</title>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
 :root {
   --bg: #F5F3F0;
@@ -46,7 +46,7 @@
   --safe-top: env(safe-area-inset-top, 0px);
   --safe-bottom: env(safe-area-inset-bottom, 0px);
   --font: 'Inter', -apple-system, sans-serif;
-  --mono: 'JetBrains Mono', monospace;
+  --mono: 'Inter', -apple-system, sans-serif;
   --on-accent: #FFF9F4;
   --glass-nav: rgba(255,255,255,.92);
   --glass-head: rgba(245,243,240,.92);
@@ -355,6 +355,161 @@ label { font-size: 11px; color: var(--text2); font-weight: 600; margin-bottom: 6
   color: var(--green-dim); font-weight: 600;
 }
 [data-theme="dark"] .theme-opt-active { color: var(--green); }
+
+/* ══════════ DESIGN v2 ══════════ */
+:root:not([data-theme="dark"]) {
+  --bg: #F4F1EC; --surface2: #F8F5F1; --surface3: #EEE9E2;
+  --text: #1C1815; --text2: #6B6259; --text3: #A99F94;
+  --shadow: 0 1px 2px rgba(60,45,30,.05), 0 8px 24px rgba(60,45,30,.06);
+  --shadow-sm: 0 1px 2px rgba(60,45,30,.06);
+  --shadow-lg: 0 -8px 40px rgba(30,20,10,.18);
+  --accent-grad: linear-gradient(135deg, #C07C46, #A5622F);
+  --glass-head: rgba(244,241,236,.86);
+}
+:root { --radius: 20px; --radius-sm: 12px; }
+[data-theme="dark"] {
+  --accent-grad: linear-gradient(135deg, #D09460, #B4753F);
+  --shadow: 0 1px 2px rgba(0,0,0,.4), 0 8px 24px rgba(0,0,0,.3);
+  --shadow-lg: 0 -8px 40px rgba(0,0,0,.6);
+  --glass-head: rgba(18,16,14,.86);
+}
+body { font-feature-settings: "tnum", "cv11"; text-rendering: optimizeLegibility; }
+button { font-family: var(--font); color: inherit; }
+
+/* Kopf */
+.page { padding-top: calc(var(--safe-top) + 84px); padding-bottom: calc(var(--safe-bottom) + 96px); }
+.page-header { padding: calc(var(--safe-top) + 18px) 20px 12px; }
+.page-title { font-size: 30px; font-weight: 800; letter-spacing: -.035em; }
+.wordmark { font-size: 28px; font-weight: 400; letter-spacing: -.05em; line-height: 1; color: var(--text); }
+.wordmark b { font-weight: 800; color: var(--accent); }
+.header-date { font-size: 12px; font-weight: 500; color: var(--text2); padding-bottom: 3px; }
+.sec-label { font-size: 18px; font-weight: 700; letter-spacing: -.02em; color: var(--text); text-transform: none; padding: 0 20px; margin: 28px 0 12px; }
+
+/* Karten: keine doppelte Einrückung in gepolsterten Containern */
+.card { border: 1px solid var(--border); }
+.page > div[style*="padding:0 16px"] > .card { margin-left: 0; margin-right: 0; }
+
+/* Hero */
+.hero { position: relative; overflow: hidden; margin: 4px 16px 4px; padding: 20px; border-radius: 26px; color: #fff; cursor: pointer; background: var(--accent-grad); transition: transform .15s; }
+.hero:active { transform: scale(.985); }
+.hero::before { content: ''; position: absolute; right: -70px; top: -90px; width: 260px; height: 260px; border-radius: 50%; background: radial-gradient(circle, rgba(255,255,255,.22), rgba(255,255,255,0) 70%); pointer-events: none; }
+.hero > * { position: relative; }
+.hero-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.hero-eyebrow { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; opacity: .88; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hero-week { flex-shrink: 0; font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 20px; background: rgba(255,255,255,.18); }
+.hero-main { display: flex; align-items: center; gap: 16px; margin: 18px 0; }
+.hero-ring { position: relative; width: 84px; height: 84px; flex-shrink: 0; }
+.hero-ring svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+.hr-track { fill: none; stroke: rgba(255,255,255,.22); stroke-width: 8; }
+.hr-fill { fill: none; stroke: #fff; stroke-width: 8; stroke-linecap: round; stroke-dasharray: 239; stroke-dashoffset: 239; transition: stroke-dashoffset .7s cubic-bezier(.4,0,.2,1); }
+.hero-ring-num { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 30px; font-weight: 800; letter-spacing: -.03em; }
+.hero-title { font-size: 19px; font-weight: 700; letter-spacing: -.02em; line-height: 1.25; }
+.hero-sub { font-size: 13px; opacity: .78; margin-top: 4px; }
+.hero-foot { display: flex; align-items: center; gap: 12px; font-size: 11px; font-weight: 600; opacity: .9; }
+.hero-foot span::after { content: ' ›'; }
+.hero-bar { flex: 1; height: 4px; border-radius: 2px; background: rgba(255,255,255,.22); overflow: hidden; }
+.hero-bar > div { height: 100%; width: 0; background: #fff; border-radius: 2px; transition: width .6s cubic-bezier(.4,0,.2,1); }
+
+/* Session-Kacheln */
+.session-btn-grid { gap: 12px; margin-bottom: 0; }
+.sess-quick-btn { padding: 14px; border-radius: 20px; border: 1px solid var(--border); }
+.sess-quick-btn.today { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-pale), var(--shadow); }
+.sqb-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+.sqb-icon { width: 38px; height: 38px; border-radius: 12px; display: flex; align-items: center; justify-content: center; background: var(--accent-pale); color: var(--accent); }
+.sqb-icon svg { width: 20px; height: 20px; }
+.sqb-cardio .sqb-icon { background: var(--blue-pale); color: var(--blue); }
+.sqb-mobility .sqb-icon { background: var(--amber-pale); color: var(--amber); }
+.sqb-badge { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; padding: 4px 9px; border-radius: 20px; background: var(--accent); color: var(--on-accent); }
+.sess-quick-btn-label { font-size: 17px; }
+.sess-quick-btn-sub { font-size: 12px; margin-top: 2px; }
+
+/* Kennzahlen */
+.stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; overflow: visible; margin-bottom: 0; }
+.stat-card { min-width: 0; padding: 14px 6px; text-align: center; border: 1px solid var(--border); border-radius: 18px; }
+.stat-val { font-size: 22px; font-weight: 800; letter-spacing: -.03em; color: var(--text); }
+.stat-lbl { font-size: 11px; }
+
+/* Buttons & Eingaben */
+.btn { border-radius: 14px; padding: 15px 20px; font-size: 15px; }
+.btn-primary { background: var(--accent-grad); box-shadow: 0 6px 16px rgba(176,110,60,.26); }
+.btn-ghost { box-shadow: none; border: 1px solid var(--border2); }
+input, select, textarea { border-radius: 12px; }
+.toggle-btn { padding: 8px 14px; border: 1px solid var(--border); box-shadow: none; font-size: 13px; }
+.toggle-btn.on { background: var(--accent-grad); border-color: transparent; }
+#ex-filter, #filter-row { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; padding-bottom: 2px; }
+#ex-filter::-webkit-scrollbar, #filter-row::-webkit-scrollbar { display: none; }
+#ex-filter .toggle-btn, #filter-row .toggle-btn { flex-shrink: 0; }
+
+/* Log */
+.log-entry { border: 1px solid var(--border); border-radius: 20px; }
+.log-entry-head > div:first-child > div:first-child { font-size: 16px !important; font-weight: 700 !important; letter-spacing: -.02em; }
+.log-set-row { font-size: 14px; }
+
+/* Navigation */
+.nav { border-top: 1px solid var(--border); }
+.nav-btn { padding: 10px 4px 9px; gap: 4px; font-weight: 600; }
+.nav-btn svg { width: 22px; height: 22px; }
+.nav-btn.active::before { top: 5px; width: 48px; height: 32px; border-radius: 12px; }
+
+/* Aktive Session */
+.sess-topbar-title { font-size: 17px; }
+.audio-bell { width: 40px; height: 40px; border-radius: 12px; border: none; background: var(--surface2); color: var(--text2); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all .2s; }
+.audio-bell.off { background: var(--red-pale); color: var(--red); }
+.ex-dots { flex-wrap: nowrap; gap: 4px; padding: 10px 16px 14px; }
+.ex-dot { flex: 1; width: auto; height: 4px; border-radius: 2px; }
+.ex-dot.active { flex: 2; width: auto; border-radius: 2px; }
+.curr-ex-card { border: 1px solid var(--border); }
+.curr-ex-header { position: relative; padding: 18px 16px 16px; }
+.curr-ex-name { font-size: 24px; font-weight: 800; letter-spacing: -.03em; padding-right: 104px; line-height: 1.15; }
+.curr-ex-target { font-size: 13px; }
+.sets-left-pill { position: absolute; top: 18px; right: 16px; font-size: 11px; font-weight: 600; color: var(--text2); background: var(--surface2); border: 1px solid var(--border); padding: 5px 10px; border-radius: 20px; }
+.set-done-row { font-size: 15px; padding: 10px 0; }
+.set-input-area { padding: 16px; border-radius: 16px; }
+.set-input-area input { background: var(--surface); border-color: var(--border2); }
+.set-input-area .g3 input { font-size: 22px; font-weight: 700; padding: 14px 6px; }
+.set-input-area .g3 { align-items: end; }
+.set-input-area label { margin-bottom: 8px; min-height: 20px; }
+.timer-display { padding: 32px 20px 22px; border: 1px solid var(--border); gap: 16px; }
+.timer-ring { width: 220px; height: 220px; }
+.timer-ring svg { width: 100%; height: 100%; }
+.timer-ring-track, .timer-ring-fill { stroke-width: 6; }
+.timer-seconds { font-size: 72px; font-weight: 800; letter-spacing: -.05em; }
+.timer-skip-btn, .timer-add-btn { border-radius: 14px; padding: 14px; font-weight: 600; }
+
+/* Bottom-Sheets & Dialoge (alle per JS erzeugten Overlays) */
+div[style*="position:fixed"][style*="inset:0"] { animation: ovIn .2s ease; -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); }
+div[style*="position:fixed"][style*="inset:0"] > div { animation: sheetUp .34s cubic-bezier(.2,.9,.3,1); box-shadow: var(--shadow-lg); }
+@keyframes ovIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes sheetUp { from { transform: translateY(40px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+.toast { border-radius: 14px; font-weight: 600; box-shadow: 0 8px 24px rgba(0,0,0,.2); }
+/* ── Dezente Tiefe: Lichtkante oben, weicher Schatten unten ── */
+:root {
+  --depth: inset 0 1px 0 rgba(255,255,255,.95), 0 1px 1px rgba(60,45,30,.05), 0 3px 6px -1px rgba(60,45,30,.06), 0 14px 26px -10px rgba(60,45,30,.16);
+  --depth-press: inset 0 1px 0 rgba(255,255,255,.9), 0 1px 2px rgba(60,45,30,.08);
+  --depth-in: inset 0 1px 2px rgba(60,45,30,.09), inset 0 0 0 1px rgba(60,45,30,.03);
+  --tile-grad: linear-gradient(180deg, #FFFFFF 0%, #FBF9F6 100%);
+}
+[data-theme="dark"] {
+  --depth: inset 0 1px 0 rgba(255,240,225,.07), 0 1px 2px rgba(0,0,0,.5), 0 14px 26px -10px rgba(0,0,0,.65);
+  --depth-press: inset 0 1px 0 rgba(255,240,225,.05), 0 1px 2px rgba(0,0,0,.5);
+  --depth-in: inset 0 1px 3px rgba(0,0,0,.45);
+  --tile-grad: linear-gradient(180deg, #1F1B18 0%, #191613 100%);
+}
+.card, .sess-quick-btn, .stat-card, .log-entry, .curr-ex-card, .timer-display, #plan-days > div {
+  background-image: var(--tile-grad); box-shadow: var(--depth);
+}
+.sess-quick-btn.today { box-shadow: 0 0 0 3px var(--accent-pale), var(--depth); }
+.sess-quick-btn:active { box-shadow: var(--depth-press); transform: translateY(1px) scale(.985); }
+.log-entry { transition: transform .12s, box-shadow .12s; cursor: pointer; }
+.log-entry:active { box-shadow: var(--depth-press); transform: translateY(1px); }
+input, select, textarea { box-shadow: var(--depth-in); }
+.btn-primary, .toggle-btn.on { box-shadow: inset 0 1px 0 rgba(255,255,255,.28), inset 0 -1px 0 rgba(0,0,0,.12), 0 6px 14px -4px rgba(176,110,60,.45); }
+.btn-ghost, .toggle-btn { box-shadow: inset 0 1px 0 rgba(255,255,255,.6), 0 1px 2px rgba(60,45,30,.06); }
+[data-theme="dark"] .btn-ghost, [data-theme="dark"] .toggle-btn { box-shadow: inset 0 1px 0 rgba(255,240,225,.05), 0 1px 2px rgba(0,0,0,.4); }
+.hero { box-shadow: inset 0 1px 0 rgba(255,255,255,.3), inset 0 -1px 0 rgba(0,0,0,.12); }
+.sqb-icon { box-shadow: inset 0 1px 0 rgba(255,255,255,.5), 0 1px 2px rgba(60,45,30,.08); }
+[data-theme="dark"] .sqb-icon { box-shadow: inset 0 1px 0 rgba(255,240,225,.06); }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
 </style>
 </head>
 <body>
@@ -521,16 +676,13 @@ function audioIsLive(){
 }
 
 function updateAudioBell(){
+  if(typeof ICONS==='undefined') return;
   document.querySelectorAll('.audio-bell').forEach(b=>{
     if(audioIsLive()){
-      b.textContent = '🔔';
-      b.style.background = 'none';
-      b.style.border = '1px solid transparent';
+      b.innerHTML = ICONS.bell; b.classList.remove('off');
       b.title = 'Töne aktiv — tippen zum Testen';
     } else {
-      b.textContent = '🔕';
-      b.style.background = 'var(--red-pale)';
-      b.style.border = '1px solid var(--red)';
+      b.innerHTML = ICONS.bellOff; b.classList.add('off');
       b.title = 'Töne inaktiv — tippen zum Reaktivieren';
     }
   });
@@ -621,7 +773,7 @@ function playSound(id){
     <div style="display:flex;gap:8px;align-items:center;">
       <div style="display:flex;align-items:center;gap:8px;">
         <div style="font-size:12px;color:var(--text2);" id="sess-ex-counter"></div>
-        <button class="audio-bell" onclick="reactivateAudio()" style="background:none;border:1px solid transparent;font-size:18px;cursor:pointer;padding:8px 10px;border-radius:10px;transition:all .2s;line-height:1;" title="Töne prüfen / reaktivieren">🔔</button>
+        <button class="audio-bell" onclick="reactivateAudio()" title="Töne prüfen / reaktivieren"></button>
         <button class="btn btn-danger" style="padding:8px 12px;font-size:12px;" onclick="confirmEndSession()">Beenden</button>
       </div>
     </div>
@@ -632,61 +784,44 @@ function playSound(id){
 <!-- ══ PAGE: HEUTE ══ -->
 <div class="page active" id="page-heute">
   <div class="page-header">
-    <div style="display:flex;align-items:center;justify-content:space-between;">
-      <svg viewBox="0 0 220 44" width="110" height="22" xmlns="http://www.w3.org/2000/svg" style="display:block;margin-bottom:2px;"><style>.lw{font-family:-apple-system,"SF Pro Display","Helvetica Neue",sans-serif;font-size:38px;letter-spacing:-2px;}
-/* ── THEME TOGGLE ── */
-.theme-opt {
-  flex: 1; padding: 10px 8px; border-radius: var(--radius-sm);
-  border: 1px solid var(--border); background: var(--surface2);
-  color: var(--text2); font-family: var(--font); font-size: 13px; font-weight: 500;
-  cursor: pointer; transition: all .15s;
-}
-.theme-opt-active {
-  background: var(--green-pale); border-color: var(--green);
-  color: var(--green-dim); font-weight: 600;
-}
-[data-theme="dark"] .theme-opt-active { color: var(--green); }
-</style><text y="36" class="lw"><tspan x="0" font-weight="300" fill="var(--text)">Log</tspan><tspan font-weight="700" fill="var(--accent)">.seT</tspan></text></svg>
-      <div id="today-date" style="font-size:12px;color:var(--text2);font-weight:500;"></div>
+    <div style="display:flex;align-items:flex-end;justify-content:space-between;">
+      <div class="wordmark">Log<b>.seT</b></div>
+      <div id="today-date" class="header-date"></div>
     </div>
   </div>
-  <div style="padding:16px 16px 0;">
-    <div class="card" id="phase-card" style="margin:0 16px 16px;background:linear-gradient(135deg,#B06E3C,#96592C);border-radius:20px;padding:20px;cursor:pointer;box-shadow:0 4px 20px rgba(176,110,60,.28);" onclick="openPhaseSheet()">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
-        <div id="current-phase-pill" style="font-size:13px;font-weight:700;color:rgba(255,255,255,.85);text-transform:uppercase;letter-spacing:.06em;">Phase 1 · Basis & Recomp</div>
-        <span style="font-size:11px;color:rgba(255,255,255,.6);font-family:var(--mono);" id="phase-week-count">Wo 1/10</span>
+  <div class="hero" id="phase-card" onclick="openPhaseSheet()">
+    <div class="hero-top">
+      <div id="current-phase-pill" class="hero-eyebrow">Phase 1</div>
+      <span id="phase-week-count" class="hero-week">Woche 1 von 7</span>
+    </div>
+    <div class="hero-main">
+      <div class="hero-ring">
+        <svg viewBox="0 0 88 88"><circle class="hr-track" cx="44" cy="44" r="38"/><circle class="hr-fill" id="phase-ring" cx="44" cy="44" r="38"/></svg>
+        <div class="hero-ring-num" id="phase-sessions-done">0</div>
       </div>
-      <!-- Wochenziel: Hauptbalken -->
-      <div style="margin-bottom:14px;">
-        <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:8px;">
-          <div id="phase-sessions-done" style="font-size:42px;font-weight:700;color:#fff;letter-spacing:-.04em;line-height:1;">0</div>
-          <div id="phase-sessions-total" style="font-size:18px;font-weight:500;color:rgba(255,255,255,.6);line-height:1;">/4 diese Woche</div>
-        </div>
-        <div style="height:8px;background:rgba(255,255,255,.2);border-radius:4px;overflow:hidden;">
-          <div id="phase-progress-fill" style="height:100%;background:#fff;border-radius:4px;transition:width .5s cubic-bezier(.4,0,.2,1);width:0%"></div>
-        </div>
-      </div>
-      <!-- Sekundär: Phase-Info + Total Sessions -->
-      <div style="display:flex;justify-content:space-between;align-items:center;">
-        <div id="phase-progress-label" style="font-size:12px;color:rgba(255,255,255,.65);font-weight:500;"></div>
-        <div style="font-size:11px;color:rgba(255,255,255,.5);">Tippen für Details →</div>
+      <div style="min-width:0;">
+        <div id="phase-sessions-total" class="hero-title">von 4 Einheiten</div>
+        <div id="phase-progress-label" class="hero-sub"></div>
       </div>
     </div>
+    <div class="hero-foot">
+      <div class="hero-bar"><div id="phase-progress-fill"></div></div>
+      <span>Details</span>
+    </div>
   </div>
-  <div class="sec-label" style="margin-top:0;">Session starten</div>
-  <div style="padding:0 16px;margin-bottom:16px;">
-    <div id="session-buttons-dynamic"></div>
-  </div>
+  <div class="sec-label">Session starten</div>
+  <div id="session-buttons-dynamic"></div>
   <div class="sec-label">Diese Woche</div>
   <div class="stats-row">
-    <div class="stat-card"><div class="stat-val" style="color:var(--accent);" id="stat-sessions">0</div><div class="stat-lbl">Sessions</div></div>
-    <div class="stat-card"><div class="stat-val" style="color:#64748B;" id="stat-volume">0</div><div class="stat-lbl">Tonnen</div></div>
-    <div class="stat-card"><div class="stat-val" style="color:#6366F1;" id="stat-sets">0</div><div class="stat-lbl">Sätze</div></div>
-    <div class="stat-card"><div class="stat-val" style="color:#3B82F6;" id="stat-streak">0</div><div class="stat-lbl">Streak 🔥</div></div>
+    <div class="stat-card"><div class="stat-val" id="stat-sessions">0</div><div class="stat-lbl">Sessions</div></div>
+    <div class="stat-card"><div class="stat-val" id="stat-volume">0</div><div class="stat-lbl">Tonnen</div></div>
+    <div class="stat-card"><div class="stat-val" id="stat-sets">0</div><div class="stat-lbl">Sätze</div></div>
+    <div class="stat-card"><div class="stat-val" id="stat-streak">0</div><div class="stat-lbl">Streak</div></div>
   </div>
   <div class="sec-label">Letzte Sessions</div>
+  <div id="recent-log"></div>
   <!-- Dehn-Timer -->
-  <div class="sec-label">Timer</div>
+  <div class="sec-label">Intervall-Timer</div>
   <div style="margin:0 16px 16px;background:var(--surface);border-radius:var(--radius);padding:16px;box-shadow:var(--shadow);">
     <div style="display:flex;gap:10px;margin-bottom:14px;">
       <div style="flex:1;">
@@ -709,9 +844,8 @@ function playSound(id){
       <button class="btn btn-primary btn-full" id="metro-btn" onclick="metroToggle()">▶ Start</button>
     </div>
   </div>
-
-  <div id="recent-log"></div>
 </div>
+
 
 <!-- ══ PAGE: LOG ══ -->
 <div class="page" id="page-log">
@@ -724,24 +858,11 @@ function playSound(id){
 <!-- ══ PAGE: FORTSCHRITT ══ -->
 <div class="page" id="page-progress">
   <div class="page-header"><div class="page-title">Fortschritt</div></div>
-  <div class="toggle-row" id="ex-filter">
-    <button class="toggle-btn on" onclick="showExProgress('Flat Bankdrücken',this)">Bankdrücken</button>
-    <button class="toggle-btn" onclick="showExProgress('Back Squat',this)">Squat</button>
-    <button class="toggle-btn" onclick="showExProgress('Chin-ups',this)">Chin-ups</button>
-    <button class="toggle-btn" onclick="showExProgress('RDL',this)">RDL</button>
-    <button class="toggle-btn" onclick="showExProgress('DB OHP',this)">OHP</button>
-    <button class="toggle-btn" onclick="showExProgress('Chest Supp. Row',this)">C.S. Row</button>
-    <button class="toggle-btn" onclick="showExProgress('Einarm. Rudern',this)">Einarm. Rudern</button>
-    <button class="toggle-btn" onclick="showExProgress('Bulgarian SS',this)">Bulg. SS</button>
-    <button class="toggle-btn" onclick="showExProgress('KB Swings',this)">KB Swings</button>
-    <button class="toggle-btn" onclick="showExProgress('Incline Flys',this)">Flys</button>
-    <button class="toggle-btn" onclick="showExProgress('French Press',this)">French Press</button>
-    <button class="toggle-btn" onclick="showExProgress('LH-Curls',this)">LH-Curls</button>
-  </div>
+  <div class="toggle-row" id="ex-filter"></div>
   <div style="padding:0 16px;margin-bottom:12px;">
     <div class="card">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-        <div style="font-size:15px;font-weight:600;" id="progress-ex-name">Flat Bankdrücken</div>
+        <div style="font-size:15px;font-weight:600;" id="progress-ex-name"></div>
         <div style="font-family:var(--mono);font-size:13px;color:var(--teal-bright);" id="progress-best"></div>
       </div>
       <div class="chart-wrap"><canvas id="progress-chart"></canvas></div>
@@ -786,8 +907,8 @@ function playSound(id){
   <div style="padding:0 16px;margin-bottom:12px;">
     <div class="card">
       <div style="display:flex;gap:8px;">
-        <button data-theme-opt="light" class="theme-opt" onclick="setTheme('light')">☀️ Hell</button>
-        <button data-theme-opt="dark" class="theme-opt" onclick="setTheme('dark')">🌙 Dunkel</button>
+        <button data-theme-opt="light" class="theme-opt" onclick="setTheme('light')">Hell</button>
+        <button data-theme-opt="dark" class="theme-opt" onclick="setTheme('dark')">Dunkel</button>
         <button data-theme-opt="auto" class="theme-opt" onclick="setTheme('auto')">Auto</button>
       </div>
       <div style="font-size:11px;color:var(--text3);margin-top:8px;">Auto folgt der Systemeinstellung. Dunkel empfohlen fürs 5-Uhr-Training.</div>
@@ -833,7 +954,7 @@ function playSound(id){
     <div class="card">
       <div style="display:flex;gap:8px;align-items:stretch;margin-bottom:8px;">
         <button class="btn btn-primary" style="flex:1;" onclick="reactivateAudio()">Ton testen / reaktivieren</button>
-        <button class="audio-bell" onclick="reactivateAudio()" style="background:none;border:1px solid transparent;font-size:18px;cursor:pointer;padding:8px 14px;border-radius:10px;transition:all .2s;line-height:1;" title="Status">🔔</button>
+        <button class="audio-bell" onclick="reactivateAudio()" title="Status"></button>
       </div>
       <div style="font-size:12px;color:var(--text2);line-height:1.5;">Falls kein Ton kommt: Stumm-Schalter am iPhone prüfen, Lautstärke hochdrehen, und sicherstellen dass die Seite nicht im Hintergrund lief bevor du tippst.</div>
     </div>
@@ -1382,7 +1503,7 @@ function openPhaseSheet(){
         ${isActive?`<span style="font-size:10px;background:${m.color};color:var(--on-accent);padding:2px 8px;border-radius:20px;font-weight:600;">AKTIV</span>`:''}
       </div>
       <div style="font-size:16px;font-weight:600;margin-bottom:4px;">${m.label}</div>
-      <div style="font-size:11px;color:var(--text2);margin-bottom:10px;">${m.period} · ${m.weeks} Wochen</div>
+      <div style="font-size:11px;color:var(--text2);margin-bottom:10px;">${m.period}</div>
       <div style="display:grid;gap:6px;">
         <div style="font-size:12px;"><span style="color:var(--text3);">Training </span>${m.training}</div>
         <div style="font-size:12px;"><span style="color:var(--text3);">Ziel </span>${m.ziel}</div>
@@ -1392,7 +1513,7 @@ function openPhaseSheet(){
     </div>`;
   }
 
-  overlay.innerHTML=`<div class="kb-aware" style="background:var(--surface);border-radius:20px;width:100%;max-height:90vh;overflow-y:auto;padding:20px 20px calc(env(safe-area-inset-bottom,0px)+20px);">
+  overlay.innerHTML=`<div class="kb-aware" style="background:var(--surface);border-radius:20px;width:100%;max-height:90vh;overflow-y:auto;padding:20px 20px calc(env(safe-area-inset-bottom,0px) + 20px);">
     <div style="width:36px;height:4px;background:var(--border2);border-radius:2px;margin:0 auto 18px;"></div>
     <div style="font-size:18px;font-weight:600;margin-bottom:4px;">Phasenübersicht</div>
     <div style="font-size:13px;color:var(--text2);margin-bottom:18px;">Alle 4 Phasen · nur zur Information</div>
@@ -1401,7 +1522,7 @@ function openPhaseSheet(){
 
     <div style="border-top:1px solid var(--border);margin:16px 0;"></div>
     <button class="btn btn-ghost btn-full" style="margin-bottom:10px;" onclick="document.getElementById('phase-sheet-overlay').remove();openPhaseManage();">
-      ⚙️ Phase verwalten (wechseln / verlängern / verkürzen)
+      Phase verwalten
     </button>
     <button class="btn btn-ghost btn-full" onclick="document.getElementById('phase-sheet-overlay').remove();">Schließen</button>
   </div>`;
@@ -1419,7 +1540,7 @@ function openPhaseManage(){
 
   const meta=PHASE_META[ps.activePhase];
 
-  overlay.innerHTML=`<div class="kb-aware" style="background:var(--surface);border-radius:20px;width:100%;max-height:90vh;overflow-y:auto;padding:20px 20px calc(env(safe-area-inset-bottom,0px)+20px);">
+  overlay.innerHTML=`<div class="kb-aware" style="background:var(--surface);border-radius:20px;width:100%;max-height:90vh;overflow-y:auto;padding:20px 20px calc(env(safe-area-inset-bottom,0px) + 20px);">
     <div style="width:36px;height:4px;background:var(--border2);border-radius:2px;margin:0 auto 18px;"></div>
     <div style="font-size:18px;font-weight:600;margin-bottom:4px;">Phase verwalten</div>
     <div style="font-size:13px;color:var(--text2);margin-bottom:18px;">Aktiv: <strong>Phase ${ps.activePhase} · ${meta.label}</strong> · ${ps.durationWeeks} Wochen geplant</div>
@@ -1448,7 +1569,7 @@ function openPhaseManage(){
           return `<button onclick="${isActive?'':` confirmPhaseSwitch(${n})`}" style="padding:12px 10px;border-radius:10px;border:1.5px solid ${isActive?phColor(m):m.border+'44'};background:${isActive?phBg(m):'var(--bg2)'};cursor:${isActive?'default':'pointer'};text-align:left;opacity:${isActive?'1':'0.8'};">
             <div style="font-size:10px;font-weight:600;color:${m.color};margin-bottom:2px;">PHASE ${n}</div>
             <div style="font-size:13px;font-weight:500;">${m.label}</div>
-            <div style="font-size:10px;color:var(--text3);margin-top:2px;">${m.period} · ${m.weeks} Wo</div>
+            <div style="font-size:10px;color:var(--text3);margin-top:2px;">${m.period}</div>
             ${isActive?`<div style="font-size:9px;color:${m.color};margin-top:3px;font-weight:600;">● AKTIV</div>`:''}
           </button>`;
         }).join('')}
@@ -1489,7 +1610,7 @@ function confirmPhaseSwitch(newPhase){
   const overlay=document.createElement('div');
   overlay.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:900;display:flex;align-items:center;justify-content:center;padding:24px;';
   overlay.innerHTML=`<div style="background:var(--bg2);border:1px solid var(--border);border-radius:20px;padding:24px;width:100%;max-width:320px;text-align:center;">
-    <div style="font-size:28px;margin-bottom:12px;">🔄</div>
+    
     <div style="font-size:17px;font-weight:600;margin-bottom:8px;">Zu Phase ${newPhase} wechseln?</div>
     <div style="font-size:13px;color:var(--text2);margin-bottom:6px;"><strong>${m.label}</strong></div>
     <div style="font-size:12px;color:var(--text2);margin-bottom:20px;line-height:1.6;">Der Trainingsplan wechselt zu Phase ${newPhase}.<br>Bisherige Sessions bleiben gespeichert.</div>
@@ -2046,7 +2167,7 @@ function showPage(id){
   document.getElementById(id).classList.add('active');
   const nid='nav-'+id.replace('page-','');
   if(document.getElementById(nid))document.getElementById(nid).classList.add('active');
-  if(id==='page-progress')renderProgress('Flat Bankdrücken');
+  if(id==='page-progress')renderProgress();
   if(id==='page-settings'){renderBodyChart();loadTimerSettings();}
   if(id==='page-heute')renderHeutePage();
   if(id==='page-log')renderFullLog();
@@ -2089,57 +2210,61 @@ function renderHeutePage(){
   const pill=document.getElementById('current-phase-pill');
   if(pill) pill.textContent=`Phase ${ph.phase} · ${ph.label}`;
   const wkEl=document.getElementById('phase-week-count');
-  if(wkEl) wkEl.textContent=`Wo ${ph.week}/${ph.total}`;
+  if(wkEl) wkEl.textContent=`Woche ${ph.week} von ${ph.total}`;
   const doneEl=document.getElementById('phase-sessions-done');
   if(doneEl) doneEl.textContent=weekDone;
   const totalEl=document.getElementById('phase-sessions-total');
-  if(totalEl) totalEl.textContent=`/${weekTarget} diese Woche`;
+  if(totalEl) totalEl.textContent=`von ${weekTarget} Einheiten`;
+  const ringEl=document.getElementById('phase-ring');
+  if(ringEl){const c=2*Math.PI*38;ringEl.style.strokeDasharray=c.toFixed(1);ringEl.style.strokeDashoffset=(c*(1-weekPct/100)).toFixed(1);}
   const pfEl=document.getElementById('phase-progress-fill');
-  if(pfEl) pfEl.style.width=weekPct+'%';
+  if(pfEl) pfEl.style.width=Math.min(100,(ph.week/ph.total)*100)+'%';
   const plEl=document.getElementById('phase-progress-label');
-  if(plEl) plEl.textContent=`${totalDone} Sessions seit Phase-Start`;
+  if(plEl) plEl.textContent=`diese Woche · ${totalDone} seit Phasenstart`;
 
   // Card-Farbe
   const _grads={1:'linear-gradient(135deg,#B06E3C,#96592C)',2:'linear-gradient(135deg,#6B5B8A,#544671)',3:'linear-gradient(135deg,#7A6A5A,#5E5145)',4:'linear-gradient(135deg,#4A7A9B,#3A6480)'};
   const _shads={1:'rgba(176,110,60,.28)',2:'rgba(107,91,138,.26)',3:'rgba(122,106,90,.24)',4:'rgba(74,122,155,.26)'};
   const card=document.getElementById('phase-card');
-  if(card){card.style.background=_grads[ph.phase];card.style.boxShadow=`0 4px 20px ${_shads[ph.phase]}`;}
+  if(card){card.style.background=_grads[ph.phase];card.style.boxShadow=`inset 0 1px 0 rgba(255,255,255,.3), inset 0 -1px 0 rgba(0,0,0,.12), 0 14px 28px -8px ${_shads[ph.phase]}`;}
   renderWeekStats();renderRecentLog();renderSessionButtons();
+}
+
+const ICONS={
+  strength:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 6.5v11M17.5 6.5v11M3 9.5v5M21 9.5v5M6.5 12h11"/></svg>',
+  cardio:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 5.6a5 5 0 0 0-7.1 0L12 7.3l-1.7-1.7a5 5 0 0 0-7.1 7.1L12 21.5l8.8-8.8a5 5 0 0 0 0-7.1z"/><path d="M4 12h4l2-3 3 6 2-3h5"/></svg>',
+  mobility:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="4.5" r="2"/><path d="M4 9.5c3 1.2 5 1.5 8 1.5s5-.3 8-1.5M12 11v5M12 16l-4 5M12 16l4 5"/></svg>',
+  bell:'<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>',
+  bellOff:'<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M13.7 21a2 2 0 0 1-3.4 0M18.6 13A17.9 17.9 0 0 1 18 8M6.3 6.3A5.9 5.9 0 0 0 6 8c0 7-3 9-3 9h14M18 8a6 6 0 0 0-9.3-5M2 2l20 20"/></svg>',
+  chevron:'<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>',
+};
+
+// Passt der geplante Wochentag ("Montag", "Di/Fr", "täglich") zu heute?
+function isPlannedToday(day){
+  if(!day) return false;
+  const full=['Sonntag','Montag','Dienstag','Mittwoch','Donnerstag','Freitag','Samstag'][new Date().getDay()];
+  if(day==='täglich'||day===full) return true;
+  return day.split('/').map(x=>x.trim()).includes(full.slice(0,2));
 }
 
 function renderSessionButtons(){
   const ps=getPhaseSettings();
   const sessions=PHASE_PLANS[ps.activePhase].sessions;
-  const dn={'Cardio':'Cardio','LeoMoves':'Funktional','Cardio 2':'Cardio 2','Zone 2':'Cardio','Zone 2b':'Cardio 2'};
-  const dots={1:'var(--accent)',2:'var(--indigo)',3:'var(--amber)',4:'var(--blue)'};
-  const dotColor=dots[ps.activePhase]||'var(--accent)';
+  const activePlan=getPlanForPhase(ps.activePhase);
   const isCardioSess=s=>s.startsWith('Zone')||s.startsWith('Cardio')||s==='LeoMoves'||s==='Functional';
-  const kraftSessions=sessions.filter(s=>!isCardioSess(s));
-  const cardioSessions=sessions.filter(s=>isCardioSess(s));
-  let h='<div class="session-btn-grid">';
-  kraftSessions.forEach(s=>{
-    const plan=getPlanForPhase(ps.activePhase)[s]||{};
-    h+=`<button class="sess-quick-btn" onclick="askDeload('${s}')">
-      <div class="sess-quick-btn-dot" style="background:${dotColor};"></div>
-      <div class="sess-quick-btn-label">${esc(plan.label||s)}</div>
-      <div class="sess-quick-btn-sub">${plan.day||''} · ${plan.duration||''}</div>
+  const card=s=>{
+    const plan=activePlan[s]||{};
+    const kind=plan.type==='leo'?'mobility':(isCardioSess(s)?'cardio':'strength');
+    const today=isPlannedToday(plan.day);
+    const sub=[plan.day,plan.duration&&plan.duration!=='—'?plan.duration:''].filter(Boolean).join(' · ');
+    return `<button class="sess-quick-btn sqb-${kind}${today?' today':''}" data-s="${esc(s)}" onclick="askDeload(this.dataset.s)">
+      <div class="sqb-top"><span class="sqb-icon">${ICONS[kind]}</span>${today?'<span class="sqb-badge">Heute</span>':''}</div>
+      <div class="sess-quick-btn-label">${esc(sessDisplayName(s))}</div>
+      <div class="sess-quick-btn-sub">${esc(sub)}</div>
     </button>`;
-  });
-  h+='</div>';
-  if(cardioSessions.length>0){
-    h+='<div class="g2" style="gap:10px;padding:0 16px;margin-bottom:12px;">';
-    cardioSessions.forEach(s=>{
-      const isLeo=s==='LeoMoves'||s==='Functional';
-      h+=`<button class="sess-quick-btn" onclick="askDeload('${s}')">
-        <div class="sess-quick-btn-dot" style="background:${isLeo?'var(--amber)':'var(--blue)'};"></div>
-        <div class="sess-quick-btn-label">${dn[s]||s}</div>
-        <div class="sess-quick-btn-sub">${isLeo?'Aktive Erholung':'Cardio · HF 120–140'}</div>
-      </button>`;
-    });
-    h+='</div>';
-  }
+  };
   const el=document.getElementById('session-buttons-dynamic');
-  if(el) el.innerHTML=h;
+  if(el) el.innerHTML='<div class="session-btn-grid">'+sessions.map(card).join('')+'</div>';
 }
 
 function renderWeekStats(){
@@ -2148,7 +2273,7 @@ function renderWeekStats(){
   const ws=data.sessions.filter(s=>new Date(s.date)>=sw);
   document.getElementById('stat-sessions').textContent=ws.length;
   let vol=0,sets=0;
-  ws.forEach(s=>{s.exercises&&s.exercises.forEach(ex=>{ex.sets&&ex.sets.forEach(st=>{if(st.weight&&st.reps){vol+=st.weight*st.reps;sets++;}});});});
+  ws.forEach(s=>{s.exercises&&s.exercises.forEach(ex=>{ex.sets&&ex.sets.forEach(st=>{const r=parseInt(st.reps);if(st.isWarmup||isNaN(r))return;sets++;if(st.weight)vol+=st.weight*r*(String(st.reps).includes('/')?2:1);});});});
   document.getElementById('stat-volume').textContent=(vol/1000).toFixed(1);
   document.getElementById('stat-sets').textContent=sets;
   let streak=0;const sorted=[...data.sessions].sort((a,b)=>new Date(b.date)-new Date(a.date));
@@ -2233,7 +2358,7 @@ function quickStartDeload(type){ quickStart(type, true); }
 function askDeload(type){
   const overlay=document.createElement('div');
   overlay.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:900;display:flex;align-items:flex-end;padding:12px 10px 0;';
-  overlay.innerHTML=`<div style="background:var(--surface);border-radius:20px;width:100%;padding:20px 20px calc(env(safe-area-inset-bottom,0px)+20px);">
+  overlay.innerHTML=`<div style="background:var(--surface);border-radius:20px;width:100%;padding:20px 20px calc(env(safe-area-inset-bottom,0px) + 20px);">
     <div style="width:36px;height:4px;background:var(--border2);border-radius:2px;margin:0 auto 18px;"></div>
     <div style="font-size:18px;font-weight:600;margin-bottom:4px;">${esc(sessDisplayName(type))}</div>
     <div style="font-size:13px;color:var(--text2);margin-bottom:20px;">Normale Session oder Deload?</div>
@@ -2487,7 +2612,7 @@ function renderSessionBody(){
           ${getLastSessionHTML(ex.name)}
           ${getProgressionHTML(ex)}
         </div>
-        <div style="font-size:12px;color:var(--text3);text-align:right;flex-shrink:0;margin-left:12px;">${setsLeft} Sätze<br>übrig</div>
+        <div class="sets-left-pill">${setsLeft>0?setsLeft+(setsLeft===1?' Satz':' Sätze')+' übrig':'fertig'}</div>
       </div>
       <div class="curr-ex-body">
         ${doneSetsHTML}
@@ -2690,7 +2815,7 @@ function renderCooldownScreen(){
     <div style="margin:16px 16px 12px;background:var(--bg2);border:1px solid var(--border);border-radius:16px;overflow:hidden;">
       <div style="padding:14px 16px;border-bottom:1px solid var(--border);background:var(--blue-pale);">
         <div style="font-size:11px;font-weight:600;color:var(--blue);text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px;">Cool-down · ~5–7 min</div>
-        <div style="font-size:17px;font-weight:600;">Training abgeschlossen 💪</div>
+        <div style="font-size:17px;font-weight:600;">Training abgeschlossen</div>
       </div>
       <div style="padding:14px 16px;">
         ${wu.cooldown.map((step,i)=>`
@@ -3144,7 +3269,7 @@ function addExtraExercise(){
         <div style="font-size:12px;color:var(--text2);margin-top:2px;">${allEx.length} Übungen</div></div>
         <button id="ex-close" style="background:var(--surface2);border:none;border-radius:50%;width:32px;height:32px;font-size:18px;color:var(--text2);cursor:pointer;">✕</button>
       </div>
-      <div style="overflow-y:auto;flex:1;padding-bottom:calc(env(safe-area-inset-bottom,0px)+8px);">
+      <div style="overflow-y:auto;flex:1;padding-bottom:calc(env(safe-area-inset-bottom,0px) + 8px);">
         ${allEx.map((ex,i)=>{
           const st=exState[i];
           return `<div style="padding:12px 20px;border-bottom:0.5px solid var(--border);">
@@ -3194,7 +3319,7 @@ function addExtraExercise(){
 
   function renderType(){
     const ex=allEx[selectedIdx];
-    overlay.innerHTML=`<div style="background:var(--surface);border-radius:20px;width:100%;padding:20px 20px calc(env(safe-area-inset-bottom,0px)+20px);">
+    overlay.innerHTML=`<div style="background:var(--surface);border-radius:20px;width:100%;padding:20px 20px calc(env(safe-area-inset-bottom,0px) + 20px);">
       <div style="width:40px;height:4px;background:var(--surface3);border-radius:2px;margin:0 auto 20px;"></div>
       <div style="font-size:18px;font-weight:700;margin-bottom:3px;">${ex.name}</div>
       <div style="font-size:12px;color:var(--text2);margin-bottom:24px;font-family:var(--mono);">${ex.target}${ex.weight?' · '+ex.weight+' kg':''}</div>
@@ -3600,7 +3725,7 @@ function finishSession(){
   if(DB.get('anthropicApiKey')&&exercises.length>0){
     setTimeout(()=>{
       const t=document.createElement('div');
-      t.style.cssText='position:fixed;bottom:calc(env(safe-area-inset-bottom,0px)+76px);left:12px;right:12px;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:12px 14px;display:flex;align-items:center;justify-content:space-between;gap:10px;z-index:500;box-shadow:0 4px 20px rgba(0,0,0,.12);';
+      t.style.cssText='position:fixed;bottom:calc(env(safe-area-inset-bottom,0px) + 76px);left:12px;right:12px;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:12px 14px;display:flex;align-items:center;justify-content:space-between;gap:10px;z-index:500;box-shadow:0 4px 20px rgba(0,0,0,.12);';
       t.innerHTML=`<div style="font-size:13px;font-weight:500;">✦ KI-Auswertung verfügbar</div><button class="btn btn-primary" style="padding:6px 14px;font-size:13px;" onclick="this.closest('[style*=fixed]').remove();analyseSession(${_newId})">Analysieren</button><button onclick="this.closest('[style*=fixed]').remove()" style="background:none;border:none;font-size:18px;color:var(--text3);cursor:pointer;padding:0 4px;">×</button>`;
       document.body.appendChild(t);
       setTimeout(()=>{if(t.parentNode)t.remove();},8000);
@@ -3653,7 +3778,7 @@ Halte die Antwort kompakt — maximal 250 Wörter. Keine langen Einleitungen.`;
   // Overlay anzeigen mit Loading
   const overlay=document.createElement('div');
   overlay.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:700;display:flex;align-items:flex-end;padding:12px 10px 0;backdrop-filter:blur(4px);';
-  overlay.innerHTML=`<div id="ki-sheet" style="background:var(--surface);border-radius:20px;width:100%;max-height:88vh;overflow-y:auto;padding:20px 20px calc(env(safe-area-inset-bottom,0px)+20px);">
+  overlay.innerHTML=`<div id="ki-sheet" style="background:var(--surface);border-radius:20px;width:100%;max-height:88vh;overflow-y:auto;padding:20px 20px calc(env(safe-area-inset-bottom,0px) + 20px);">
     <div style="width:40px;height:4px;background:var(--surface3);border-radius:2px;margin:0 auto 16px;"></div>
     <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
       <div style="width:32px;height:32px;border-radius:8px;background:var(--green-pale);display:flex;align-items:center;justify-content:center;font-size:16px;">✦</div>
@@ -3768,7 +3893,7 @@ function editSession(id){
   const overlay=document.createElement('div');
   overlay.id='sess-edit-overlay';
   overlay.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:700;display:flex;align-items:flex-end;padding:12px 10px 0;backdrop-filter:blur(4px);';
-  overlay.innerHTML=`<div class="kb-aware" style="background:var(--surface);border-radius:20px;width:100%;max-height:90vh;overflow-y:auto;padding:20px 20px calc(env(safe-area-inset-bottom,0px)+20px);">
+  overlay.innerHTML=`<div class="kb-aware" style="background:var(--surface);border-radius:20px;width:100%;max-height:90vh;overflow-y:auto;padding:20px 20px calc(env(safe-area-inset-bottom,0px) + 20px);">
     <div style="width:40px;height:4px;background:var(--surface3);border-radius:2px;margin:0 auto 16px;"></div>
     <div style="font-size:17px;font-weight:700;margin-bottom:2px;">Session bearbeiten</div>
     <div style="font-size:12px;color:var(--text2);margin-bottom:16px;">${new Date(s.date).toLocaleDateString('de-DE',{weekday:'long',day:'numeric',month:'long'})}</div>
@@ -3934,7 +4059,7 @@ function showSessionDetail(id){
 
   const overlay=document.createElement('div');
   overlay.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:600;display:flex;align-items:flex-end;padding:12px 10px 0;backdrop-filter:blur(4px);';
-  overlay.innerHTML=`<div style="background:var(--surface);border-radius:20px;width:100%;max-height:88vh;overflow-y:auto;padding:20px 20px calc(env(safe-area-inset-bottom,0px)+20px);">
+  overlay.innerHTML=`<div style="background:var(--surface);border-radius:20px;width:100%;max-height:88vh;overflow-y:auto;padding:20px 20px calc(env(safe-area-inset-bottom,0px) + 20px);">
     <div style="width:40px;height:4px;background:var(--surface3);border-radius:2px;margin:0 auto 20px;"></div>
     ${html}
     <button class="btn btn-ghost btn-full" style="margin-top:10px;" onclick="let _el=this;while(_el&&!_el.style?.zIndex)_el=_el.parentElement;if(_el)_el.remove()">Schließen</button>
@@ -3948,7 +4073,7 @@ function deleteSession(id){
   const overlay=document.createElement('div');
   overlay.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:950;display:flex;align-items:center;justify-content:center;padding:24px;';
   overlay.innerHTML=`<div style="background:var(--surface);border-radius:20px;padding:24px;width:100%;max-width:300px;text-align:center;">
-    <div style="font-size:28px;margin-bottom:12px;">🗑</div>
+    
     <div style="font-size:17px;font-weight:700;margin-bottom:8px;">Session löschen?</div>
     <div style="font-size:13px;color:var(--text2);margin-bottom:20px;">Diese Aktion kann nicht rückgängig gemacht werden.</div>
     <div style="display:flex;flex-direction:column;gap:10px;">
@@ -3973,12 +4098,31 @@ function deleteSession(id){
 }
 
 // ═══ PROGRESS ═══
+let _progEx=null;
+// Auswahl: geloggte Übungen mit Gewicht (häufigste zuerst), sonst die des aktiven Plans
+function progressExercises(){
+  const cnt={};
+  getData().sessions.forEach(s=>(s.exercises||[]).forEach(e=>{
+    if(e.name&&(e.sets||[]).some(st=>typeof st.weight==='number'&&st.weight>0)) cnt[e.name]=(cnt[e.name]||0)+1;
+  }));
+  const names=Object.keys(cnt).sort((a,b)=>cnt[b]-cnt[a]||a.localeCompare(b,'de'));
+  if(names.length) return names;
+  const plan=getActivePlan(); const out=[];
+  getActiveSessions().forEach(k=>((plan[k]||{}).exercises||[]).forEach(e=>{ if(e.weight&&!out.includes(e.name)) out.push(e.name); }));
+  return out;
+}
 function renderProgress(exName){
-  document.getElementById('progress-ex-name').textContent=exName;
+  const list=progressExercises();
+  if(exName) _progEx=exName;
+  if(!_progEx||!list.includes(_progEx)) _progEx=list[0]||'';
+  exName=_progEx;
+  const chips=document.getElementById('ex-filter');
+  if(chips) chips.innerHTML=list.map(n=>`<button class="toggle-btn ${n===exName?'on':''}" data-n="${esc(n)}" onclick="renderProgress(this.dataset.n)">${esc(n)}</button>`).join('');
+  document.getElementById('progress-ex-name').textContent=exName||'Noch keine Daten';
   const data=getData();const points=[];
   data.sessions.forEach(s=>{
     if(!s.exercises)return;
-    const ex=s.exercises.find(e=>(e.name||'').toLowerCase().startsWith(exName.toLowerCase()));
+    const ex=exName?s.exercises.find(e=>(e.name||'').toLowerCase()===exName.toLowerCase()):null;
     if(!ex)return;
     const maxWeight=Math.max(...ex.sets.map(st=>typeof st.weight==='number'?st.weight:0));
     if(maxWeight>0)points.push({date:s.date,weight:maxWeight});
@@ -4080,7 +4224,7 @@ function renderPlanSessions(phaseNum){
         </div>
         <div style="flex:1;cursor:pointer;" onclick="openExerciseEditor(${phaseNum},'${key}',${i})">
           <div style="font-size:13px;font-weight:500;">${ex.name}</div>
-          <div style="font-size:11px;color:var(--text2);font-family:var(--mono);margin-top:1px;">${ex.target}${ex.weight?` · ${ex.weight} ${ex.unit}`:''}${ex.isCluster?' · Cluster':''}</div>
+          <div style="font-size:11px;color:var(--text2);font-family:var(--mono);margin-top:1px;">${ex.target}${ex.weight?` · ${ex.weight} ${ex.unit}`:''}</div>
           ${variation?`<div style="font-size:10px;color:var(--blue);margin-top:2px;">↻ ${variation}</div>`:''}
         </div>
         <button onclick="deleteExercise(${phaseNum},'${key}',${i})" style="background:none;border:none;color:var(--text3);font-size:18px;cursor:pointer;padding:4px;line-height:1;flex-shrink:0;">✕</button>
@@ -4205,7 +4349,7 @@ function _showExSheet(phaseNum, sessionKey, exIdx, ex){
   overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:900;display:flex;align-items:flex-end;padding:12px 10px 0;';
   const isNew = exIdx === null;
 
-  overlay.innerHTML = `<div style="background:var(--surface);border-radius:20px;width:100%;max-height:90vh;overflow-y:auto;padding:20px 20px calc(env(safe-area-inset-bottom,0px)+20px);">
+  overlay.innerHTML = `<div style="background:var(--surface);border-radius:20px;width:100%;max-height:90vh;overflow-y:auto;padding:20px 20px calc(env(safe-area-inset-bottom,0px) + 20px);">
     <div style="width:36px;height:4px;background:var(--border2);border-radius:2px;margin:0 auto 16px;"></div>
     <div style="font-size:17px;font-weight:600;margin-bottom:16px;">${isNew?'Übung hinzufügen':'Übung bearbeiten'}</div>
 
@@ -4508,7 +4652,7 @@ function importData(){
 function clearAllData(){
   const overlay=document.createElement('div');
   overlay.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:900;display:flex;align-items:center;justify-content:center;padding:24px;';
-  overlay.innerHTML=`<div style="background:var(--bg2);border:1px solid var(--border);border-radius:20px;padding:24px;width:100%;max-width:320px;text-align:center;"><div style="font-size:32px;margin-bottom:12px;">🗑</div><div style="font-size:17px;font-weight:600;margin-bottom:8px;">Alle Daten löschen?</div><div style="font-size:13px;color:var(--text2);margin-bottom:24px;">Nicht rückgängig zu machen.</div><div style="display:flex;flex-direction:column;gap:10px;"><button class="btn btn-danger btn-full" id="confirm-clear-yes">Ja, alles löschen</button><button class="btn btn-ghost btn-full" id="confirm-clear-no">Abbrechen</button></div></div>`;
+  overlay.innerHTML=`<div style="background:var(--bg2);border:1px solid var(--border);border-radius:20px;padding:24px;width:100%;max-width:320px;text-align:center;"><div style="font-size:17px;font-weight:600;margin-bottom:8px;">Alle Daten löschen?</div><div style="font-size:13px;color:var(--text2);margin-bottom:24px;">Nicht rückgängig zu machen.</div><div style="display:flex;flex-direction:column;gap:10px;"><button class="btn btn-danger btn-full" id="confirm-clear-yes">Ja, alles löschen</button><button class="btn btn-ghost btn-full" id="confirm-clear-no">Abbrechen</button></div></div>`;
   document.body.appendChild(overlay);
   document.getElementById('confirm-clear-yes').addEventListener('click',()=>{overlay.remove();DB.delete('trainingData');showToast('Daten gelöscht');renderHeutePage();renderFullLog();});
   document.getElementById('confirm-clear-no').addEventListener('click',()=>overlay.remove());
@@ -4524,7 +4668,7 @@ function applyTheme(mode){
   if(dark){ document.documentElement.setAttribute('data-theme','dark'); }
   else{ document.documentElement.removeAttribute('data-theme'); }
   const meta=document.querySelector('meta[name="theme-color"]');
-  if(meta) meta.setAttribute('content', dark ? '#0C0E12' : '#0a0a0a');
+  if(meta) meta.setAttribute('content', dark ? '#12100E' : '#F4F1EC');
   // Umschalter-UI aktualisieren, falls sichtbar
   document.querySelectorAll('[data-theme-opt]').forEach(b=>{
     b.classList.toggle('theme-opt-active', b.getAttribute('data-theme-opt')===mode);
